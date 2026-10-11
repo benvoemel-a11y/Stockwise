@@ -323,6 +323,13 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <summary><h2>Abgeschlossen</h2><span class="meta" id="goal-done-meta"></span></summary>
         <div class="list" id="goal-done"></div>
       </details>
+      <details class="fold" id="fold-streaks" open>
+        <summary><h2>Streaks</h2><span class="meta" id="streak-meta"></span></summary>
+        <div class="stack">
+          <div id="streak-list"></div>
+          <button class="btn ghost" type="button" id="add-streak">Neue Streak</button>
+        </div>
+      </details>
       <div class="sec-head"><h2>Shorts</h2><span class="meta">Wette auf dich selbst</span></div>
       <div id="short-list"></div>
       <button class="btn ghost" type="button" id="add-short">Short eröffnen</button>
@@ -515,7 +522,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     </div>
     <button class="btn" type="submit">Speichern</button>
     <details class="fold" id="fold-rules">
-      <summary><h2>Regelwerk</h2><span class="meta">11 Regeln</span></summary>
+      <summary><h2>Regelwerk</h2><span class="meta">12 Regeln</span></summary>
       <div class="list">
         <details class="rule"><summary>Währung und Depot</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei <b>1.000,00 LPI</b>.</p><p>Das Depot kann ins Minus fallen. Eine Untergrenze gibt es nicht.</p></div></details>
         <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von <b>100 bis 2.000 LPI</b> in 100er-Schritten.</p>
@@ -530,13 +537,37 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b> seines Betrags.</p></div></details>
         <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor startet bei 1.000,00 LPI und bewegt sich nur durch seine eigenen Trades. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
         <details class="rule"><summary>Ziele und Dividenden</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von <b>1 bis 10 %</b>. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p><p><b>Serien-Dividende:</b> Schaffst du einen positiven Trade 7 Tage in Folge, gibt es <b>+1,00 %</b> auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p><p>Prozente rechnen immer mit dem Betrag des Depots. Steht es bei −2.000 LPI, bringt eine Dividende von 5 % also +100 LPI.</p></div></details>
+        <details class="rule"><summary>Streaks</summary><div><p>Eine Streak zählt die Tage, seit denen du einen negativen Trade nicht mehr gemacht hast. Du wählst den Trade und das Datum, seit dem du verzichtest.</p><p><b>Alle 7 Tage ohne</b> gibt es <b>+1,00 %</b> aufs ganze Depot. Für Tage vor dem Anlegen der Streak gibt es nichts nachträglich.</p><p>Trägst du den Trade ein, beginnt die Streak von vorn. Die längste Serie bleibt sichtbar.</p></div></details>
         <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag, zusätzlich zum Trade selbst.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b> in LPI. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
-        <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele und Shorts. Dein Name und deine Trades bleiben.</p></div></details>
+        <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele, Streaks und Shorts. Dein Name und deine Trades bleiben.</p></div></details>
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 22</div>
+    <div class="note" style="text-align:center">Version 23</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
+  </form>
+</div>
+
+<!-- streak sheet -->
+<div class="backdrop" id="streak-backdrop" hidden>
+  <form class="sheet" id="streak-form" novalidate>
+    <div class="grab"></div>
+    <h2 id="streak-title">Neue Streak</h2>
+    <div class="field" id="streak-pick-field">
+      <div class="lab">Worauf verzichtest du?</div>
+      <div class="list" id="streak-pick"></div>
+    </div>
+    <div class="field">
+      <label for="k-date">Ohne seit</label>
+      <input class="inp" id="k-date" type="date">
+    </div>
+    <p class="note" id="streak-note"></p>
+    <div class="err" id="k-err" hidden></div>
+    <div class="actions">
+      <button class="btn" type="submit">Speichern</button>
+      <button class="btn danger" type="button" id="k-delete" hidden>Streak löschen</button>
+      <button class="btn ghost" type="button" data-close>Abbrechen</button>
+    </div>
   </form>
 </div>
 
@@ -602,7 +633,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
 <script>
 (function(){
 'use strict';
-var KEY='mytrade.v1', TKEY='mytrade.theme', START=1000, MISS=1, STREAK=1;
+var KEY='mytrade.v1', TKEY='mytrade.theme', START=1000, MISS=1, STREAK=1, STREAK_DIV=1;
 var $=function(s){return document.querySelector(s)};
 var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
 var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
@@ -727,7 +758,7 @@ function fromV4(name,x){
 }
 function freshState(){
   var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4]}});
-  return {v:6,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
+  return {v:6,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[],streaks:[]};
 }
 
 /* ---------- state ---------- */
@@ -736,7 +767,7 @@ function load(){
     if(!s||!Array.isArray(s.habits)||!Array.isArray(s.logs))return null;
     /* example data from an earlier version: keep the trades, drop every entry, goal and short */
     if(s.demo){s.demo=false;s.logs=[];s.goals=[];s.shorts=[];s.startTs=sod(Date.now())}
-    s.goals=Array.isArray(s.goals)?s.goals:[];s.shorts=Array.isArray(s.shorts)?s.shorts:[];
+    s.goals=Array.isArray(s.goals)?s.goals:[];s.shorts=Array.isArray(s.shorts)?s.shorts:[];s.streaks=Array.isArray(s.streaks)?s.streaks:[];
     s.profile=s.profile||{name:'',age:''};
     s.habits.forEach(function(h){h.sector=normSec(h.sector,h.name)});
     if((s.v||0)<5){
@@ -759,7 +790,7 @@ try{var pr=JSON.parse(localStorage.getItem('mytrade.profile')||'null');
 /* one-time reset requested for version 17: every saved depot starts again at 1,000 LPI */
 try{if(localStorage.getItem('mytrade.wipe')!=='17'){state.logs=[];state.goals=[];state.shorts=[];state.demo=false;state.startTs=sod(Date.now());localStorage.setItem('mytrade.wipe','17')}}catch(e){}
 save();
-var series=[], secSeries={}, shortInfo={};
+var series=[], secSeries={}, shortInfo={}, streakInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
 function stake(w,days){return Math.round(w*days/4)}
 
@@ -790,6 +821,21 @@ function rebuild(){
     else if(now>=end){shortInfo[s.id]={state:'won',ts:end,end:end,stake:st};ev.push({ts:end,pts:st,kind:'short',name:'Short gewonnen · '+s.name})}
     else shortInfo[s.id]={state:'open',end:end,stake:st};
   });
+  /* streaks: days since a negative trade was last entered. Every 7th day of a run pays out, but only days reached after the streak was added. */
+  streakInfo={};
+  state.streaks.forEach(function(k){
+    var breaks=state.logs.filter(function(l){return l.habitId===k.habitId&&l.ts>=k.start}).map(function(l){return l.ts});
+    var runs=[k.start].concat(breaks), best=0;
+    runs.forEach(function(rs,i){
+      var end=i+1<runs.length?runs[i+1]:now;
+      best=Math.max(best,dayDiff(end,rs));
+      for(var m=addDays(sod(rs),7),n=7;m<=end&&m<=now;m=addDays(m,7),n+=7){
+        if(m>k.created)ev.push({ts:m,pc:STREAK_DIV,kind:'div',all:true,st:true,name:'Streak-Dividende · Ohne '+k.name+' ('+n+' Tage)'});
+      }
+    });
+    var cur=runs[runs.length-1], days=Math.max(0,dayDiff(now,cur));
+    streakInfo[k.id]={since:cur,days:days,best:Math.max(best,days),next:7-(days%7),breaks:breaks.length};
+  });
   for(var d=sod(state.startTs);d<today;d=addDays(d,1)){if(!has[d])ev.push({ts:addDays(d,1)-1,pc:-MISS,kind:'miss',name:'Tag ohne Trade'})}
   ev.sort(function(a,b){return a.ts-b.ts});
   var p=START;
@@ -813,7 +859,7 @@ function curPrice(){return series.length?series[series.length-1].price:START}
 /* ---------- sheets ---------- */
 function open(name){$('#'+name+'-backdrop').hidden=false}
 function close(name){$('#'+name+'-backdrop').hidden=true}
-['habit','goal','short','profile','entry','strength'].forEach(function(n){
+['habit','goal','short','profile','entry','strength','streak'].forEach(function(n){
   var b=$('#'+n+'-backdrop');
   b.addEventListener('click',function(e){if(e.target===b||e.target.closest('[data-close]'))close(n)});
 });
@@ -1109,7 +1155,7 @@ function dueText(g){
   return dFull.format(g.date)+' · '+(n>1?'in '+n+' Tagen':n===1?'morgen':n===0?'heute fällig':n===-1?'seit gestern fällig':'seit '+(-n)+' Tagen fällig');
 }
 function renderGoals(){
-  renderPGoals();
+  renderPGoals();renderStreaks();
   var today=sod(Date.now());
   var opn=state.goals.filter(function(g){return g.status==='open'}).sort(function(a,b){return a.date-b.date});
   var done=state.goals.filter(function(g){return g.status!=='open'}).sort(function(a,b){return (b.doneTs||b.date)-(a.doneTs||a.date)});
@@ -1138,6 +1184,55 @@ function renderGoals(){
     return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">'+o.s.days+' Tage · '+(won?'gewonnen am ':'verloren am ')+esc(dShort.format(o.i.ts))+'</span></span><span class="eff '+(won?'up':'down')+'">'+lpi(won?o.i.stake:-o.i.stake)+'</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('');
 }
+var dDate=new Intl.DateTimeFormat('de-DE',{day:'numeric',month:'short',year:'numeric'});
+function renderStreaks(){
+  var sk=state.streaks;
+  $('#streak-meta').textContent=sk.length?sk.length+(sk.length===1?' Streak':' Streaks'):'';
+  $('#streak-list').innerHTML=sk.length?'<div class="list">'+sk.map(function(k){
+    var i=streakInfo[k.id]||{days:0,since:k.start,next:7};
+    return '<button class="row" type="button" data-streak="'+k.id+'"><span class="row-name">Ohne '+esc(k.name)+'<span class="row-sub">seit '+esc(dDate.format(i.since))+' · Dividende in '+i.next+(i.next===1?' Tag':' Tagen')+'</span></span>'+
+      '<span class="eff up">'+nf0.format(i.days)+(i.days===1?' Tag':' Tage')+'</span><span class="chev" aria-hidden="true">›</span></button>';
+  }).join('')+'</div>':'<div class="empty">Noch keine Streak. Zähle die Tage, seit denen du etwas nicht mehr machst, und kassiere dafür Dividende.</div>';
+}
+var streakEdit=null, streakPick=null;
+function freeForStreak(){return state.habits.filter(function(h){return h.type==='bad'&&!state.streaks.some(function(k){return k.habitId===h.id})})}
+function renderStreakSheet(){
+  var k=streakEdit;
+  $('#streak-title').textContent=k?'Ohne '+k.name:'Neue Streak';
+  $('#streak-pick-field').hidden=!!k;$('#k-delete').hidden=!k;
+  if(!k)$('#streak-pick').innerHTML=freeForStreak().map(function(x){
+    var on=x.id===streakPick;
+    return '<button class="row bad" type="button" data-kpick="'+x.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+esc(x.name)+'</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
+  }).join('');
+  var i=k&&streakInfo[k.id];
+  $('#streak-note').textContent=(i?'Aktuell '+nf0.format(i.days)+(i.days===1?' Tag':' Tage')+', längste Serie '+nf0.format(i.best)+(i.best===1?' Tag':' Tage')+'. ':'')+'Alle 7 Tage ohne gibt es +'+nf.format(STREAK_DIV)+' % aufs ganze Depot. Für Tage vor dem Anlegen gibt es nichts nachträglich. Trägst du den Trade ein, beginnt die Streak von vorn.';
+}
+function openStreak(k){
+  streakEdit=k||null;
+  if(!k){var free=freeForStreak();
+    if(!free.length){toast(state.habits.some(function(h){return h.type==='bad'})?'Für jeden negativen Trade läuft schon eine Streak.':'Lege zuerst einen negativen Trade an.');return}
+    streakPick=free[0].id}
+  $('#k-date').value=toInput(k?k.start:Date.now());$('#k-date').max=toInput(Date.now());$('#k-err').hidden=true;
+  renderStreakSheet();open('streak');
+}
+$('#add-streak').addEventListener('click',function(){openStreak(null)});
+$('#streak-pick').addEventListener('click',function(e){var b=e.target.closest('[data-kpick]');if(b){streakPick=b.getAttribute('data-kpick');renderStreakSheet()}});
+$('#streak-form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var date=fromInput($('#k-date').value), err=$('#k-err'), prev=curPrice();
+  if(isNaN(date)){err.textContent='Wähle ein Datum.';err.hidden=false;return}
+  if(date>sod(Date.now())){err.textContent='Das Datum darf nicht in der Zukunft liegen.';err.hidden=false;return}
+  if(streakEdit){streakEdit.start=date;var nm=streakEdit.name;streakEdit=null;close('streak');commit(prev,'Streak ohne '+nm+' gespeichert');return}
+  var h=habitById(streakPick);if(!h)return;
+  state.streaks.push({id:uid(),habitId:h.id,name:h.name,start:date,created:Date.now()});
+  close('streak');commit(prev,'Streak ohne '+h.name+' gestartet');
+});
+$('#k-delete').addEventListener('click',function(){
+  var k=streakEdit;if(!k)return;close('streak');
+  ask('Streak löschen?','„Ohne '+k.name+'“: Die Streak verschwindet. Schon ausgeschüttete Dividenden werden aus deinem Depot herausgerechnet.','Streak löschen',function(){
+    var prev=curPrice();state.streaks=state.streaks.filter(function(x){return x.id!==k.id});streakEdit=null;commit(prev,'Streak gelöscht');
+  },function(){open('streak')});
+});
 var DIV_LEVELS=['Kleines Ziel','Solides Ziel','Großes Ziel','Sehr großes Ziel','Lebensziel'];
 function syncGoal(){var v=+$('#g-div').value;$('#g-val').textContent=pct(v);$('#g-lvl').textContent=DIV_LEVELS[Math.min(4,Math.floor((v-1)/2))]}
 $('#g-div').addEventListener('input',syncGoal);
@@ -1161,6 +1256,8 @@ $('#view-goals').addEventListener('click',function(e){
       var prev=curPrice();g.status='hit';g.doneTs=Date.now();commit(prev,'Dividende '+pct(g.div)+' aufs ganze Depot');
     },null,'btn');
     return}
+  var sk0=e.target.closest('[data-streak]');
+  if(sk0){var k0=state.streaks.filter(function(x){return x.id===sk0.getAttribute('data-streak')})[0];if(k0)openStreak(k0);return}
   var sh=e.target.closest('[data-short]');
   if(sh){var s0=state.shorts.filter(function(x){return x.id===sh.getAttribute('data-short')})[0];if(s0){shortEdit=s0;shortDays=s0.days;renderShortSheet();open('short')}return}
   var b=e.target.closest('[data-goal]');if(b)openGoal(goalById(b.getAttribute('data-goal')));
@@ -1232,14 +1329,14 @@ $('#c-cancel').addEventListener('click',function(){closeAsk(false)});
 $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)closeAsk(false)});
 $('#reset-all').addEventListener('click',function(){
   close('profile');
-  ask('Depot zurücksetzen?','Alle Einträge, Ziele und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
-    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+  ask('Depot zurücksetzen?','Alle Einträge, Ziele, Streaks und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
+    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
   },function(){open('profile')});
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
-    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();
     $('#p-name').value=state.profile.name||'';$('#p-age').value=state.profile.age||'';open('profile');
   },null,'btn');
@@ -1336,7 +1433,7 @@ function renderReport(){
 
   var dv=evs.filter(function(x){return x.kind==='div'}).reverse();
   $('#rep-div').innerHTML=dv.length?dv.map(function(x){
-    return '<div class="row"><div class="row-name">'+esc(x.name.replace(/^(Serien-)?Dividende · /,''))+'<span class="row-sub">'+(x.all?'Ziel erreicht · ganzes Depot':'7 Tage in Folge')+' · '+esc(dDay.format(x.ts))+'</span></div><span class="eff up">'+pct(x.pc)+'</span></div>';
+    return '<div class="row"><div class="row-name">'+esc(x.name.replace(/^(Serien-|Streak-)?Dividende · /,''))+'<span class="row-sub">'+(x.st?'Streak · ganzes Depot':x.all?'Ziel erreicht · ganzes Depot':'7 Tage in Folge')+' · '+esc(dDay.format(x.ts))+'</span></div><span class="eff up">'+pct(x.pc)+'</span></div>';
   }).join(''):'<div class="kv"><span>Keine Dividende in diesem Zeitraum.</span><span></span></div>';
   $('#rep-kv').innerHTML=
     '<div class="kv"><span>Depot</span><span>'+fmt(p0)+' → '+fmt(p1)+' LPI</span></div>'+
@@ -1440,7 +1537,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden){reb
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
   if(!$('#confirm-backdrop').hidden){closeAsk(false);return}
-  ['strength','entry','profile','short','goal','habit'].some(function(n){if(!$('#'+n+'-backdrop').hidden){close(n);return true}return false});
+  ['strength','streak','entry','profile','short','goal','habit'].some(function(n){if(!$('#'+n+'-backdrop').hidden){close(n);return true}return false});
 });
 
 /* ---------- folds ---------- */
