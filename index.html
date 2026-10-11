@@ -406,8 +406,8 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     </div>
     <div class="field">
       <label for="f-weight" id="f-weight-lab">Wie gut ist es?</label>
-      <div class="wrow"><span class="wval" id="f-wval">50 %</span><span class="wlvl" id="f-wlvl"></span></div>
-      <input type="range" id="f-weight" min="1" max="100" step="1" value="50">
+      <div class="wrow"><span class="wval" id="f-wval">500 LPI</span><span class="wlvl" id="f-wlvl"></span></div>
+      <input type="range" id="f-weight" min="0" max="5" step="1" value="4">
       <div class="note" id="f-effect"></div>
     </div>
     <details class="help" id="f-help">
@@ -416,7 +416,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <div class="q"><label for="f-q1" id="f-q1l"></label><input type="range" id="f-q1" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
         <div class="q"><label for="f-q2" id="f-q2l"></label><input type="range" id="f-q2" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
         <div class="q"><label for="f-q3" id="f-q3l"></label><input type="range" id="f-q3" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
-        <div class="sugg"><span>Ergebnis: <b id="f-sugg">53 %</b></span><button class="btn ghost small" type="button" id="f-apply">Übernehmen</button></div>
+        <div class="sugg"><span>Ergebnis: <b id="f-sugg">500 LPI</b></span><button class="btn ghost small" type="button" id="f-apply">Übernehmen</button></div>
       </div>
     </details>
     <label class="switch" for="f-multi"><span>Mehrmals pro Tag zählbar</span><input type="checkbox" id="f-multi"></label>
@@ -516,19 +516,20 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <details class="fold" id="fold-rules">
       <summary><h2>Regelwerk</h2><span class="meta">8 Regeln</span></summary>
       <div class="list">
-        <details class="rule"><summary>Währung</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei 1.000,00 LPI.</p></div></details>
-        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von 1 bis 100 %. Die Bewertung ist die Bewegung: <b>80 % bewegen dein Depot um 0,80 %</b>.</p>
-          <div class="mini"><b>1–20 %</b><span>Kleinigkeit oder Ausrutscher</span><b>21–40 %</b><span>Solide Routine, bremst etwas</span><b>41–60 %</b><span>Bringt dich voran, wirft dich zurück</span><b>61–80 %</b><span>Echte Überwindung, echter Schaden</span><b>81–100 %</b><span>Meilenstein oder Rückfall</span></div></div></details>
+        <details class="rule"><summary>Währung</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei 1.000,00 LPI und kann nicht unter 0 fallen.</p></div></details>
+        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn in LPI. Um genau diesen Betrag steigt oder fällt dein Depot: <b>Ein Trade mit 1.000 LPI bewegt es um 1.000 LPI</b>.</p>
+          <div class="mini"><b>100 LPI</b><span>Kleinigkeit oder Ausrutscher</span><b>200 LPI</b><span>Solide Routine, bremst etwas</span><b>300 LPI</b><span>Bringt dich voran, wirft dich zurück</span><b>400 LPI</b><span>Echte Überwindung, echter Schaden</span><b>500 LPI</b><span>Starke Leistung, schwerer Fehltritt</span><b>1.000 LPI</b><span>Meilenstein oder Rückfall</span></div>
+          <p>Bis 500 LPI geht es in 100er-Schritten. Alles, was darüber liegt, zählt 1.000 LPI.</p></div></details>
         <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b>.</p></div></details>
         <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor hat einen eigenen Wert. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
         <details class="rule"><summary>Ziele und Dividende</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von 1 bis 10 %. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p></div></details>
         <details class="rule"><summary>Serien-Dividende</summary><div><p>Schaffst du einen positiven Trade <b>7 Tage in Folge</b>, gibt es +1,00 % auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p></div></details>
-        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b>. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
+        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b> in LPI. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
         <details class="rule"><summary>Bearbeiten und Löschen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf. Das Depot wird dann neu berechnet.</p></div></details>
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 17</div>
+    <div class="note" style="text-align:center">Version 18</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -542,7 +543,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <div class="field">
       <label for="e-weight">Bewertung dieses Eintrags</label>
       <div class="wrow"><span class="wval" id="e-val"></span><span class="wlvl" id="e-lvl"></span></div>
-      <input type="range" id="e-weight" min="1" max="100" step="1" value="50">
+      <input type="range" id="e-weight" min="0" max="5" step="1" value="4">
       <div class="note">Die Änderung gilt nur für diesen einen Eintrag. Dein Depot wird neu berechnet.</div>
     </div>
     <div class="actions">
@@ -587,9 +588,18 @@ var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s
 var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var nf=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
 var fmt=function(n){return nf.format(n)};
-var r2=function(n){return Math.round(n*100)/100};
+var r2=function(n){return isFinite(n)?Math.round(n*100)/100:0};
+var fin=function(n){return isFinite(n)?n:0};
 var signed=function(n){n=r2(n);return (n>0?'+':n<0?'−':'')+nf.format(Math.abs(n))};
 var pct=function(n){return signed(n)+' %'};
+/* Trades are valued in LPI points: 100 to 500 in steps of 100, then 1,000. */
+var nf0=new Intl.NumberFormat('de-DE',{maximumFractionDigits:0});
+var PTS=[100,200,300,400,500,1000];
+function toPts(p){p=+p||0;return p>50?1000:Math.max(100,Math.ceil(p/10)*100)}
+function validPts(w){w=+w||0;return PTS.indexOf(w)>=0?w:(w>500?1000:Math.max(100,Math.min(500,Math.round(w/100)*100)))}
+var lpi=function(n){n=Math.round(fin(n));return (n>0?'+':n<0?'−':'')+nf0.format(Math.abs(n))+' LPI'};
+function eff(x){return x.pts!=null?lpi(x.pts):pct(x.pc)}
+function effCls(x){return cls(x.pts!=null?x.pts:x.pc)}
 var cls=function(n){n=r2(n);return n>0?'up':n<0?'down':'flat'};
 var arrow=function(n){n=r2(n);return n>0?'▲':n<0?'▼':'–'};
 var dDay=new Intl.DateTimeFormat('de-DE',{weekday:'short',day:'numeric',month:'short'});
@@ -649,13 +659,13 @@ $('#brand-btn').addEventListener('click',function(){brandOn=!brandOn;try{localSt
 applyBrand();
 
 /* ---------- demo ---------- */
-var DEMO=[['Training','good',70,'koerper',0,.3],['30 Min lernen','good',60,'kopf',1,.4],['Schrittziel erreicht','good',50,'koerper',0,.55],
-          ['Vor 23 Uhr im Bett','good',40,'koerper',0,.3],['20 Min lesen','good',30,'kopf',0,.35],['Ausgaben notiert','good',20,'geld',0,.6],
-          ['Alkohol','bad',80,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',60,'kopf',1,.5],['Fast Food','bad',50,'koerper',0,.25],
-          ['Impulskauf','bad',50,'geld',0,.15],['Nach Mitternacht ins Bett','bad',40,'koerper',0,.4]];
+var DEMO=[['Training','good',1000,'koerper',0,.3],['30 Min lernen','good',1000,'kopf',1,.4],['Schrittziel erreicht','good',500,'koerper',0,.55],
+          ['Vor 23 Uhr im Bett','good',400,'koerper',0,.3],['20 Min lesen','good',300,'kopf',0,.35],['Ausgaben notiert','good',200,'geld',0,.6],
+          ['Alkohol','bad',1000,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',1000,'kopf',1,.5],['Fast Food','bad',500,'koerper',0,.25],
+          ['Impulskauf','bad',500,'geld',0,.15],['Nach Mitternacht ins Bett','bad',400,'koerper',0,.4]];
 function freshState(){
   var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4]}});
-  return {v:3,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
+  return {v:4,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
 }
 
 /* ---------- state ---------- */
@@ -666,7 +676,8 @@ function load(){
     if(s.demo){s.demo=false;s.logs=[];s.goals=[];s.shorts=[];s.startTs=sod(Date.now())}
     s.goals=Array.isArray(s.goals)?s.goals:[];s.shorts=Array.isArray(s.shorts)?s.shorts:[];
     s.profile=s.profile||{name:'',age:''};
-    s.habits.forEach(function(h){h.sector=normSec(h.sector,h.name)});s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
+    s.habits.forEach(function(h){h.sector=normSec(h.sector,h.name)});
+    if((s.v||0)<4){s.habits.forEach(function(h){h.weight=toPts(h.weight)});s.logs.forEach(function(l){l.weight=toPts(l.weight)});s.shorts.forEach(function(x){x.weight=toPts(x.weight)});s.v=4}s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
     if(!s.startTs)s.startTs=s.logs.length?sod(Math.min.apply(null,s.logs.map(function(l){return l.ts}))):sod(Date.now());
     return s}catch(e){return null}
 }
@@ -680,16 +691,16 @@ try{if(localStorage.getItem('mytrade.wipe')!=='17'){state.logs=[];state.goals=[]
 save();
 var series=[], secSeries={}, shortInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
-function stake(w,days){return r2(w/100*days/4)}
+function stake(w,days){return Math.round(w*days/4)}
 
-/* Price model: every event multiplies the price by (1 + pc/100).
+/* Price model: trades and settled shorts add or remove LPI points (never below 0); every other event multiplies by (1 + pc/100).
    Events: trades (rating/100), a finished day without a trade (-MISS), goal dividends,
    streak dividends (7 days in a row of one positive trade), settled shorts. */
 function rebuild(){
   var now=Date.now(), today=sod(now), ev=[], has={}, byH={};
   state.logs.sort(function(a,b){return a.ts-b.ts});
   state.logs.forEach(function(l){
-    ev.push({ts:l.ts,pc:(l.type==='good'?1:-1)*l.weight/100,kind:'log',log:l,name:l.name});
+    ev.push({ts:l.ts,pts:(l.type==='good'?1:-1)*l.weight,kind:'log',log:l,name:l.name});
     var d=sod(l.ts);has[d]=1;
     if(l.type==='good'){var m=byH[l.habitId]||(byH[l.habitId]={name:l.name,sec:normSec(l.sector,l.name),days:{}});if(!(d in m.days))m.days[d]=l.ts;m.name=l.name}
   });
@@ -705,20 +716,20 @@ function rebuild(){
   state.shorts.forEach(function(s){
     var end=addDays(s.start,s.days), st=stake(s.weight,s.days), brk=null;
     for(var i=0;i<state.logs.length;i++){var l=state.logs[i];if(l.habitId===s.habitId&&l.ts>s.start&&l.ts<=end){brk=l;break}}
-    if(brk){shortInfo[s.id]={state:'lost',ts:brk.ts+1,end:end,stake:st};ev.push({ts:brk.ts+1,pc:-st,kind:'short',name:'Short verloren · '+s.name})}
-    else if(now>=end){shortInfo[s.id]={state:'won',ts:end,end:end,stake:st};ev.push({ts:end,pc:st,kind:'short',name:'Short gewonnen · '+s.name})}
+    if(brk){shortInfo[s.id]={state:'lost',ts:brk.ts+1,end:end,stake:st};ev.push({ts:brk.ts+1,pts:-st,kind:'short',name:'Short verloren · '+s.name})}
+    else if(now>=end){shortInfo[s.id]={state:'won',ts:end,end:end,stake:st};ev.push({ts:end,pts:st,kind:'short',name:'Short gewonnen · '+s.name})}
     else shortInfo[s.id]={state:'open',end:end,stake:st};
   });
   for(var d=sod(state.startTs);d<today;d=addDays(d,1)){if(!has[d])ev.push({ts:addDays(d,1)-1,pc:-MISS,kind:'miss',name:'Tag ohne Trade'})}
   ev.sort(function(a,b){return a.ts-b.ts});
   var p=START;
-  series=ev.map(function(e){p*=1+e.pc/100;e.price=p;return e});
+  series=ev.map(function(e){p=e.pts!=null?Math.max(0,p+e.pts):p*(1+e.pc/100);e.price=p;return e});
   /* sector prices: own trades and streak dividends; goal dividends lift the whole depot */
   secSeries={};var sp={};
   SECTORS.forEach(function(x){secSeries[x.id]=[];sp[x.id]=START});
   series.forEach(function(e){
     var ks=e.kind==='log'?[normSec(e.log.sector,e.log.name)]:e.all?SECTORS.map(function(x){return x.id}):e.sec?[e.sec]:[];
-    ks.forEach(function(k){sp[k]*=1+e.pc/100;secSeries[k].push({ts:e.ts,price:sp[k]})});
+    ks.forEach(function(k){sp[k]=e.pts!=null?Math.max(0,sp[k]+e.pts):sp[k]*(1+e.pc/100);secSeries[k].push({ts:e.ts,price:sp[k]})});
   });
 }
 function priceIn(arr,ts){
@@ -853,7 +864,7 @@ function animatePrice(from,to){
 
 /* ---------- today + sectors ---------- */
 var editMode=false;
-function effect(h){return (h.type==='good'?'+':'−')+nf.format(h.weight/100)+' %'}
+function effect(h){return (h.type==='good'?'+':'−')+nf0.format(h.weight)+' LPI'}
 function renderToday(){
   var t0=sod(Date.now()), todays=state.logs.filter(function(l){return l.ts>=t0}), counts={};
   todays.forEach(function(l){counts[l.habitId]=(counts[l.habitId]||0)+1});
@@ -873,7 +884,7 @@ function renderToday(){
       var c=counts[h.id]||0, n=esc(h.name), act;
       if(editMode){
         html+='<button class="row '+h.type+'" type="button" data-edit="'+h.id+'"><span class="row-name">'+n+'<span class="row-sub">'+secName(h.sector)+(h.multi?' · mehrmals pro Tag':'')+'</span></span>'+
-          '<span class="rate '+(h.type==='good'?'up':'down')+'">'+h.weight+' %</span><span class="chev" aria-hidden="true">›</span></button>';
+          '<span class="rate '+(h.type==='good'?'up':'down')+'">'+nf0.format(h.weight)+' LPI</span><span class="chev" aria-hidden="true">›</span></button>';
         return;
       }
       if(h.multi){
@@ -944,29 +955,29 @@ $('#add-habit').addEventListener('click',function(){openSheet(null)});
 $('#edit-toggle').addEventListener('click',function(){editMode=!editMode;this.textContent=editMode?'Fertig':'Bearbeiten';renderToday()});
 $('#f-sectors').innerHTML=SECTORS.map(function(s){return '<label><input type="radio" name="f-sector" id="f-sec-'+s.id+'" value="'+s.id+'"><span class="n">'+s.name+'</span></label>'}).join('');
 
-var LEVELS={good:['Kleinigkeit','Solide Routine','Bringt dich voran','Echte Überwindung','Meilenstein'],
-            bad:['Ausrutscher','Bremst dich etwas','Wirft dich zurück','Schadet dir deutlich','Rückfall']};
+var LEVELS={good:['Kleinigkeit','Solide Routine','Bringt dich voran','Echte Überwindung','Starke Leistung','Meilenstein'],
+            bad:['Ausrutscher','Bremst dich etwas','Wirft dich zurück','Schadet dir deutlich','Schwerer Fehltritt','Rückfall']};
 var QS={good:['Wie sehr bringt es dich deinem Ziel näher?','Wie viel Überwindung kostet es dich?','Wie viel Zeit oder Kraft steckt drin?'],
         bad:['Wie sehr schadet es dir oder deinem Ziel?','Wie lange wirkt es nach?','Wie sehr ärgerst du dich danach?']};
 var editing=null;
 function fType(){return $('#f-type-bad').checked?'bad':'good'}
 function fSector(){var c=document.querySelector('input[name="f-sector"]:checked');return c?c.value:'koerper'}
 function syncSheet(){
-  var t=fType(), w=+$('#f-weight').value;
+  var t=fType(), wi=Math.max(0,Math.min(5,+$('#f-weight').value||0)), w=PTS[wi];
   $('#habit-form').classList.toggle('bad',t==='bad');
   $('#f-weight-lab').textContent=t==='good'?'Wie gut ist es?':'Wie schlecht ist es?';
-  $('#f-wval').textContent=w+' %';$('#f-wval').className='wval '+(t==='good'?'up':'down');
-  $('#f-wlvl').textContent=LEVELS[t][Math.min(4,Math.floor((w-1)/20))];
-  $('#f-effect').textContent='Jeder Trade bewegt dein Depot um '+(t==='good'?'+':'−')+nf.format(w/100)+' %.';
+  $('#f-wval').textContent=nf0.format(w)+' LPI';$('#f-wval').className='wval '+(t==='good'?'up':'down');
+  $('#f-wlvl').textContent=LEVELS[t][wi];
+  $('#f-effect').textContent='Jeder Trade bewegt dein Depot um '+(t==='good'?'+':'−')+nf0.format(w)+' LPI.';
   QS[t].forEach(function(q,i){$('#f-q'+(i+1)+'l').textContent=q});
   var s=(0.5*+$('#f-q1').value+0.3*+$('#f-q2').value+0.2*+$('#f-q3').value-1)/4*95+5;
-  $('#f-sugg').textContent=Math.round(s)+' %';$('#f-sugg').setAttribute('data-v',Math.round(s));
+  var sp0=toPts(s);$('#f-sugg').textContent=nf0.format(sp0)+' LPI';$('#f-sugg').setAttribute('data-v',PTS.indexOf(sp0));
 }
 function openSheet(h){
-  editing=h||null;var src=h||{name:'',type:'good',weight:50,multi:false,sector:'koerper'};
+  editing=h||null;var src=h||{name:'',type:'good',weight:500,multi:false,sector:'koerper'};
   $('#sheet-title').textContent=h?'Trade bearbeiten':'Neuer Trade';
   $('#f-name').value=src.name;$('#f-type-good').checked=src.type!=='bad';$('#f-type-bad').checked=src.type==='bad';
-  $('#f-weight').value=src.weight;$('#f-multi').checked=!!src.multi;
+  $('#f-weight').value=PTS.indexOf(validPts(src.weight));$('#f-multi').checked=!!src.multi;
   var sc=$('#f-sec-'+normSec(src.sector,src.name));if(sc)sc.checked=true;
   $('#f-q1').value=3;$('#f-q2').value=3;$('#f-q3').value=3;$('#f-help').open=false;
   $('#f-err').hidden=true;$('#f-delete').hidden=!h;$('#f-editnote').hidden=!h;$('#f-retro').checked=false;$('#f-retro-row').hidden=!h;
@@ -979,7 +990,7 @@ $('#habit-form').addEventListener('submit',function(e){
   e.preventDefault();
   var name=$('#f-name').value.trim();
   if(!name){$('#f-err').hidden=false;$('#f-name').focus();return}
-  var v={name:name,type:fType(),weight:Math.max(1,Math.min(100,+$('#f-weight').value||50)),multi:$('#f-multi').checked,sector:fSector()};
+  var v={name:name,type:fType(),weight:PTS[Math.max(0,Math.min(5,+$('#f-weight').value||0))],multi:$('#f-multi').checked,sector:fSector()};
   var prevP=curPrice();
   if(editing){
     var eid=editing.id;editing.name=v.name;editing.type=v.type;editing.weight=v.weight;editing.multi=v.multi;editing.sector=v.sector;
@@ -1028,13 +1039,13 @@ function renderGoals(){
   state.shorts.forEach(function(s){var i=shortInfo[s.id];if(!i)return;(i.state==='open'?act:fin).push({s:s,i:i})});
   $('#short-list').innerHTML=act.length?'<div class="list">'+act.map(function(o){
     var day=Math.min(o.s.days,dayDiff(Date.now(),o.s.start)+1);
-    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">Tag '+day+' von '+o.s.days+' · bis '+esc(dDay.format(o.i.end))+', '+esc(dTime.format(o.i.end))+' Uhr</span></span><span class="eff">±'+nf.format(o.i.stake)+' %</span><span class="chev" aria-hidden="true">›</span></button>';
+    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">Tag '+day+' von '+o.s.days+' · bis '+esc(dDay.format(o.i.end))+', '+esc(dTime.format(o.i.end))+' Uhr</span></span><span class="eff">±'+nf0.format(o.i.stake)+' LPI</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('')+'</div>':'<div class="empty">Kein offener Short. Wette darauf, dass du einen negativen Trade eine Zeit lang nicht machst.</div>';
   fin.sort(function(a,b){return b.i.ts-a.i.ts});
   $('#short-done-wrap').hidden=!fin.length;$('#short-done-meta').textContent=fin.length+(fin.length===1?' Short':' Shorts');
   $('#short-done').innerHTML=fin.slice(0,6).map(function(o){
     var won=o.i.state==='won';
-    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">'+o.s.days+' Tage · '+(won?'gewonnen am ':'verloren am ')+esc(dShort.format(o.i.ts))+'</span></span><span class="eff '+(won?'up':'down')+'">'+pct(won?o.i.stake:-o.i.stake)+'</span><span class="chev" aria-hidden="true">›</span></button>';
+    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">'+o.s.days+' Tage · '+(won?'gewonnen am ':'verloren am ')+esc(dShort.format(o.i.ts))+'</span></span><span class="eff '+(won?'up':'down')+'">'+lpi(won?o.i.stake:-o.i.stake)+'</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('');
 }
 var DIV_LEVELS=['Kleines Ziel','Solides Ziel','Großes Ziel','Sehr großes Ziel','Lebensziel'];
@@ -1095,11 +1106,11 @@ function renderShortSheet(){
   $('#short-pick-field').hidden=!!e;$('#short-delete').hidden=!e;$('#short-open').textContent=e?'Speichern':'Short eröffnen';
   if(!e)$('#short-pick').innerHTML=freeNegatives().map(function(x){
     var on=x.id===shortPick;
-    return '<button class="row bad" type="button" data-pick="'+x.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+esc(x.name)+'</span><span class="eff down">'+x.weight+' %</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
+    return '<button class="row bad" type="button" data-pick="'+x.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+esc(x.name)+'</span><span class="eff down">'+nf0.format(x.weight)+' LPI</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
   }).join('');
   $$('[data-days]').forEach(function(b){b.setAttribute('aria-pressed',+b.getAttribute('data-days')===shortDays?'true':'false')});
   var st=h?stake(h.weight,shortDays):0;
-  $('#short-bet').innerHTML=h?'<span><b class="up">'+pct(st)+'</b> wenn du '+shortDays+' Tage ohne „'+esc(h.name)+'“ schaffst.</span><span><b class="down">'+pct(-st)+'</b> sobald du es in der Zeit einträgst, zusätzlich zum Trade selbst.</span><span class="note">'+(e?'Die Laufzeit zählt ab dem Start ('+esc(dDay.format(e.start))+'). Dein Depot wird neu berechnet.':'Du kannst den Short später bearbeiten oder löschen.')+'</span>':'';
+  $('#short-bet').innerHTML=h?'<span><b class="up">'+lpi(st)+'</b> wenn du '+shortDays+' Tage ohne „'+esc(h.name)+'“ schaffst.</span><span><b class="down">'+lpi(-st)+'</b> sobald du es in der Zeit einträgst, zusätzlich zum Trade selbst.</span><span class="note">'+(e?'Die Laufzeit zählt ab dem Start ('+esc(dDay.format(e.start))+'). Dein Depot wird neu berechnet.':'Du kannst den Short später bearbeiten oder löschen.')+'</span>':'';
 }
 $('#add-short').addEventListener('click',function(){
   var neg=freeNegatives();
@@ -1132,13 +1143,13 @@ $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)c
 $('#reset-all').addEventListener('click',function(){
   close('profile');
   ask('Depot zurücksetzen?','Alle Einträge, Ziele und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
-    state={v:3,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    state={v:4,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
   },function(){open('profile')});
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
-    state={v:3,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    state={v:4,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();
     $('#p-name').value=state.profile.name||'';$('#p-age').value=state.profile.age||'';open('profile');
   },null,'btn');
@@ -1163,7 +1174,7 @@ function period(kind,off){
 }
 function contrib(from,to){
   var m={};
-  series.forEach(function(x){if(x.kind!=='log'||x.ts<from||x.ts>to)return;var k=x.log.habitId, o=m[k]||(m[k]={name:x.log.name,n:0,sum:0});o.n++;o.sum+=x.pc});
+  series.forEach(function(x){if(x.kind!=='log'||x.ts<from||x.ts>to)return;var k=x.log.habitId, o=m[k]||(m[k]={name:x.log.name,n:0,sum:0});o.n++;o.sum+=x.pts});
   return m;
 }
 function renderReport(){
@@ -1183,7 +1194,7 @@ function renderReport(){
     if(!best||pf>best.pf)best={d:d,pf:pf};if(!worst||pf<worst.pf)worst={d:d,pf:pf};
   }
   var good=0,bad=0,missed=0,divs=0,shorts=0;
-  evs.forEach(function(x){if(x.kind==='miss')missed++;else if(x.kind==='div')divs+=x.pc;else if(x.kind==='short')shorts+=x.pc;else if(x.log.type==='good')good++;else bad++});
+  evs.forEach(function(x){if(x.kind==='miss')missed++;else if(x.kind==='div')divs+=x.pc;else if(x.kind==='short')shorts+=x.pts;else if(x.log.type==='good')good++;else bad++});
   var cur=contrib(P.s,endTs);
   var drv=Object.keys(cur).map(function(k){var h=habitById(k);if(h)cur[k].name=h.name;return cur[k]}).sort(function(a,b){return b.sum-a.sum});
   var topUp=drv.filter(function(x){return x.sum>0})[0], topDn=drv.filter(function(x){return x.sum<0}).pop();
@@ -1192,14 +1203,14 @@ function renderReport(){
   if(!evs.length)txt='In '+span+' ist nichts passiert. Dein Depot steht bei '+fmt(p1)+' LPI.';
   else{
     txt='Dein Depot ist in '+span+' von '+fmt(p0)+' auf '+fmt(p1)+' LPI'+(r2(perf)>0?' gestiegen.':r2(perf)<0?' gefallen.':' geblieben.');
-    if(topUp)txt+=' Stärkster Treiber: '+topUp.name+' ('+pct(topUp.sum)+').';
-    if(topDn)txt+=' Größte Bremse: '+topDn.name+' ('+pct(topDn.sum)+').';
+    if(topUp)txt+=' Stärkster Treiber: '+topUp.name+' ('+lpi(topUp.sum)+').';
+    if(topDn)txt+=' Größte Bremse: '+topDn.name+' ('+lpi(topDn.sum)+').';
   }
   $('#rep-text').textContent=txt;
 
   BK=P.b.map(function(b){
     if(b.s>now||b.e<=first)return {l:b.l,name:b.name,v:null};
-    return {l:b.l,name:b.name,v:(priceAt(Math.min(b.e-1,now))/priceAt(b.s-1)-1)*100};
+    return {l:b.l,name:b.name,v:fin((priceAt(Math.min(b.e-1,now))/priceAt(b.s-1)-1)*100)};
   });
   drawBars(-1);
   $('#bars-cap').textContent='Tippe auf einen Balken für den Wert '+(rep.kind==='year'?'des Monats.':'des Tages.');
@@ -1218,7 +1229,7 @@ function renderReport(){
     });
     var better=rows.filter(function(x){return x.d>0}).sort(function(a,b){return b.d-a.d}).slice(0,4);
     var worse=rows.filter(function(x){return x.d<0}).sort(function(a,b){return a.d-b.d}).slice(0,4);
-    var rowHtml=function(x){return '<div class="row"><div class="row-name">'+esc(x.name)+'<span class="row-sub">'+x.now+'× statt '+x.was+'×</span></div><span class="eff '+cls(x.d)+'">'+pct(x.d)+'</span></div>'};
+    var rowHtml=function(x){return '<div class="row"><div class="row-name">'+esc(x.name)+'<span class="row-sub">'+x.now+'× statt '+x.was+'×</span></div><span class="eff '+cls(x.d)+'">'+lpi(x.d)+'</span></div>'};
     var diff=perf-pperf, kv='<div class="kv"><span>Performance</span><span><span class="'+cls(perf)+'">'+pct(perf)+'</span> <small class="plain">statt '+pct(pperf)+'</small></span></div>'+
       '<div class="kv"><span>Richtung</span><span class="'+cls(diff)+'">'+arrow(diff)+' '+(r2(diff)>0?'besser':r2(diff)<0?'schlechter':'gleich')+'</span></div>';
     if(rep.kind!=='week'&&days>=14){
@@ -1243,14 +1254,14 @@ function renderReport(){
     '<div class="kv"><span>Tage</span><span><span class="up">'+green+' grün</span> · <span class="down">'+red+' rot</span></span></div>'+
     '<div class="kv"><span>Tage ohne Trade</span><span'+(missed?' class="down"':'')+'>'+missed+(missed?' · '+pct(-MISS*missed):'')+'</span></div>'+
     '<div class="kv"><span>Dividenden</span><span class="'+cls(divs)+'">'+(divs?pct(divs):'–')+'</span></div>'+
-    '<div class="kv"><span>Shorts</span><span class="'+cls(shorts)+'">'+(shorts?pct(shorts):'–')+'</span></div>'+
+    '<div class="kv"><span>Shorts</span><span class="'+cls(shorts)+'">'+(shorts?lpi(shorts):'–')+'</span></div>'+
     '<div class="kv"><span>Bester Tag</span><span>'+(best?esc(dDay.format(best.d))+' · <span class="'+cls(best.pf)+'">'+pct(best.pf)+'</span>':'–')+'</span></div>'+
     '<div class="kv"><span>Schwächster Tag</span><span>'+(worst?esc(dDay.format(worst.d))+' · <span class="'+cls(worst.pf)+'">'+pct(worst.pf)+'</span>':'–')+'</span></div>';
 
   var rev=evs.slice().reverse(), LIM=10, show=histAll?rev:rev.slice(0,LIM);
   $('#hist-meta').textContent=rev.length+(rev.length===1?' Eintrag':' Einträge');
   $('#rep-hist').innerHTML=rev.length?show.map(function(x){
-    var inner='<span class="row-name">'+esc(x.name)+'<span class="row-sub">'+esc(dDay.format(x.ts))+(x.kind==='miss'?'':' · '+esc(dTime.format(x.ts))+' Uhr')+'</span></span><span class="eff '+cls(x.pc)+'">'+pct(x.pc)+'</span>';
+    var inner='<span class="row-name">'+esc(x.name)+'<span class="row-sub">'+esc(dDay.format(x.ts))+(x.kind==='miss'?'':' · '+esc(dTime.format(x.ts))+' Uhr')+'</span></span><span class="eff '+effCls(x)+'">'+eff(x)+'</span>';
     return x.kind==='log'?'<button class="row" type="button" data-del="'+x.log.id+'" aria-label="'+esc(x.name)+' vom '+esc(dDay.format(x.ts))+' bearbeiten">'+inner+'<span class="chev" aria-hidden="true">›</span></button>':'<div class="row">'+inner+'</div>';
   }).join('')+(rev.length>LIM&&!histAll?'<button class="more" type="button" id="hist-more">Alle '+rev.length+' anzeigen</button>':''):'<div class="kv"><span>Noch nichts passiert.</span><span></span></div>';
 }
@@ -1261,18 +1272,18 @@ $('#rep-hist').addEventListener('click',function(e){
 });
 var entryEdit=null;
 function syncEntry(){
-  var l=entryEdit;if(!l)return;var w=+$('#e-weight').value;
-  $('#e-val').textContent=(l.type==='good'?'+':'−')+nf.format(w/100)+' %';$('#e-val').className='wval '+(l.type==='good'?'up':'down');
-  $('#e-lvl').textContent=w+' % · '+LEVELS[l.type][Math.min(4,Math.floor((w-1)/20))];
+  var l=entryEdit;if(!l)return;var wi=Math.max(0,Math.min(5,+$('#e-weight').value||0)), w=PTS[wi];
+  $('#e-val').textContent=(l.type==='good'?'+':'−')+nf0.format(w)+' LPI';$('#e-val').className='wval '+(l.type==='good'?'up':'down');
+  $('#e-lvl').textContent=LEVELS[l.type][wi];
 }
 function openEntry(l){
   entryEdit=l;$('#entry-title').textContent=l.name;$('#entry-info').textContent=dFull.format(l.ts)+', '+dTime.format(l.ts)+' Uhr';
-  $('#e-weight').value=l.weight;$('#entry-form').classList.toggle('bad',l.type==='bad');syncEntry();open('entry');
+  $('#e-weight').value=PTS.indexOf(validPts(l.weight));$('#entry-form').classList.toggle('bad',l.type==='bad');syncEntry();open('entry');
 }
 $('#e-weight').addEventListener('input',syncEntry);
 $('#entry-form').addEventListener('submit',function(e){
   e.preventDefault();var l=entryEdit;if(!l)return;var prev=curPrice();
-  l.weight=Math.max(1,Math.min(100,+$('#e-weight').value||l.weight));entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
+  l.weight=PTS[Math.max(0,Math.min(5,+$('#e-weight').value||0))];entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
 });
 $('#e-delete').addEventListener('click',function(){
   var l=entryEdit;if(!l)return;close('entry');
