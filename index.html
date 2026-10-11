@@ -550,11 +550,13 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Ziele und Dividenden</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von <b>1 bis 10 %</b>. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p><p><b>Serien-Dividende:</b> Schaffst du einen positiven Trade 7 Tage in Folge, gibt es <b>+1,00 %</b> auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p><p>Prozente rechnen immer mit dem Betrag des Depots. Steht es bei −2.000 LPI, bringt eine Dividende von 5 % also +100 LPI.</p></div></details>
         <details class="rule"><summary>Streaks</summary><div><p>Eine Streak zählt die Tage, seit denen du einen negativen Trade nicht mehr gemacht hast. Du wählst den Trade und das Datum, seit dem du verzichtest.</p><p><b>Alle 7 Tage ohne</b> gibt es <b>+1,00 %</b> aufs ganze Depot. Für Tage vor dem Anlegen der Streak gibt es nichts nachträglich.</p><p>Trägst du den Trade ein, beginnt die Streak von vorn. Die längste Serie bleibt sichtbar.</p></div></details>
         <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag, zusätzlich zum Trade selbst.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b> in LPI. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
-        <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele, Streaks und Shorts. Dein Name und deine Trades bleiben.</p></div></details>
+        <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele, Streaks und Shorts. Dein Name und deine Trades bleiben. Du wirst zweimal gefragt, ob du sicher bist.</p><p>Vor dem Zurücksetzen wird dein Depot gesichert. Mit „Zurücksetzen rückgängig machen“ holst du es im Account zurück. Gesichert ist immer nur der Stand vor dem letzten Zurücksetzen.</p></div></details>
       </div>
     </details>
+    <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
+    <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 26</div>
+    <div class="note" style="text-align:center">Version 27</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1357,12 +1359,44 @@ function closeAsk(run){close('confirm');var f=run?onOk:onNo;onOk=onNo=null;if(f)
 $('#c-ok').addEventListener('click',function(){closeAsk(true)});
 $('#c-cancel').addEventListener('click',function(){closeAsk(false)});
 $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)closeAsk(false)});
+/* Reset asks twice and keeps the depot as a backup, so it can be brought back from the account sheet. */
+var BKEY='mytrade.backup';
+function readBackup(){try{var b=JSON.parse(localStorage.getItem(BKEY)||'null');return b&&b.state&&Array.isArray(b.state.habits)&&Array.isArray(b.state.logs)?b:null}catch(e){return null}}
+function hasData(){return !!(state.logs.length||state.goals.length||state.shorts.length||state.streaks.length)}
+function renderBackup(){
+  var b=readBackup();$('#restore-all').hidden=!b;$('#restore-note').hidden=!b;
+  if(b)$('#restore-note').textContent='Gesichert am '+dDay.format(b.ts)+': '+nf0.format(b.state.logs.length)+(b.state.logs.length===1?' Eintrag':' Einträge')+', Depot bei '+nf0.format(Math.round(b.lpi))+' LPI';
+}
 $('#reset-all').addEventListener('click',function(){
   close('profile');
+  function back(){open('profile')}
   ask('Depot zurücksetzen?','Alle Einträge, Ziele, Streaks und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
-    state={v:7,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
-    $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
-  },function(){open('profile')});
+    ask('Bist du wirklich sicher?','Dein Depot steht bei '+nf0.format(Math.round(curPrice()))+' LPI und fällt auf 1.000,00 LPI zurück. Der jetzige Stand wird gesichert, du kannst ihn im Account zurückholen.','Ja, endgültig zurücksetzen',function(){
+      var saved=true;
+      /* an empty depot never replaces an existing backup */
+      if(hasData()){try{localStorage.setItem(BKEY,JSON.stringify({ts:Date.now(),lpi:curPrice(),state:state}))}catch(e){saved=false}}
+      if(!saved){toast('Sichern nicht möglich. Dein Depot wurde nicht zurückgesetzt.');renderBackup();return}
+      state={v:7,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
+      $('#demo-banner').hidden=true;rebuild();save();renderAll();renderBackup();
+      toast(readBackup()?'Zurückgesetzt. Rückgängig im Account möglich.':'Dein Depot startet bei 1.000,00 LPI');
+    },back);
+  },back);
+});
+$('#restore-all').addEventListener('click',function(){
+  var b=readBackup();if(!b){renderBackup();return}
+  close('profile');
+  ask('Zurücksetzen rückgängig machen?','Dein Depot vom '+dDay.format(b.ts)+' kommt zurück, mit allen Einträgen, Zielen, Streaks und Shorts.'+(hasData()?' Was du seit dem Zurücksetzen eingetragen hast, geht dabei verloren.':''),'Depot zurückholen',function(){
+    var keep=state.profile, cur=null;
+    /* trades created after the reset stay */
+    state.habits.forEach(function(h){if(!b.state.habits.some(function(x){return x.id===h.id}))b.state.habits.push(h)});
+    try{cur=localStorage.getItem(KEY);localStorage.setItem(KEY,JSON.stringify(b.state))}catch(e){toast('Zurückholen nicht möglich.');return}
+    var s=load();
+    if(!s){try{if(cur!=null)localStorage.setItem(KEY,cur)}catch(e){}toast('Die Sicherung ist nicht lesbar.');return}
+    state=s;if(keep&&keep.name)state.profile=keep;
+    try{localStorage.removeItem(BKEY)}catch(e){}
+    $('#demo-banner').hidden=true;rebuild();save();renderProfile();renderAll();renderBackup();
+    toast('Dein Depot ist zurück: '+nf0.format(Math.round(curPrice()))+' LPI');
+  },function(){open('profile')},'btn');
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
@@ -1607,7 +1641,7 @@ document.addEventListener('touchstart',function(){},{passive:true});
 /* ---------- boot ---------- */
 rebuild();
 $('#demo-banner').hidden=!state.demo;
-renderProfile();renderAll();
+renderProfile();renderAll();renderBackup();
 })();
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
