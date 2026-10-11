@@ -515,23 +515,27 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     </div>
     <button class="btn" type="submit">Speichern</button>
     <details class="fold" id="fold-rules">
-      <summary><h2>Regelwerk</h2><span class="meta">9 Regeln</span></summary>
+      <summary><h2>Regelwerk</h2><span class="meta">11 Regeln</span></summary>
       <div class="list">
-        <details class="rule"><summary>Währung</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei 1.000,00 LPI und kann nicht unter 0 fallen.</p></div></details>
-        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von 100 bis 2.000 LPI in 100er-Schritten. Um genau diesen Betrag steigt oder fällt dein Depot: <b>Ein Trade mit 1.000 LPI bewegt es um 1.000 LPI</b>.</p>
+        <details class="rule"><summary>Währung und Depot</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei <b>1.000,00 LPI</b>.</p><p>Das Depot kann ins Minus fallen. Eine Untergrenze gibt es nicht.</p></div></details>
+        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von <b>100 bis 2.000 LPI</b> in 100er-Schritten.</p>
           <div class="mini"><b>100–400</b><span>Kleinigkeit oder Ausrutscher</span><b>500–800</b><span>Solide Routine, bremst etwas</span><b>900–1.200</b><span>Bringt dich voran, wirft dich zurück</span><b>1.300–1.600</b><span>Echte Überwindung, echter Schaden</span><b>1.700–2.000</b><span>Meilenstein oder Rückfall</span></div>
-          <p>Zum Vergleich mit der alten Prozent-Bewertung: 50 % sind 1.000 LPI, 75 % sind 1.500 LPI, 100 % sind 2.000 LPI.</p></div></details>
-        <details class="rule"><summary>Formel: Stärke, Serie und Markt</summary><div><p><b>Wert = Bewertung × Stärke × Serie × Markt</b>, gerundet auf ganze LPI.</p><p><b>Stärke:</b> Beim Eintragen wählst du, wie stark es heute war: Leicht (× 0,5), Normal (× 1), Stark (× 2) oder das Extrem (× 4). Das Extrem heißt bei positiven Trades „Extremer Aufschwung“, bei negativen „Börsencrash“.</p><p><b>Serie:</b> Für jeden weiteren Tag in Folge mit demselben Trade gibt es +3 %, höchstens +30 %. Das gilt auch für negative Trades: Wiederholst du sie Tag für Tag, werden sie teurer.</p><p><b>Markt:</b> Jeder Tag hat eine Marktlage zwischen −8 % und +8 %. Sie gilt für alle Trades dieses Tages und steht oben auf der Trades-Seite.</p><p>Beispiel: Training mit 1.400 LPI am dritten Tag in Folge (× 1,06) bei Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
-        <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b>.</p></div></details>
-        <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor hat einen eigenen Wert. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
-        <details class="rule"><summary>Ziele und Dividende</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von 1 bis 10 %. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p></div></details>
-        <details class="rule"><summary>Serien-Dividende</summary><div><p>Schaffst du einen positiven Trade <b>7 Tage in Folge</b>, gibt es +1,00 % auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p></div></details>
-        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b> in LPI. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
-        <details class="rule"><summary>Bearbeiten und Löschen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf. Das Depot wird dann neu berechnet.</p></div></details>
+          <p>Ein Trade zählt einmal pro Tag. Ist „Mehrmals pro Tag zählbar“ eingeschaltet, zählt er unbegrenzt oft.</p></div></details>
+        <details class="rule"><summary>Formel</summary><div><p><b>Wert = Bewertung × Stärke × Serie × Markt</b>, gerundet auf ganze LPI. Um diesen Wert steigt oder fällt dein Depot.</p><p>Der Wert steht beim Eintragen fest und ändert sich später nicht von selbst.</p><p>Beispiel: Training mit 1.400 LPI, Stärke Normal (× 1), dritter Tag in Folge (× 1,06), Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
+        <details class="rule"><summary>Stärke</summary><div><p>Beim Eintragen wählst du, wie stark es heute war.</p>
+          <div class="mini"><b>Leicht</b><span>× 0,5</span><b>Normal</b><span>× 1</span><b>Stark</b><span>× 2</span><b>Extrem</b><span>× 4</span></div>
+          <p>Das Extrem heißt bei positiven Trades „Extremer Aufschwung“ und bei negativen „Börsencrash“.</p></div></details>
+        <details class="rule"><summary>Serie</summary><div><p>Für jeden weiteren Tag in Folge mit demselben Trade gibt es <b>+3 %</b>, höchstens <b>+30 %</b>. Ein ausgelassener Tag setzt die Serie zurück.</p><p>Das gilt auch für negative Trades: Wiederholst du sie Tag für Tag, werden sie teurer.</p></div></details>
+        <details class="rule"><summary>Markt</summary><div><p>Der Markt hängt an deiner <b>Form der letzten 7 Tage</b> vor heute.</p><p><b>Form = (Plus − Minus) ÷ (Plus + Minus)</b>. Plus sind die LPI deiner positiven Trades, Minus die deiner negativen. Eine reine Plus-Woche bringt <b>+8 %</b>, eine reine Minus-Woche <b>−8 %</b>, eine ausgeglichene Woche 0 %.</p><p>Dazu kommt eine Tagesschwankung von höchstens <b>±2 %</b>. Der Markt steht oben auf der Trades-Seite.</p><p>Positive Trades zählen <b>mit</b> dem Markt, negative <b>gegen</b> ihn: Bei Markt +5 % bringt ein positiver Trade 5 % mehr und ein negativer kostet 5 % weniger. Bei Markt −5 % ist es umgekehrt. Gute Form verstärkt sich also, schlechte auch.</p></div></details>
+        <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b> seines Betrags.</p></div></details>
+        <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor startet bei 1.000,00 LPI und bewegt sich nur durch seine eigenen Trades. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
+        <details class="rule"><summary>Ziele und Dividenden</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von <b>1 bis 10 %</b>. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p><p><b>Serien-Dividende:</b> Schaffst du einen positiven Trade 7 Tage in Folge, gibt es <b>+1,00 %</b> auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p><p>Prozente rechnen immer mit dem Betrag des Depots. Steht es bei −2.000 LPI, bringt eine Dividende von 5 % also +100 LPI.</p></div></details>
+        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag, zusätzlich zum Trade selbst.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b> in LPI. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
+        <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele und Shorts. Dein Name und deine Trades bleiben.</p></div></details>
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 21</div>
+    <div class="note" style="text-align:center">Version 22</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -603,7 +607,9 @@ var $=function(s){return document.querySelector(s)};
 var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
 var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
 var nf=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
-var fmt=function(n){return nf.format(n)};
+var fmt=function(n){n=fin(n);return (n<0?'−':'')+nf.format(Math.abs(n))};
+/* change in percent, measured against the amount of the starting value so it also works below zero */
+function chg(now,base){return base?fin((now-base)/Math.abs(base)*100):0}
 var r2=function(n){return isFinite(n)?Math.round(n*100)/100:0};
 var fin=function(n){return isFinite(n)?n:0};
 var signed=function(n){n=r2(n);return (n>0?'+':n<0?'−':'')+nf.format(Math.abs(n))};
@@ -619,13 +625,24 @@ function eff(x){return x.pts!=null?lpi(x.pts):pct(x.pc)}
 function effCls(x){return cls(x.pts!=null?x.pts:x.pc)}
 /* What a trade is worth on a given day: rating x strength x streak x market, rounded to whole LPI.
    Streak: +3 % for every further day in a row with this trade, at most +30 %. It applies to negative trades too.
-   Market: one mood per calendar day between -8 % and +8 %, the same for every trade of that day. */
-var STREAK_STEP=0.03, STREAK_MAX=0.30, MARKET_RANGE=0.08;
-function market(dayTs){
-  var d=new Date(dayTs), n=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-  var r=mulberry(Math.imul(n,2654435761)>>>0)();
-  return 1+Math.round((r*2-1)*MARKET_RANGE*1000)/1000;
+   Market: up to +/-8 % from your own form of the last 7 days plus a daily swing of at most +/-2 %. Positive trades use it as it is, negative trades use the mirror image. */
+var STREAK_STEP=0.03, STREAK_MAX=0.30, MARKET_RANGE=0.08, MARKET_SWING=0.02;
+/* Form of the 7 days before dayTs: (plus - minus) / (plus + minus) in LPI, from -1 to +1. */
+function formOf(dayTs,logs){
+  var from=addDays(dayTs,-7), plus=0, minus=0;
+  logs.forEach(function(l){if(l.ts>=from&&l.ts<dayTs){var v=l.val!=null?l.val:l.weight;if(l.type==='good')plus+=v;else minus+=v}});
+  return plus+minus>0?(plus-minus)/(plus+minus):0;
 }
+function swingOf(dayTs){
+  var d=new Date(dayTs), n=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+  return (mulberry(Math.imul(n,2654435761)>>>0)()*2-1)*MARKET_SWING;
+}
+function marketParts(dayTs,logs){
+  var f=Math.round(formOf(dayTs,logs)*MARKET_RANGE*1000)/1000, z=Math.round(swingOf(dayTs)*1000)/1000;
+  return {form:f,swing:z,m:Math.round((1+f+z)*1000)/1000};
+}
+function market(dayTs,logs){return marketParts(dayTs,logs).m}
+function marketFor(type,dayTs,logs){var m=market(dayTs,logs);return type==='bad'?Math.round((2-m)*1000)/1000:m}
 function streakDays(hid,dayTs,logs){
   var set={};logs.forEach(function(l){if(l.habitId===hid)set[sod(l.ts)]=1});
   var n=1,d=addDays(dayTs,-1);while(set[d]){n++;d=addDays(d,-1)}
@@ -637,7 +654,7 @@ var STRENGTH=[{f:0.5,name:'Leicht',sub:'halber Wert'},{f:1,name:'Normal',sub:'vo
 function strName(x,type,short){return x.name||(type==='good'?(short?'Aufschwung':x.good):(short?'Crash':x.bad))}
 function strOf(k){return STRENGTH.filter(function(x){return x.f===(k||1)})[0]||STRENGTH[1]}
 function worth(weight,sf,mf,k){return Math.max(1,Math.round(weight*(k||1)*(sf||1)*(mf||1)))}
-function valueFor(h,dayTs,k){var n=streakDays(h.id,dayTs,state.logs),sf=serie(n),mf=market(dayTs);return {n:n,sf:sf,mf:mf,k:k||1,val:worth(h.weight,sf,mf,k)}}
+function valueFor(h,dayTs,k){var n=streakDays(h.id,dayTs,state.logs),sf=serie(n),mf=marketFor(h.type,dayTs,state.logs);return {n:n,sf:sf,mf:mf,k:k||1,val:worth(h.weight,sf,mf,k)}}
 var f3=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:3});
 var cls=function(n){n=r2(n);return n>0?'up':n<0?'down':'flat'};
 var arrow=function(n){n=r2(n);return n>0?'▲':n<0?'▼':'–'};
@@ -727,7 +744,8 @@ function load(){
       s.habits.forEach(conv);s.logs.forEach(conv);s.shorts.forEach(conv);s.v=5;
     }
     if((s.v||0)<6){
-      s.logs.forEach(function(l){if(l.val==null){var d0=sod(l.ts);l.sf=serie(streakDays(l.habitId,d0,s.logs));l.mf=market(d0);l.val=worth(l.weight,l.sf,l.mf)}});
+      s.logs.sort(function(a,b){return a.ts-b.ts});
+      s.logs.forEach(function(l){if(l.val==null){var d0=sod(l.ts);l.sf=serie(streakDays(l.habitId,d0,s.logs));l.mf=marketFor(l.type,d0,s.logs);l.val=worth(l.weight,l.sf,l.mf)}});
       s.v=6;
     }s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
     if(!s.startTs)s.startTs=s.logs.length?sod(Math.min.apply(null,s.logs.map(function(l){return l.ts}))):sod(Date.now());
@@ -745,7 +763,7 @@ var series=[], secSeries={}, shortInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
 function stake(w,days){return Math.round(w*days/4)}
 
-/* Price model: trades and settled shorts add or remove LPI points (never below 0); every other event multiplies by (1 + pc/100).
+/* Price model: trades and settled shorts add or remove LPI points, also below zero; every other event moves the depot by pc percent of its amount.
    Events: trades (rating/100), a finished day without a trade (-MISS), goal dividends,
    streak dividends (7 days in a row of one positive trade), settled shorts. */
 function rebuild(){
@@ -775,13 +793,13 @@ function rebuild(){
   for(var d=sod(state.startTs);d<today;d=addDays(d,1)){if(!has[d])ev.push({ts:addDays(d,1)-1,pc:-MISS,kind:'miss',name:'Tag ohne Trade'})}
   ev.sort(function(a,b){return a.ts-b.ts});
   var p=START;
-  series=ev.map(function(e){p=e.pts!=null?Math.max(0,p+e.pts):p*(1+e.pc/100);e.price=p;return e});
+  series=ev.map(function(e){p=e.pts!=null?p+e.pts:p+Math.abs(p)*e.pc/100;e.price=p;return e});
   /* sector prices: own trades and streak dividends; goal dividends lift the whole depot */
   secSeries={};var sp={};
   SECTORS.forEach(function(x){secSeries[x.id]=[];sp[x.id]=START});
   series.forEach(function(e){
     var ks=e.kind==='log'?[normSec(e.log.sector,e.log.name)]:e.all?SECTORS.map(function(x){return x.id}):e.sec?[e.sec]:[];
-    ks.forEach(function(k){sp[k]=e.pts!=null?Math.max(0,sp[k]+e.pts):sp[k]*(1+e.pc/100);secSeries[k].push({ts:e.ts,price:sp[k]})});
+    ks.forEach(function(k){sp[k]=e.pts!=null?sp[k]+e.pts:sp[k]+Math.abs(sp[k])*e.pc/100;secSeries[k].push({ts:e.ts,price:sp[k]})});
   });
 }
 function priceIn(arr,ts){
@@ -876,7 +894,7 @@ function drawChart(){
 function renderQuote(price){
   if(!CH)return;
   var d=CH.d, p=scrub>=0?d.pts[scrub].price:(price!=null?price:curPrice());
-  var diff=p-d.base, pc=(p/d.base-1)*100, when=RANGE_LABEL[range];
+  var diff=p-d.base, pc=chg(p,d.base), when=RANGE_LABEL[range];
   if(scrub>=0){
     var q=d.pts[scrub];
     if(d.day)when=q.ev?dTime.format(q.ts)+' · '+q.ev.name:q.tag;
@@ -921,11 +939,12 @@ function effectToday(h){return (h.type==='good'?'+':'−')+nf0.format(valueFor(h
 function renderToday(){
   var t0=sod(Date.now()), todays=state.logs.filter(function(l){return l.ts>=t0}), counts={};
   todays.forEach(function(l){counts[l.habitId]=(counts[l.habitId]||0)+1});
-  var pf=(curPrice()/priceAt(t0-1)-1)*100;
+  var pf=chg(curPrice(),priceAt(t0-1));
   $('#today-sum').innerHTML=todays.length?'Heute · '+todays.length+(todays.length===1?' Trade':' Trades')+' · <span class="'+cls(pf)+'">'+pct(pf)+'</span>':'Heute noch kein Trade';
   $('#today-hint').hidden=todays.length>0||!state.habits.length;
   $('#edit-toggle').hidden=!state.habits.length;
-  var mk=(market(t0)-1)*100;$('#market-note').innerHTML='Markt heute <b class="'+cls(mk)+'">'+pct(mk)+'</b> · Serie +3 % je Tag in Folge';
+  var mp=marketParts(t0,state.logs), mk=(mp.m-1)*100;
+  $('#market-note').innerHTML='Markt heute <b class="'+cls(mk)+'">'+pct(mk)+'</b> · deine Form der letzten 7 Tage '+pct(mp.form*100)+', Tagesschwankung '+pct(mp.swing*100);
   var box=$('#today-list');
   if(!state.habits.length){
     box.innerHTML='<div class="empty">Du hast noch keine Trades. Lege fest, was dein Depot steigen und fallen lässt.</div>';return;
@@ -954,7 +973,7 @@ function renderToday(){
   box.innerHTML=html;
 }
 var secOpen=null;
-function secChange(arr,t0){var now=arr.length?arr[arr.length-1].price:START;return (now/priceIn(arr,t0)-1)*100}
+function secChange(arr,t0){var now=arr.length?arr[arr.length-1].price:START;return chg(now,priceIn(arr,t0))}
 function renderSectors(){
   var today=sod(Date.now()), t0=CH?CH.d.t0:today-1;
   $('#sector-meta').textContent=RANGE_LABEL[range];
@@ -1038,7 +1057,7 @@ function syncSheet(){
   $('#f-weight-lab').textContent=t==='good'?'Wie gut ist es?':'Wie schlecht ist es?';
   $('#f-wval').textContent=nf0.format(w)+' LPI';$('#f-wval').className='wval '+(t==='good'?'up':'down');
   $('#f-wlvl').textContent=LEVELS[t][lvl(w)];
-  var tsf=editing?serie(streakDays(editing.id,sod(Date.now()),state.logs)):1, tv=worth(w,tsf,market(sod(Date.now())));
+  var tsf=editing?serie(streakDays(editing.id,sod(Date.now()),state.logs)):1, tv=worth(w,tsf,marketFor(t,sod(Date.now()),state.logs));
   $('#f-effect').textContent='Grundwert '+(t==='good'?'+':'−')+nf0.format(w)+' LPI. Heute wären es mit Serie und Markt '+(t==='good'?'+':'−')+nf0.format(tv)+' LPI.';
   QS[t].forEach(function(q,i){$('#f-q'+(i+1)+'l').textContent=q});
   var s=(0.5*+$('#f-q1').value+0.3*+$('#f-q2').value+0.2*+$('#f-q3').value-1)/4*95+5;
@@ -1250,7 +1269,7 @@ function contrib(from,to){
 }
 function renderReport(){
   var P=period(rep.kind,rep.offset), now=Date.now(), first=sod(state.startTs);
-  var endTs=Math.min(P.e-1,now), p0=priceAt(P.s-1), p1=priceAt(endTs), perf=(p1/p0-1)*100;
+  var endTs=Math.min(P.e-1,now), p0=priceAt(P.s-1), p1=priceAt(endTs), perf=chg(p1,p0);
   var evs=series.filter(function(x){return x.ts>=P.s&&x.ts<P.e});
   var prevWord={week:'Vorwoche',month:'Vormonat',year:'Vorjahr'}[rep.kind], prevDat={week:'zur Vorwoche',month:'zum Vormonat',year:'zum Vorjahr'}[rep.kind], prevIn={week:'in der Vorwoche',month:'im Vormonat',year:'im Vorjahr'}[rep.kind];
   $('#per-lbl').innerHTML=esc(P.lbl)+(rep.offset===0?'<small>läuft noch</small>':'');
@@ -1259,7 +1278,7 @@ function renderReport(){
 
   var green=0,red=0,best=null,worst=null,days=0,wd=[0,0,0,0,0,0,0].map(function(){return {s:0,n:0}});
   for(var d=Math.max(P.s,first);d<P.e&&d<=now;d=addDays(d,1)){
-    var pf=(priceAt(Math.min(addDays(d,1)-1,now))/priceAt(d-1)-1)*100, w=wd[(new Date(d).getDay()+6)%7];
+    var pf=chg(priceAt(Math.min(addDays(d,1)-1,now)),priceAt(d-1)), w=wd[(new Date(d).getDay()+6)%7];
     w.s+=pf;w.n++;days++;
     if(r2(pf)>0)green++;else if(r2(pf)<0)red++;
     if(!best||pf>best.pf)best={d:d,pf:pf};if(!worst||pf<worst.pf)worst={d:d,pf:pf};
@@ -1281,7 +1300,7 @@ function renderReport(){
 
   BK=P.b.map(function(b){
     if(b.s>now||b.e<=first)return {l:b.l,name:b.name,v:null};
-    return {l:b.l,name:b.name,v:fin((priceAt(Math.min(b.e-1,now))/priceAt(b.s-1)-1)*100)};
+    return {l:b.l,name:b.name,v:chg(priceAt(Math.min(b.e-1,now)),priceAt(b.s-1))};
   });
   drawBars(-1);
   $('#bars-cap').textContent='Tippe auf einen Balken für den Wert '+(rep.kind==='year'?'des Monats.':'des Tages.');
@@ -1292,7 +1311,7 @@ function renderReport(){
     th='<div class="grp"><div class="grp-label">Trend '+prevDat+'</div><div class="list"><div class="kv"><span>Noch kein Vergleich möglich. Davor gibt es keine Daten.</span><span></span></div></div></div>';
   }else{
     var prevEnd=rep.offset===0?Math.min(PP.e-1,PP.s+(now-P.s)):PP.e-1;
-    var pperf=(priceAt(prevEnd)/priceAt(PP.s-1)-1)*100, prv=contrib(PP.s,prevEnd), keys={}, rows=[];
+    var pperf=chg(priceAt(prevEnd),priceAt(PP.s-1)), prv=contrib(PP.s,prevEnd), keys={}, rows=[];
     Object.keys(cur).forEach(function(k){keys[k]=1});Object.keys(prv).forEach(function(k){keys[k]=1});
     Object.keys(keys).forEach(function(k){
       var a=cur[k]||{n:0,sum:0}, b=prv[k]||{n:0,sum:0}, h=habitById(k), dl=a.sum-b.sum;
