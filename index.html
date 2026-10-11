@@ -315,11 +315,13 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
 
     <section class="page" id="view-goals" aria-label="Ziele">
       <h2 class="page-title">Ziele</h2>
-      <div class="grp">
-        <div class="grp-label">Ziele mit Dividende</div>
-        <div id="goal-list"></div>
-      </div>
-      <button class="btn" type="button" id="add-goal">Neues Ziel</button>
+      <details class="fold" id="fold-goalpage" open>
+        <summary><h2>Ziele mit Dividende</h2><span class="meta" id="goal-meta"></span></summary>
+        <div class="stack">
+          <div id="goal-list"></div>
+          <button class="btn" type="button" id="add-goal">Neues Ziel</button>
+        </div>
+      </details>
       <details class="fold" id="goal-done-wrap" open hidden>
         <summary><h2>Abgeschlossen</h2><span class="meta" id="goal-done-meta"></span></summary>
         <div class="list" id="goal-done"></div>
@@ -331,9 +333,13 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
           <button class="btn ghost" type="button" id="add-streak">Neue Streak</button>
         </div>
       </details>
-      <div class="sec-head"><h2>Shorts</h2><span class="meta">Wette auf dich selbst</span></div>
-      <div id="short-list"></div>
-      <button class="btn ghost" type="button" id="add-short">Short eröffnen</button>
+      <details class="fold" id="fold-shorts" open>
+        <summary><h2>Shorts</h2><span class="meta" id="short-meta"></span></summary>
+        <div class="stack">
+          <div id="short-list"></div>
+          <button class="btn ghost" type="button" id="add-short">Short eröffnen</button>
+        </div>
+      </details>
       <details class="fold" id="short-done-wrap" open hidden>
         <summary><h2>Abgerechnet</h2><span class="meta" id="short-done-meta"></span></summary>
         <div class="list" id="short-done"></div>
@@ -548,7 +554,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 24</div>
+    <div class="note" style="text-align:center">Version 25</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1175,6 +1181,7 @@ function renderGoals(){
       '<span class="eff up">'+pct(g.div)+'</span>'+
       (due?'<div class="row-act"><button class="check go" type="button" data-hit="'+g.id+'" aria-label="'+esc(g.name)+' als erreicht bestätigen">✓</button></div>':'<span class="chev" aria-hidden="true">›</span>')+'</div>';
   }).join('')+'</div>':'<div class="empty">Noch kein offenes Ziel. Lege fest, was du bis wann erreichen willst.</div>';
+  $('#goal-meta').textContent=opn.length?opn.length+' offen':'';
   $('#goal-done-wrap').hidden=!done.length;$('#goal-done-meta').textContent=done.length+(done.length===1?' Ziel':' Ziele');
   $('#goal-done').innerHTML=done.map(function(g){
     var hit=g.status==='hit';
@@ -1188,6 +1195,7 @@ function renderGoals(){
     return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">Tag '+day+' von '+o.s.days+' · bis '+esc(dDay.format(o.i.end))+', '+esc(dTime.format(o.i.end))+' Uhr</span></span><span class="eff">±'+nf0.format(o.i.stake)+' LPI</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('')+'</div>':'<div class="empty">Kein offener Short. Wette darauf, dass du einen negativen Trade eine Zeit lang nicht machst.</div>';
   fin.sort(function(a,b){return b.i.ts-a.i.ts});
+  $('#short-meta').textContent=act.length?act.length+' offen':'Wette auf dich selbst';
   $('#short-done-wrap').hidden=!fin.length;$('#short-done-meta').textContent=fin.length+(fin.length===1?' Short':' Shorts');
   $('#short-done').innerHTML=fin.slice(0,6).map(function(o){
     var won=o.i.state==='won';
