@@ -528,6 +528,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
+    <div class="note" style="text-align:center">Version 17</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -674,6 +675,8 @@ var state=load()||freshState();
 /* the account outlives the example data, so the welcome screen knows the name */
 try{var pr=JSON.parse(localStorage.getItem('mytrade.profile')||'null');
   if(pr&&typeof pr==='object'&&!(state.profile&&state.profile.name))state.profile={name:String(pr.name||''),age:pr.age||''}}catch(e){}
+/* one-time reset requested for version 17: every saved depot starts again at 1,000 LPI */
+try{if(localStorage.getItem('mytrade.wipe')!=='17'){state.logs=[];state.goals=[];state.shorts=[];state.demo=false;state.startTs=sod(Date.now());localStorage.setItem('mytrade.wipe','17')}}catch(e){}
 save();
 var series=[], secSeries={}, shortInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
