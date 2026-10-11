@@ -652,35 +652,17 @@ var DEMO=[['Training','good',70,'koerper',0,.3],['30 Min lernen','good',60,'kopf
           ['Vor 23 Uhr im Bett','good',40,'koerper',0,.3],['20 Min lesen','good',30,'kopf',0,.35],['Ausgaben notiert','good',20,'geld',0,.6],
           ['Alkohol','bad',80,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',60,'kopf',1,.5],['Fast Food','bad',50,'koerper',0,.25],
           ['Impulskauf','bad',50,'geld',0,.15],['Nach Mitternacht ins Bett','bad',40,'koerper',0,.4]];
-function seedDemo(){
-  var rnd=mulberry(20261010), now=Date.now(), today=sod(now), N=120, logs=[], shortStart=addDays(now,-3);
-  var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4],_p:d[5],_we:!!d[6]}});
-  for(var i=N;i>=0;i--){
-    var day=addDays(today,-i), dow=new Date(day).getDay(), k=N-i;
-    var mood=Math.sin((k+21)/9)+0.6*Math.sin(k/23+3);
-    habits.forEach(function(h){
-      var p=h._p*(h.type==='good'?1+0.22*mood:1-0.22*mood);
-      if(h._we&&(dow===5||dow===6))p*=3;
-      if(rnd()<p){
-        var ts=Math.round(day+(7+rnd()*15.5)*3600000);
-        if(ts<=now&&!(h.name==='Alkohol'&&ts>shortStart))logs.push({id:'l'+logs.length,habitId:h.id,name:h.name,type:h.type,weight:h.weight,sector:h.sector,ts:ts});
-      }
-    });
-  }
-  habits.forEach(function(h){delete h._p;delete h._we});
-  return {v:3,demo:true,startTs:addDays(today,-N),profile:{name:'',age:''},habits:habits,logs:logs,
-    goals:[{id:'g0',name:'10 km unter 50 Minuten',tick:'10K',date:addDays(today,-20),div:5,status:'hit',doneTs:addDays(today,-20)+18.5*3600000},
-           {id:'g1',name:'Zimmer komplett ausgemistet',tick:'ZIMM',date:today,div:2,status:'open'},
-           {id:'g2',name:'Halbmarathon laufen',tick:'HM21',date:addDays(today,18),div:8,status:'open'},
-           {id:'g3',name:'500 € gespart',tick:'SPAR',date:addDays(today,45),div:5,status:'open'}],
-    shorts:[{id:'s0',habitId:'d6',name:'Alkohol',weight:80,start:shortStart,days:7}]};
+function freshState(){
+  var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4]}});
+  return {v:3,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
 }
 
 /* ---------- state ---------- */
 function load(){
   try{var raw=localStorage.getItem(KEY);if(!raw)return null;var s=JSON.parse(raw);
     if(!s||!Array.isArray(s.habits)||!Array.isArray(s.logs))return null;
-    if(s.demo&&s.v!==3)return null; /* example data saved by an older version: start fresh */
+    /* example data from an earlier version: keep the trades, drop every entry, goal and short */
+    if(s.demo){s.demo=false;s.logs=[];s.goals=[];s.shorts=[];s.startTs=sod(Date.now())}
     s.goals=Array.isArray(s.goals)?s.goals:[];s.shorts=Array.isArray(s.shorts)?s.shorts:[];
     s.profile=s.profile||{name:'',age:''};
     s.habits.forEach(function(h){h.sector=normSec(h.sector,h.name)});s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
@@ -688,10 +670,11 @@ function load(){
     return s}catch(e){return null}
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
-var state=load()||seedDemo();
+var state=load()||freshState();
 /* the account outlives the example data, so the welcome screen knows the name */
 try{var pr=JSON.parse(localStorage.getItem('mytrade.profile')||'null');
   if(pr&&typeof pr==='object'&&!(state.profile&&state.profile.name))state.profile={name:String(pr.name||''),age:pr.age||''}}catch(e){}
+save();
 var series=[], secSeries={}, shortInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
 function stake(w,days){return r2(w/100*days/4)}
