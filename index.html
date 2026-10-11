@@ -406,8 +406,8 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     </div>
     <div class="field">
       <label for="f-weight" id="f-weight-lab">Wie gut ist es?</label>
-      <div class="wrow"><span class="wval" id="f-wval">500 LPI</span><span class="wlvl" id="f-wlvl"></span></div>
-      <input type="range" id="f-weight" min="0" max="5" step="1" value="4">
+      <div class="wrow"><span class="wval" id="f-wval">1.000 LPI</span><span class="wlvl" id="f-wlvl"></span></div>
+      <input type="range" id="f-weight" min="0" max="19" step="1" value="9">
       <div class="note" id="f-effect"></div>
     </div>
     <details class="help" id="f-help">
@@ -416,7 +416,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <div class="q"><label for="f-q1" id="f-q1l"></label><input type="range" id="f-q1" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
         <div class="q"><label for="f-q2" id="f-q2l"></label><input type="range" id="f-q2" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
         <div class="q"><label for="f-q3" id="f-q3l"></label><input type="range" id="f-q3" min="1" max="5" step="1" value="3"><div class="ends"><span>kaum</span><span>extrem</span></div></div>
-        <div class="sugg"><span>Ergebnis: <b id="f-sugg">500 LPI</b></span><button class="btn ghost small" type="button" id="f-apply">Übernehmen</button></div>
+        <div class="sugg"><span>Ergebnis: <b id="f-sugg">1.000 LPI</b></span><button class="btn ghost small" type="button" id="f-apply">Übernehmen</button></div>
       </div>
     </details>
     <label class="switch" for="f-multi"><span>Mehrmals pro Tag zählbar</span><input type="checkbox" id="f-multi"></label>
@@ -517,9 +517,9 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       <summary><h2>Regelwerk</h2><span class="meta">8 Regeln</span></summary>
       <div class="list">
         <details class="rule"><summary>Währung</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei 1.000,00 LPI und kann nicht unter 0 fallen.</p></div></details>
-        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn in LPI. Um genau diesen Betrag steigt oder fällt dein Depot: <b>Ein Trade mit 1.000 LPI bewegt es um 1.000 LPI</b>.</p>
-          <div class="mini"><b>100 LPI</b><span>Kleinigkeit oder Ausrutscher</span><b>200 LPI</b><span>Solide Routine, bremst etwas</span><b>300 LPI</b><span>Bringt dich voran, wirft dich zurück</span><b>400 LPI</b><span>Echte Überwindung, echter Schaden</span><b>500 LPI</b><span>Starke Leistung, schwerer Fehltritt</span><b>1.000 LPI</b><span>Meilenstein oder Rückfall</span></div>
-          <p>Bis 500 LPI geht es in 100er-Schritten. Alles, was darüber liegt, zählt 1.000 LPI.</p></div></details>
+        <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von 100 bis 2.000 LPI in 100er-Schritten. Um genau diesen Betrag steigt oder fällt dein Depot: <b>Ein Trade mit 1.000 LPI bewegt es um 1.000 LPI</b>.</p>
+          <div class="mini"><b>100–400</b><span>Kleinigkeit oder Ausrutscher</span><b>500–800</b><span>Solide Routine, bremst etwas</span><b>900–1.200</b><span>Bringt dich voran, wirft dich zurück</span><b>1.300–1.600</b><span>Echte Überwindung, echter Schaden</span><b>1.700–2.000</b><span>Meilenstein oder Rückfall</span></div>
+          <p>Zum Vergleich mit der alten Prozent-Bewertung: 50 % sind 1.000 LPI, 75 % sind 1.500 LPI, 100 % sind 2.000 LPI.</p></div></details>
         <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b>.</p></div></details>
         <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor hat einen eigenen Wert. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
         <details class="rule"><summary>Ziele und Dividende</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von 1 bis 10 %. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p></div></details>
@@ -529,7 +529,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 18</div>
+    <div class="note" style="text-align:center">Version 19</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -543,7 +543,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <div class="field">
       <label for="e-weight">Bewertung dieses Eintrags</label>
       <div class="wrow"><span class="wval" id="e-val"></span><span class="wlvl" id="e-lvl"></span></div>
-      <input type="range" id="e-weight" min="0" max="5" step="1" value="4">
+      <input type="range" id="e-weight" min="0" max="19" step="1" value="9">
       <div class="note">Die Änderung gilt nur für diesen einen Eintrag. Dein Depot wird neu berechnet.</div>
     </div>
     <div class="actions">
@@ -592,11 +592,12 @@ var r2=function(n){return isFinite(n)?Math.round(n*100)/100:0};
 var fin=function(n){return isFinite(n)?n:0};
 var signed=function(n){n=r2(n);return (n>0?'+':n<0?'−':'')+nf.format(Math.abs(n))};
 var pct=function(n){return signed(n)+' %'};
-/* Trades are valued in LPI points: 100 to 500 in steps of 100, then 1,000. */
+/* Trades are valued in LPI points: 100 to 2,000 in steps of 100. On the old percent scale 5 % = 100 LPI, so 50 % = 1,000. */
 var nf0=new Intl.NumberFormat('de-DE',{maximumFractionDigits:0});
-var PTS=[100,200,300,400,500,1000];
-function toPts(p){p=+p||0;return p>50?1000:Math.max(100,Math.ceil(p/10)*100)}
-function validPts(w){w=+w||0;return PTS.indexOf(w)>=0?w:(w>500?1000:Math.max(100,Math.min(500,Math.round(w/100)*100)))}
+var PTS=[];for(var pi=1;pi<=20;pi++)PTS.push(pi*100);
+function toPts(p){p=+p||0;return Math.max(100,Math.min(2000,Math.ceil(p/5)*100))}
+function lvl(w){return Math.max(0,Math.min(4,Math.floor((w/20-1)/20)))}
+function validPts(w){w=+w||0;return Math.max(100,Math.min(2000,Math.round(w/100)*100))}
 var lpi=function(n){n=Math.round(fin(n));return (n>0?'+':n<0?'−':'')+nf0.format(Math.abs(n))+' LPI'};
 function eff(x){return x.pts!=null?lpi(x.pts):pct(x.pc)}
 function effCls(x){return cls(x.pts!=null?x.pts:x.pc)}
@@ -659,13 +660,19 @@ $('#brand-btn').addEventListener('click',function(){brandOn=!brandOn;try{localSt
 applyBrand();
 
 /* ---------- demo ---------- */
-var DEMO=[['Training','good',1000,'koerper',0,.3],['30 Min lernen','good',1000,'kopf',1,.4],['Schrittziel erreicht','good',500,'koerper',0,.55],
-          ['Vor 23 Uhr im Bett','good',400,'koerper',0,.3],['20 Min lesen','good',300,'kopf',0,.35],['Ausgaben notiert','good',200,'geld',0,.6],
-          ['Alkohol','bad',1000,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',1000,'kopf',1,.5],['Fast Food','bad',500,'koerper',0,.25],
-          ['Impulskauf','bad',500,'geld',0,.15],['Nach Mitternacht ins Bett','bad',400,'koerper',0,.4]];
+var DEMO=[['Training','good',1400,'koerper',0,.3],['30 Min lernen','good',1200,'kopf',1,.4],['Schrittziel erreicht','good',1000,'koerper',0,.55],
+          ['Vor 23 Uhr im Bett','good',800,'koerper',0,.3],['20 Min lesen','good',600,'kopf',0,.35],['Ausgaben notiert','good',400,'geld',0,.6],
+          ['Alkohol','bad',1600,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',1200,'kopf',1,.5],['Fast Food','bad',1000,'koerper',0,.25],
+          ['Impulskauf','bad',1000,'geld',0,.15],['Nach Mitternacht ins Bett','bad',800,'koerper',0,.4]];
+/* Version 18 stored 100-500 and 1,000. Starter trades get their exact new value back; others are doubled, and a plain 1,000 (old: above 50 %) becomes 1,500. */
+function fromV4(name,x){
+  var d=DEMO.filter(function(y){return y[0]===name})[0];
+  if(d){var pc=d[2]/20, coarse=pc>50?1000:Math.ceil(pc/10)*100;if(x===coarse)return d[2]}
+  return x>=1000?1500:validPts(x*2);
+}
 function freshState(){
   var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4]}});
-  return {v:4,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
+  return {v:5,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[]};
 }
 
 /* ---------- state ---------- */
@@ -677,7 +684,10 @@ function load(){
     s.goals=Array.isArray(s.goals)?s.goals:[];s.shorts=Array.isArray(s.shorts)?s.shorts:[];
     s.profile=s.profile||{name:'',age:''};
     s.habits.forEach(function(h){h.sector=normSec(h.sector,h.name)});
-    if((s.v||0)<4){s.habits.forEach(function(h){h.weight=toPts(h.weight)});s.logs.forEach(function(l){l.weight=toPts(l.weight)});s.shorts.forEach(function(x){x.weight=toPts(x.weight)});s.v=4}s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
+    if((s.v||0)<5){
+      var conv=(s.v||0)<4?function(o){o.weight=toPts(o.weight)}:function(o){o.weight=fromV4(o.name,o.weight)};
+      s.habits.forEach(conv);s.logs.forEach(conv);s.shorts.forEach(conv);s.v=5;
+    }s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
     if(!s.startTs)s.startTs=s.logs.length?sod(Math.min.apply(null,s.logs.map(function(l){return l.ts}))):sod(Date.now());
     return s}catch(e){return null}
 }
@@ -955,26 +965,26 @@ $('#add-habit').addEventListener('click',function(){openSheet(null)});
 $('#edit-toggle').addEventListener('click',function(){editMode=!editMode;this.textContent=editMode?'Fertig':'Bearbeiten';renderToday()});
 $('#f-sectors').innerHTML=SECTORS.map(function(s){return '<label><input type="radio" name="f-sector" id="f-sec-'+s.id+'" value="'+s.id+'"><span class="n">'+s.name+'</span></label>'}).join('');
 
-var LEVELS={good:['Kleinigkeit','Solide Routine','Bringt dich voran','Echte Überwindung','Starke Leistung','Meilenstein'],
-            bad:['Ausrutscher','Bremst dich etwas','Wirft dich zurück','Schadet dir deutlich','Schwerer Fehltritt','Rückfall']};
+var LEVELS={good:['Kleinigkeit','Solide Routine','Bringt dich voran','Echte Überwindung','Meilenstein'],
+            bad:['Ausrutscher','Bremst dich etwas','Wirft dich zurück','Schadet dir deutlich','Rückfall']};
 var QS={good:['Wie sehr bringt es dich deinem Ziel näher?','Wie viel Überwindung kostet es dich?','Wie viel Zeit oder Kraft steckt drin?'],
         bad:['Wie sehr schadet es dir oder deinem Ziel?','Wie lange wirkt es nach?','Wie sehr ärgerst du dich danach?']};
 var editing=null;
 function fType(){return $('#f-type-bad').checked?'bad':'good'}
 function fSector(){var c=document.querySelector('input[name="f-sector"]:checked');return c?c.value:'koerper'}
 function syncSheet(){
-  var t=fType(), wi=Math.max(0,Math.min(5,+$('#f-weight').value||0)), w=PTS[wi];
+  var t=fType(), wi=Math.max(0,Math.min(19,+$('#f-weight').value||0)), w=PTS[wi];
   $('#habit-form').classList.toggle('bad',t==='bad');
   $('#f-weight-lab').textContent=t==='good'?'Wie gut ist es?':'Wie schlecht ist es?';
   $('#f-wval').textContent=nf0.format(w)+' LPI';$('#f-wval').className='wval '+(t==='good'?'up':'down');
-  $('#f-wlvl').textContent=LEVELS[t][wi];
+  $('#f-wlvl').textContent=LEVELS[t][lvl(w)];
   $('#f-effect').textContent='Jeder Trade bewegt dein Depot um '+(t==='good'?'+':'−')+nf0.format(w)+' LPI.';
   QS[t].forEach(function(q,i){$('#f-q'+(i+1)+'l').textContent=q});
   var s=(0.5*+$('#f-q1').value+0.3*+$('#f-q2').value+0.2*+$('#f-q3').value-1)/4*95+5;
   var sp0=toPts(s);$('#f-sugg').textContent=nf0.format(sp0)+' LPI';$('#f-sugg').setAttribute('data-v',PTS.indexOf(sp0));
 }
 function openSheet(h){
-  editing=h||null;var src=h||{name:'',type:'good',weight:500,multi:false,sector:'koerper'};
+  editing=h||null;var src=h||{name:'',type:'good',weight:1000,multi:false,sector:'koerper'};
   $('#sheet-title').textContent=h?'Trade bearbeiten':'Neuer Trade';
   $('#f-name').value=src.name;$('#f-type-good').checked=src.type!=='bad';$('#f-type-bad').checked=src.type==='bad';
   $('#f-weight').value=PTS.indexOf(validPts(src.weight));$('#f-multi').checked=!!src.multi;
@@ -990,7 +1000,7 @@ $('#habit-form').addEventListener('submit',function(e){
   e.preventDefault();
   var name=$('#f-name').value.trim();
   if(!name){$('#f-err').hidden=false;$('#f-name').focus();return}
-  var v={name:name,type:fType(),weight:PTS[Math.max(0,Math.min(5,+$('#f-weight').value||0))],multi:$('#f-multi').checked,sector:fSector()};
+  var v={name:name,type:fType(),weight:PTS[Math.max(0,Math.min(19,+$('#f-weight').value||0))],multi:$('#f-multi').checked,sector:fSector()};
   var prevP=curPrice();
   if(editing){
     var eid=editing.id;editing.name=v.name;editing.type=v.type;editing.weight=v.weight;editing.multi=v.multi;editing.sector=v.sector;
@@ -1143,13 +1153,13 @@ $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)c
 $('#reset-all').addEventListener('click',function(){
   close('profile');
   ask('Depot zurücksetzen?','Alle Einträge, Ziele und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
-    state={v:4,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    state={v:5,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
   },function(){open('profile')});
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
-    state={v:4,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    state={v:5,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();
     $('#p-name').value=state.profile.name||'';$('#p-age').value=state.profile.age||'';open('profile');
   },null,'btn');
@@ -1272,9 +1282,9 @@ $('#rep-hist').addEventListener('click',function(e){
 });
 var entryEdit=null;
 function syncEntry(){
-  var l=entryEdit;if(!l)return;var wi=Math.max(0,Math.min(5,+$('#e-weight').value||0)), w=PTS[wi];
+  var l=entryEdit;if(!l)return;var wi=Math.max(0,Math.min(19,+$('#e-weight').value||0)), w=PTS[wi];
   $('#e-val').textContent=(l.type==='good'?'+':'−')+nf0.format(w)+' LPI';$('#e-val').className='wval '+(l.type==='good'?'up':'down');
-  $('#e-lvl').textContent=LEVELS[l.type][wi];
+  $('#e-lvl').textContent=LEVELS[l.type][lvl(w)];
 }
 function openEntry(l){
   entryEdit=l;$('#entry-title').textContent=l.name;$('#entry-info').textContent=dFull.format(l.ts)+', '+dTime.format(l.ts)+' Uhr';
@@ -1283,7 +1293,7 @@ function openEntry(l){
 $('#e-weight').addEventListener('input',syncEntry);
 $('#entry-form').addEventListener('submit',function(e){
   e.preventDefault();var l=entryEdit;if(!l)return;var prev=curPrice();
-  l.weight=PTS[Math.max(0,Math.min(5,+$('#e-weight').value||0))];entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
+  l.weight=PTS[Math.max(0,Math.min(19,+$('#e-weight').value||0))];entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
 });
 $('#e-delete').addEventListener('click',function(){
   var l=entryEdit;if(!l)return;close('entry');
