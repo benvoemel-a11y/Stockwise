@@ -112,17 +112,17 @@ h1,h2,h3,p{margin:0}
 .list{background:var(--surface);border-radius:var(--r-card);overflow:hidden}
 .row{display:flex;align-items:center;gap:12px;padding:9px 12px 9px 16px;min-height:56px;width:100%}
 .row + .row{border-top:1px solid var(--line)}
-.row-name{flex:1;min-width:0;font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.row-name{flex:1;min-width:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
 .row-sub{display:block;font-size:13px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
 .eff{flex:none;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
 .eff small{display:block;font-size:12px;font-weight:500}
 button.eff{padding:6px 0 6px 8px}
-.row-act{flex:none;display:flex;align-items:center;gap:6px}
+.row-act{flex:none;display:flex;align-items:center;gap:4px}
 .check,.step{width:36px;height:36px;border-radius:50%;background:var(--surface-2);font-size:20px;font-weight:500;line-height:1;display:grid;place-items:center;flex:none}
 .row.good .check[aria-pressed="true"]{background:var(--up);color:var(--inv-fg)}
 .row.bad .check[aria-pressed="true"]{background:var(--down);color:var(--inv-fg)}
 .check.go{background:var(--up);color:var(--inv-fg)}
-.cnt{min-width:26px;text-align:center;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
+.cnt{min-width:26px;white-space:nowrap;text-align:center;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .chev{color:var(--faint);font-size:18px;flex:none;padding-right:4px}
 .rate{flex:none;font-weight:700;font-variant-numeric:tabular-nums;font-size:15px}
 .empty{background:var(--surface);border-radius:var(--r-card);padding:20px 16px;color:var(--muted);font-size:15px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
@@ -538,7 +538,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Währung und Depot</summary><div><p>Dein Depot wird in <b>LPI</b> gemessen, dem Life Performance Index. Es startet bei <b>1.000,00 LPI</b>.</p><p>Das Depot kann ins Minus fallen. Eine Untergrenze gibt es nicht.</p></div></details>
         <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von <b>100 bis 2.000 LPI</b> in 100er-Schritten.</p>
           <div class="mini"><b>100–400</b><span>Kleinigkeit oder Ausrutscher</span><b>500–800</b><span>Solide Routine, bremst etwas</span><b>900–1.200</b><span>Bringt dich voran, wirft dich zurück</span><b>1.300–1.600</b><span>Echte Überwindung, echter Schaden</span><b>1.700–2.000</b><span>Meilenstein oder Rückfall</span></div>
-          <p>Ein Trade zählt einmal pro Tag. Ist „Mehrmals pro Tag zählbar“ eingeschaltet, zählt er unbegrenzt oft.</p></div></details>
+          <p>Ein Trade zählt einmal pro Tag. Ist „Mehrmals pro Tag zählbar“ eingeschaltet, zählt er unbegrenzt oft. Steht vorne eine Zeit im Namen (z.&nbsp;B. „30 Min Doomscrolling“), ist jeder Tipp ein Schritt dieser Länge und der Zähler zeigt die Zeit des Tages.</p></div></details>
         <details class="rule"><summary>Formel</summary><div><p><b>Wert = Bewertung × Stärke × Serie × Markt</b>, gerundet auf ganze LPI. Um diesen Wert steigt oder fällt dein Depot.</p><p>Der Wert steht beim Eintragen fest und ändert sich später nicht von selbst.</p><p>Beispiel: Training mit 1.400 LPI, Stärke Normal (× 1), dritter Tag in Folge (× 1,06), Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
         <details class="rule"><summary>Stärke</summary><div><p>Für jeden Trade stellst du einmal ein, wie stark er zählt. Die Einstellung bleibt, bis du sie änderst. Jeder Eintrag übernimmt die Stärke, die in dem Moment eingestellt ist.</p>
           <div class="mini"><b>Leicht</b><span>× 0,5</span><b>Normal</b><span>× 1</span><b>Stark</b><span>× 2</span><b>Extrem</b><span>× 4</span></div>
@@ -554,7 +554,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 25</div>
+    <div class="note" style="text-align:center">Version 26</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -759,17 +759,18 @@ applyBrand();
 /* ---------- demo ---------- */
 var DEMO=[['Training','good',1400,'koerper',0,.3],['30 Min lernen','good',1200,'kopf',1,.4],['Schrittziel erreicht','good',1000,'koerper',0,.55],
           ['Vor 23 Uhr im Bett','good',800,'koerper',0,.3],['20 Min lesen','good',600,'kopf',0,.35],['Ausgaben notiert','good',400,'geld',0,.6],
-          ['Alkohol','bad',1600,'koerper',0,.1,1],['1 Std. Doomscrolling','bad',1200,'kopf',1,.5],['Fast Food','bad',1000,'koerper',0,.25],
+          ['Alkohol','bad',1600,'koerper',0,.1,1],['30 Min Doomscrolling','bad',600,'kopf',1,.5],['Fast Food','bad',1000,'koerper',0,.25],
           ['Impulskauf','bad',1000,'geld',0,.15],['Nach Mitternacht ins Bett','bad',800,'koerper',0,.4]];
 /* Version 18 stored 100-500 and 1,000. Starter trades get their exact new value back; others are doubled, and a plain 1,000 (old: above 50 %) becomes 1,500. */
+var OLD_DOOM='1 Std. Doomscrolling';
 function fromV4(name,x){
-  var d=DEMO.filter(function(y){return y[0]===name})[0];
+  var d=DEMO.concat([[OLD_DOOM,'bad',1200]]).filter(function(y){return y[0]===name})[0];
   if(d){var pc=d[2]/20, coarse=pc>50?1000:Math.ceil(pc/10)*100;if(x===coarse)return d[2]}
   return x>=1000?1500:validPts(x*2);
 }
 function freshState(){
   var habits=DEMO.map(function(d,i){return {id:'d'+i,name:d[0],type:d[1],weight:d[2],sector:d[3],multi:!!d[4]}});
-  return {v:6,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[],streaks:[]};
+  return {v:7,demo:false,startTs:sod(Date.now()),profile:{name:'',age:''},habits:habits,logs:[],goals:[],shorts:[],streaks:[]};
 }
 
 /* ---------- state ---------- */
@@ -789,6 +790,11 @@ function load(){
       s.logs.sort(function(a,b){return a.ts-b.ts});
       s.logs.forEach(function(l){if(l.val==null){var d0=sod(l.ts);l.sf=serie(streakDays(l.habitId,d0,s.logs));l.mf=marketFor(l.type,d0,s.logs);l.val=worth(l.weight,l.sf,l.mf)}});
       s.v=6;
+    }
+    /* version 26: the hour of doomscrolling is counted in 30-minute steps, at half the rating */
+    if((s.v||0)<7){
+      s.habits.forEach(function(h){if(h.name===OLD_DOOM){h.name='30 Min Doomscrolling';h.weight=validPts(Math.ceil(h.weight/200)*100);h.multi=true}});
+      s.v=7;
     }s.goals.forEach(function(g){if(!g.tick)g.tick=autoTick(g.name)});
     if(!s.startTs)s.startTs=s.logs.length?sod(Math.min.apply(null,s.logs.map(function(l){return l.ts}))):sod(Date.now());
     return s}catch(e){return null}
@@ -1018,7 +1024,7 @@ function renderToday(){
         return;
       }
       if(h.multi){
-        act=(c?'<button class="step" type="button" data-act="minus" data-id="'+h.id+'" aria-label="'+n+': einen Trade zurücknehmen">−</button><span class="cnt">'+c+'×</span>':'')+
+        act=(c?'<button class="step" type="button" data-act="minus" data-id="'+h.id+'" aria-label="'+n+': einen Trade zurücknehmen">−</button><span class="cnt">'+cntLabel(h,c)+'</span>':'')+
             '<button class="step" type="button" data-act="plus" data-id="'+h.id+'" aria-label="'+n+' eintragen">+</button>';
       }else{
         act='<button class="check" type="button" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+(c?'true':'false')+'" aria-label="'+n+(c?' für heute zurücknehmen':' für heute eintragen')+'">'+(c?'✓':'+')+'</button>';
@@ -1028,6 +1034,12 @@ function renderToday(){
     html+='</div></div>';
   });
   box.innerHTML=html;
+}
+/* a countable trade named "30 Min ..." shows the time of the day instead of the number of taps */
+function cntLabel(h,c){
+  var m=/^(\d{1,3})\s*Min/i.exec(h.name);if(!m)return c+'×';
+  var t=+m[1]*c;if(t<60)return t+' Min';
+  return Math.floor(t/60)+(t%60?':'+(t%60<10?'0':'')+t%60:'')+' h';
 }
 var secOpen=null;
 function secChange(arr,t0){var now=arr.length?arr[arr.length-1].price:START;return chg(now,priceIn(arr,t0))}
@@ -1348,13 +1360,13 @@ $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)c
 $('#reset-all').addEventListener('click',function(){
   close('profile');
   ask('Depot zurücksetzen?','Alle Einträge, Ziele, Streaks und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
-    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
+    state={v:7,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
   },function(){open('profile')});
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
-    state={v:6,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
+    state={v:7,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[],streaks:[]};
     $('#demo-banner').hidden=true;rebuild();save();renderAll();
     $('#p-name').value=state.profile.name||'';$('#p-age').value=state.profile.age||'';open('profile');
   },null,'btn');
