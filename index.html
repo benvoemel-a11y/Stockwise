@@ -116,6 +116,7 @@ h1,h2,h3,p{margin:0}
 .row-sub{display:block;font-size:13px;font-weight:500;color:var(--muted);font-variant-numeric:tabular-nums}
 .eff{flex:none;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
 .eff small{display:block;font-size:12px;font-weight:500}
+button.eff{padding:6px 0 6px 8px}
 .row-act{flex:none;display:flex;align-items:center;gap:6px}
 .check,.step{width:36px;height:36px;border-radius:50%;background:var(--surface-2);font-size:20px;font-weight:500;line-height:1;display:grid;place-items:center;flex:none}
 .row.good .check[aria-pressed="true"]{background:var(--up);color:var(--inv-fg)}
@@ -418,6 +419,10 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       <input type="range" id="f-weight" min="0" max="19" step="1" value="9">
       <div class="note" id="f-effect"></div>
     </div>
+    <div class="field">
+      <div class="lab">Stärke</div>
+      <div class="seg" id="f-str" role="group" aria-label="Stärke"></div>
+    </div>
     <details class="help" id="f-help">
       <summary>Hilfe beim Bewerten</summary>
       <div class="qs">
@@ -529,9 +534,9 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
           <div class="mini"><b>100–400</b><span>Kleinigkeit oder Ausrutscher</span><b>500–800</b><span>Solide Routine, bremst etwas</span><b>900–1.200</b><span>Bringt dich voran, wirft dich zurück</span><b>1.300–1.600</b><span>Echte Überwindung, echter Schaden</span><b>1.700–2.000</b><span>Meilenstein oder Rückfall</span></div>
           <p>Ein Trade zählt einmal pro Tag. Ist „Mehrmals pro Tag zählbar“ eingeschaltet, zählt er unbegrenzt oft.</p></div></details>
         <details class="rule"><summary>Formel</summary><div><p><b>Wert = Bewertung × Stärke × Serie × Markt</b>, gerundet auf ganze LPI. Um diesen Wert steigt oder fällt dein Depot.</p><p>Der Wert steht beim Eintragen fest und ändert sich später nicht von selbst.</p><p>Beispiel: Training mit 1.400 LPI, Stärke Normal (× 1), dritter Tag in Folge (× 1,06), Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
-        <details class="rule"><summary>Stärke</summary><div><p>Beim Eintragen wählst du, wie stark es heute war.</p>
+        <details class="rule"><summary>Stärke</summary><div><p>Für jeden Trade stellst du einmal ein, wie stark er zählt. Die Einstellung bleibt, bis du sie änderst. Jeder Eintrag übernimmt die Stärke, die in dem Moment eingestellt ist.</p>
           <div class="mini"><b>Leicht</b><span>× 0,5</span><b>Normal</b><span>× 1</span><b>Stark</b><span>× 2</span><b>Extrem</b><span>× 4</span></div>
-          <p>Das Extrem heißt bei positiven Trades „Extremer Aufschwung“ und bei negativen „Börsencrash“.</p></div></details>
+          <p>Das Extrem heißt bei positiven Trades „Extremer Aufschwung“ und bei negativen „Börsencrash“.</p><p>Ändern: Tippe auf der Trades-Seite auf den LPI-Wert des Trades, oder öffne den Trade über „Bearbeiten“.</p></div></details>
         <details class="rule"><summary>Serie</summary><div><p>Für jeden weiteren Tag in Folge mit demselben Trade gibt es <b>+3 %</b>, höchstens <b>+30 %</b>. Ein ausgelassener Tag setzt die Serie zurück.</p><p>Das gilt auch für negative Trades: Wiederholst du sie Tag für Tag, werden sie teurer.</p></div></details>
         <details class="rule"><summary>Markt</summary><div><p>Der Markt hängt an deiner <b>Form der letzten 7 Tage</b> vor heute.</p><p><b>Form = (Plus − Minus) ÷ (Plus + Minus)</b>. Plus sind die LPI deiner positiven Trades, Minus die deiner negativen. Eine reine Plus-Woche bringt <b>+8 %</b>, eine reine Minus-Woche <b>−8 %</b>, eine ausgeglichene Woche 0 %.</p><p>Dazu kommt eine Tagesschwankung von höchstens <b>±2 %</b>. Der Markt steht oben auf der Trades-Seite.</p><p>Positive Trades zählen <b>mit</b> dem Markt, negative <b>gegen</b> ihn: Bei Markt +5 % bringt ein positiver Trade 5 % mehr und ein negativer kostet 5 % weniger. Bei Markt −5 % ist es umgekehrt. Gute Form verstärkt sich also, schlechte auch.</p></div></details>
         <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b> seines Betrags.</p></div></details>
@@ -543,7 +548,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 23</div>
+    <div class="note" style="text-align:center">Version 24</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -576,7 +581,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="str-title">
     <div class="grab"></div>
     <h2 id="str-title"></h2>
-    <p class="rep-text">Wie stark war es heute?</p>
+    <p class="rep-text">Wie stark zählt dieser Trade? Die Auswahl bleibt, bis du sie änderst.</p>
     <div class="list" id="str-list"></div>
     <button class="btn ghost" type="button" data-close>Abbrechen</button>
   </div>
@@ -981,7 +986,7 @@ function animatePrice(from,to){
 /* ---------- today + sectors ---------- */
 var editMode=false;
 function effect(h){return (h.type==='good'?'+':'−')+nf0.format(h.weight)+' LPI'}
-function effectToday(h){return (h.type==='good'?'+':'−')+nf0.format(valueFor(h,sod(Date.now())).val)+' LPI'}
+function effectToday(h){return (h.type==='good'?'+':'−')+nf0.format(valueFor(h,sod(Date.now()),h.k).val)+' LPI'}
 function renderToday(){
   var t0=sod(Date.now()), todays=state.logs.filter(function(l){return l.ts>=t0}), counts={};
   todays.forEach(function(l){counts[l.habitId]=(counts[l.habitId]||0)+1});
@@ -1012,7 +1017,7 @@ function renderToday(){
       }else{
         act='<button class="check" type="button" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+(c?'true':'false')+'" aria-label="'+n+(c?' für heute zurücknehmen':' für heute eintragen')+'">'+(c?'✓':'+')+'</button>';
       }
-      html+='<div class="row '+h.type+'"><button class="row-name" type="button" data-edit="'+h.id+'" aria-label="'+n+' bearbeiten">'+n+'</button><span class="eff '+(h.type==='good'?'up':'down')+'">'+effectToday(h)+'</span><div class="row-act">'+act+'</div></div>';
+      html+='<div class="row '+h.type+'"><button class="row-name" type="button" data-edit="'+h.id+'" aria-label="'+n+' bearbeiten">'+n+'</button><button class="eff '+(h.type==='good'?'up':'down')+'" type="button" data-strset="'+h.id+'" aria-label="Stärke für '+n+' ändern">'+effectToday(h)+(h.k&&h.k!==1?'<small class="plain">'+strName(strOf(h.k),h.type,true)+'</small>':'')+'</button><div class="row-act">'+act+'</div></div>';
     });
     html+='</div></div>';
   });
@@ -1053,12 +1058,15 @@ function commit(prev,msg){
 }
 $('#today-list').addEventListener('click',function(e){
   var ed=e.target.closest('[data-edit]');if(ed){openSheet(habitById(ed.getAttribute('data-edit')));return}
+  var ss=e.target.closest('[data-strset]');if(ss){var hs=habitById(ss.getAttribute('data-strset'));if(hs)openStrength(hs);return}
   var b=e.target.closest('[data-act]');if(!b)return;
   var h=habitById(b.getAttribute('data-id'));if(!h)return;
   var act=b.getAttribute('data-act'), prev=curPrice(), t0=sod(Date.now());
   var mine=state.logs.filter(function(l){return l.habitId===h.id&&l.ts>=t0});
   if(act==='plus'||(act==='toggle'&&!mine.length)){
-    openStrength(h);
+    var vv=valueFor(h,t0,h.k);
+    state.logs.push({id:uid(),habitId:h.id,name:h.name,type:h.type,weight:h.weight,k:vv.k,sf:vv.sf,mf:vv.mf,val:vv.val,sector:normSec(h.sector,h.name),ts:Date.now()});
+    rebuild();commit(prev,h.name+(vv.k!==1?' ('+strName(strOf(vv.k),h.type)+')':'')+' · '+(h.type==='good'?'+':'−')+nf0.format(vv.val)+' LPI · '+fmt(curPrice())+' LPI');
   }else if(mine.length){
     var lastId=mine[mine.length-1].id;
     state.logs=state.logs.filter(function(l){return l.id!==lastId});
@@ -1071,16 +1079,16 @@ function openStrength(h){
   $('#str-title').textContent=h.name;
   $('#str-list').innerHTML=STRENGTH.map(function(x,i){
     var v=valueFor(h,t0,x.f);
-    return '<button class="row '+h.type+'" type="button" data-str="'+i+'"><span class="row-name">'+strName(x,h.type)+'<span class="row-sub">'+x.sub+'</span></span><span class="eff '+(h.type==='good'?'up':'down')+'">'+(h.type==='good'?'+':'−')+nf0.format(v.val)+' LPI</span></button>';
+    var on=x.f===strOf(h.k).f;
+    return '<button class="row '+h.type+'" type="button" data-str="'+i+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+strName(x,h.type)+'<span class="row-sub">'+x.sub+'</span></span><span class="eff '+(h.type==='good'?'up':'down')+'">'+(h.type==='good'?'+':'−')+nf0.format(v.val)+' LPI</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
   }).join('');
   open('strength');
 }
 $('#str-list').addEventListener('click',function(e){
   var b=e.target.closest('[data-str]'), h=strengthFor;if(!b||!h)return;
-  var x=STRENGTH[+b.getAttribute('data-str')], prev=curPrice(), vv=valueFor(h,sod(Date.now()),x.f);
-  state.logs.push({id:uid(),habitId:h.id,name:h.name,type:h.type,weight:h.weight,k:x.f,sf:vv.sf,mf:vv.mf,val:vv.val,sector:normSec(h.sector,h.name),ts:Date.now()});
-  strengthFor=null;close('strength');
-  rebuild();commit(prev,h.name+(x.f!==1?' ('+strName(x,h.type)+')':'')+' · '+(h.type==='good'?'+':'−')+nf0.format(vv.val)+' LPI · '+fmt(curPrice())+' LPI');
+  var x=STRENGTH[+b.getAttribute('data-str')];
+  h.k=x.f;strengthFor=null;close('strength');save();renderToday();
+  toast(h.name+' zählt ab jetzt: '+strName(x,h.type));
 });
 var toastT=0;
 function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},2400)}
@@ -1094,7 +1102,7 @@ var LEVELS={good:['Kleinigkeit','Solide Routine','Bringt dich voran','Echte Übe
             bad:['Ausrutscher','Bremst dich etwas','Wirft dich zurück','Schadet dir deutlich','Rückfall']};
 var QS={good:['Wie sehr bringt es dich deinem Ziel näher?','Wie viel Überwindung kostet es dich?','Wie viel Zeit oder Kraft steckt drin?'],
         bad:['Wie sehr schadet es dir oder deinem Ziel?','Wie lange wirkt es nach?','Wie sehr ärgerst du dich danach?']};
-var editing=null;
+var editing=null, sheetK=1;
 function fType(){return $('#f-type-bad').checked?'bad':'good'}
 function fSector(){var c=document.querySelector('input[name="f-sector"]:checked');return c?c.value:'koerper'}
 function syncSheet(){
@@ -1103,8 +1111,9 @@ function syncSheet(){
   $('#f-weight-lab').textContent=t==='good'?'Wie gut ist es?':'Wie schlecht ist es?';
   $('#f-wval').textContent=nf0.format(w)+' LPI';$('#f-wval').className='wval '+(t==='good'?'up':'down');
   $('#f-wlvl').textContent=LEVELS[t][lvl(w)];
-  var tsf=editing?serie(streakDays(editing.id,sod(Date.now()),state.logs)):1, tv=worth(w,tsf,marketFor(t,sod(Date.now()),state.logs));
-  $('#f-effect').textContent='Grundwert '+(t==='good'?'+':'−')+nf0.format(w)+' LPI. Heute wären es mit Serie und Markt '+(t==='good'?'+':'−')+nf0.format(tv)+' LPI.';
+  var tsf=editing?serie(streakDays(editing.id,sod(Date.now()),state.logs)):1, tv=worth(w,tsf,marketFor(t,sod(Date.now()),state.logs),sheetK);
+  $('#f-str').innerHTML=STRENGTH.map(function(x,i){return '<button type="button" data-fk="'+i+'" aria-pressed="'+(x.f===sheetK?'true':'false')+'">'+strName(x,t,true)+'</button>'}).join('');
+  $('#f-effect').textContent='Grundwert '+(t==='good'?'+':'−')+nf0.format(w)+' LPI. Heute wären es mit Stärke, Serie und Markt '+(t==='good'?'+':'−')+nf0.format(tv)+' LPI.';
   QS[t].forEach(function(q,i){$('#f-q'+(i+1)+'l').textContent=q});
   var s=(0.5*+$('#f-q1').value+0.3*+$('#f-q2').value+0.2*+$('#f-q3').value-1)/4*95+5;
   var sp0=toPts(s);$('#f-sugg').textContent=nf0.format(sp0)+' LPI';$('#f-sugg').setAttribute('data-v',PTS.indexOf(sp0));
@@ -1113,7 +1122,7 @@ function openSheet(h){
   editing=h||null;var src=h||{name:'',type:'good',weight:1000,multi:false,sector:'koerper'};
   $('#sheet-title').textContent=h?'Trade bearbeiten':'Neuer Trade';
   $('#f-name').value=src.name;$('#f-type-good').checked=src.type!=='bad';$('#f-type-bad').checked=src.type==='bad';
-  $('#f-weight').value=PTS.indexOf(validPts(src.weight));$('#f-multi').checked=!!src.multi;
+  $('#f-weight').value=PTS.indexOf(validPts(src.weight));sheetK=strOf(src.k).f;$('#f-multi').checked=!!src.multi;
   var sc=$('#f-sec-'+normSec(src.sector,src.name));if(sc)sc.checked=true;
   $('#f-q1').value=3;$('#f-q2').value=3;$('#f-q3').value=3;$('#f-help').open=false;
   $('#f-err').hidden=true;$('#f-delete').hidden=!h;$('#f-editnote').hidden=!h;$('#f-retro').checked=false;$('#f-retro-row').hidden=!h;
@@ -1121,18 +1130,19 @@ function openSheet(h){
   if(!h)setTimeout(function(){$('#f-name').focus()},60);
 }
 $('#habit-form').addEventListener('input',syncSheet);
+$('#f-str').addEventListener('click',function(e){var b=e.target.closest('[data-fk]');if(b){sheetK=STRENGTH[+b.getAttribute('data-fk')].f;syncSheet()}});
 $('#f-apply').addEventListener('click',function(){$('#f-weight').value=$('#f-sugg').getAttribute('data-v');syncSheet()});
 $('#habit-form').addEventListener('submit',function(e){
   e.preventDefault();
   var name=$('#f-name').value.trim();
   if(!name){$('#f-err').hidden=false;$('#f-name').focus();return}
-  var v={name:name,type:fType(),weight:PTS[Math.max(0,Math.min(19,+$('#f-weight').value||0))],multi:$('#f-multi').checked,sector:fSector()};
+  var v={name:name,type:fType(),weight:PTS[Math.max(0,Math.min(19,+$('#f-weight').value||0))],multi:$('#f-multi').checked,sector:fSector(),k:sheetK};
   var prevP=curPrice();
   if(editing){
-    var eid=editing.id;editing.name=v.name;editing.type=v.type;editing.weight=v.weight;editing.multi=v.multi;editing.sector=v.sector;
+    var eid=editing.id;editing.name=v.name;editing.type=v.type;editing.weight=v.weight;editing.multi=v.multi;editing.sector=v.sector;editing.k=v.k;
     if($('#f-retro').checked)state.logs.forEach(function(l){if(l.habitId===eid){l.name=v.name;l.type=v.type;l.weight=v.weight;l.sector=v.sector;l.val=worth(v.weight,l.sf,l.mf,l.k)}});
   }
-  else state.habits.push({id:uid(),name:v.name,type:v.type,weight:v.weight,multi:v.multi,sector:v.sector});
+  else state.habits.push({id:uid(),name:v.name,type:v.type,weight:v.weight,multi:v.multi,sector:v.sector,k:v.k});
   editing=null;close('habit');
   commit(prevP,name+' gespeichert');
 });
