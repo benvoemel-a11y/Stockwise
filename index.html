@@ -57,6 +57,12 @@ h1,h2,h3,p{margin:0}
 .shell{height:100%;max-width:480px;margin-inline:auto;display:flex;flex-direction:column}
 .top{flex:none;display:flex;align-items:center;gap:8px;padding:10px 16px 6px}
 .brand{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-right:auto}
+.brand{display:flex;align-items:center;gap:8px}
+.logo{width:31px;height:24px;flex:none;color:var(--fg)}
+.logo .lg-b{fill:none;stroke:currentColor;stroke-width:5.4;stroke-linejoin:round;stroke-linecap:round}
+.logo .lg-f{fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;opacity:.45}
+.logo .lg-c{fill:none;stroke:var(--up);stroke-width:9.5;stroke-linejoin:round;stroke-linecap:round}
+.logo .lg-d{fill:var(--up)}
 .brand.off{visibility:hidden}
 .brand .my{color:var(--fg)} .brand .tr{color:var(--up)}
 .icon-btn{width:38px;height:38px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;flex:none;font-weight:700;font-size:15px}
@@ -258,7 +264,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
 <body>
 <div class="shell">
   <header class="top">
-    <h1 class="brand" id="brand"><span class="my">Stock</span><span class="tr">wise</span></h1>
+    <h1 class="brand" id="brand"><svg class="logo" viewBox="11 15 80 62" aria-hidden="true"><polyline class="lg-c" points="18,34 32,68 46,44 60,68 82,24"/><polyline class="lg-c" points="66,23 83,23 83,40"/></svg><span><span class="my">Stock</span><span class="tr">wise</span></span></h1>
     <button id="brand-btn" class="icon-btn" type="button" aria-label="Namen ausblenden"></button>
     <button id="theme-btn" class="icon-btn" type="button" aria-label="Darstellung wechseln"></button>
     <button id="profile-btn" class="icon-btn" type="button" aria-label="Account"></button>
@@ -312,14 +318,14 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <div id="goal-list"></div>
       </div>
       <button class="btn" type="button" id="add-goal">Neues Ziel</button>
-      <details class="fold" id="goal-done-wrap" hidden>
+      <details class="fold" id="goal-done-wrap" open hidden>
         <summary><h2>Abgeschlossen</h2><span class="meta" id="goal-done-meta"></span></summary>
         <div class="list" id="goal-done"></div>
       </details>
       <div class="sec-head"><h2>Shorts</h2><span class="meta">Wette auf dich selbst</span></div>
       <div id="short-list"></div>
       <button class="btn ghost" type="button" id="add-short">Short eröffnen</button>
-      <details class="fold" id="short-done-wrap" hidden>
+      <details class="fold" id="short-done-wrap" open hidden>
         <summary><h2>Abgerechnet</h2><span class="meta" id="short-done-meta"></span></summary>
         <div class="list" id="short-done"></div>
       </details>
@@ -456,6 +462,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <div class="actions">
       <button class="btn" type="submit" id="g-save">Speichern</button>
       <button class="btn ghost" type="button" id="g-miss" hidden>Nicht erreicht</button>
+      <button class="btn ghost" type="button" id="g-reopen" hidden>Wieder öffnen</button>
       <button class="btn danger" type="button" id="g-delete" hidden>Ziel löschen</button>
       <button class="btn ghost" type="button" data-close>Abbrechen</button>
     </div>
@@ -468,7 +475,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <div class="grab"></div>
     <h2 id="short-title">Short eröffnen</h2>
     <p class="rep-text">Du wettest, dass du einen negativen Trade eine Zeit lang nicht machst.</p>
-    <div class="field">
+    <div class="field" id="short-pick-field">
       <div class="lab">Negativer Trade</div>
       <div class="list" id="short-pick"></div>
     </div>
@@ -484,6 +491,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <div class="bet" id="short-bet"></div>
     <div class="actions">
       <button class="btn" type="button" id="short-open">Short eröffnen</button>
+      <button class="btn danger" type="button" id="short-delete" hidden>Short löschen</button>
       <button class="btn ghost" type="button" data-close>Abbrechen</button>
     </div>
   </div>
@@ -515,10 +523,11 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor hat einen eigenen Wert. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
         <details class="rule"><summary>Ziele und Dividende</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von 1 bis 10 %. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p></div></details>
         <details class="rule"><summary>Serien-Dividende</summary><div><p>Schaffst du einen positiven Trade <b>7 Tage in Folge</b>, gibt es +1,00 % auf das Depot und seinen Sektor. Das gilt für jede weitere volle Woche.</p></div></details>
-        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b>. Ein Short lässt sich nicht abbrechen.</p></div></details>
+        <details class="rule"><summary>Shorts</summary><div><p>Mit einem Short wettest du, dass du einen negativen Trade 3, 7, 14 oder 30 Tage nicht machst. Hältst du durch, steigt dein Depot. Trägst du ihn doch ein, fällt es um denselben Betrag.</p><p>Der Einsatz ist <b>Bewertung × Tage ÷ 4</b>. Einen Short kannst du auf der Ziele-Seite bearbeiten oder löschen.</p></div></details>
         <details class="rule"><summary>Bearbeiten und Löschen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf. Das Depot wird dann neu berechnet.</p></div></details>
       </div>
     </details>
+    <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1033,13 +1042,13 @@ function renderGoals(){
   state.shorts.forEach(function(s){var i=shortInfo[s.id];if(!i)return;(i.state==='open'?act:fin).push({s:s,i:i})});
   $('#short-list').innerHTML=act.length?'<div class="list">'+act.map(function(o){
     var day=Math.min(o.s.days,dayDiff(Date.now(),o.s.start)+1);
-    return '<div class="row"><div class="row-name">'+esc(o.s.name)+'<span class="row-sub">Tag '+day+' von '+o.s.days+' · bis '+esc(dDay.format(o.i.end))+', '+esc(dTime.format(o.i.end))+' Uhr</span></div><span class="eff">±'+nf.format(o.i.stake)+' %</span></div>';
+    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">Tag '+day+' von '+o.s.days+' · bis '+esc(dDay.format(o.i.end))+', '+esc(dTime.format(o.i.end))+' Uhr</span></span><span class="eff">±'+nf.format(o.i.stake)+' %</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('')+'</div>':'<div class="empty">Kein offener Short. Wette darauf, dass du einen negativen Trade eine Zeit lang nicht machst.</div>';
   fin.sort(function(a,b){return b.i.ts-a.i.ts});
   $('#short-done-wrap').hidden=!fin.length;$('#short-done-meta').textContent=fin.length+(fin.length===1?' Short':' Shorts');
   $('#short-done').innerHTML=fin.slice(0,6).map(function(o){
     var won=o.i.state==='won';
-    return '<div class="row"><div class="row-name">'+esc(o.s.name)+'<span class="row-sub">'+o.s.days+' Tage · '+(won?'gewonnen am ':'verloren am ')+esc(dShort.format(o.i.ts))+'</span></div><span class="eff '+(won?'up':'down')+'">'+pct(won?o.i.stake:-o.i.stake)+'</span></div>';
+    return '<button class="row" type="button" data-short="'+o.s.id+'"><span class="row-name">'+esc(o.s.name)+'<span class="row-sub">'+o.s.days+' Tage · '+(won?'gewonnen am ':'verloren am ')+esc(dShort.format(o.i.ts))+'</span></span><span class="eff '+(won?'up':'down')+'">'+pct(won?o.i.stake:-o.i.stake)+'</span><span class="chev" aria-hidden="true">›</span></button>';
   }).join('');
 }
 var DIV_LEVELS=['Kleines Ziel','Solides Ziel','Großes Ziel','Sehr großes Ziel','Lebensziel'];
@@ -1049,9 +1058,9 @@ $('#g-name').addEventListener('input',function(){$('#g-tick').placeholder=autoTi
 function openGoal(g){
   goalEdit=g||null;
   var closed=!!g&&g.status!=='open', due=!!g&&g.status==='open'&&g.date<=sod(Date.now());
-  $('#goal-title').textContent=g?(closed?g.name:'Ziel bearbeiten'):'Neues Ziel';
-  $('#goal-edit').hidden=closed;$('#g-save').hidden=closed;$('#goal-info').hidden=!closed;
-  if(closed)$('#goal-info').textContent=g.status==='hit'?'Erreicht am '+dFull.format(g.doneTs)+'. Dividende: '+pct(g.div)+'. Wenn du das Ziel löschst, verschwindet auch die Dividende aus dem Depot.':'Verfehlt. Es wurde keine Dividende ausgeschüttet.';
+  $('#goal-title').textContent=g?'Ziel bearbeiten':'Neues Ziel';
+  $('#goal-info').hidden=!closed;$('#g-reopen').hidden=!closed;
+  if(closed)$('#goal-info').textContent=g.status==='hit'?'Erreicht am '+dFull.format(g.doneTs)+'. Änderst du die Dividende, wird dein Depot neu berechnet.':'Verfehlt am '+dFull.format(g.doneTs||g.date)+'. Es wurde keine Dividende ausgeschüttet.';
   $('#g-name').value=g?g.name:'';$('#g-tick').value=g?(g.tick||''):'';$('#g-tick').placeholder=g?autoTick(g.name):'ZIEL';$('#g-date').value=toInput(g?g.date:addDays(Date.now(),30));$('#g-date').min=g?'':toInput(Date.now());
   $('#g-div').value=g?g.div:5;$('#g-err').hidden=true;
   $('#g-miss').hidden=!due;$('#g-delete').hidden=!g;
@@ -1065,6 +1074,8 @@ $('#view-goals').addEventListener('click',function(e){
       var prev=curPrice();g.status='hit';g.doneTs=Date.now();commit(prev,'Dividende '+pct(g.div)+' aufs ganze Depot');
     },null,'btn');
     return}
+  var sh=e.target.closest('[data-short]');
+  if(sh){var s0=state.shorts.filter(function(x){return x.id===sh.getAttribute('data-short')})[0];if(s0){shortEdit=s0;shortDays=s0.days;renderShortSheet();open('short')}return}
   var b=e.target.closest('[data-goal]');if(b)openGoal(goalById(b.getAttribute('data-goal')));
 });
 $('#goal-form').addEventListener('submit',function(e){
@@ -1076,9 +1087,12 @@ $('#goal-form').addEventListener('submit',function(e){
   var div=Math.max(1,Math.min(10,+$('#g-div').value||5)), tick=cleanTick($('#g-tick').value)||autoTick(name);
   if(goalEdit){goalEdit.name=name;goalEdit.date=date;goalEdit.div=div;goalEdit.tick=tick}
   else state.goals.push({id:uid(),name:name,tick:tick,date:date,div:div,status:'open'});
-  goalEdit=null;close('goal');commit(null,name+' gespeichert');
+  var gp=curPrice();goalEdit=null;close('goal');commit(gp,name+' gespeichert');
 });
 $('#g-miss').addEventListener('click',function(){var g=goalEdit;if(!g)return;g.status='miss';g.doneTs=Date.now();goalEdit=null;close('goal');commit(null,'Ziel als verfehlt markiert')});
+$('#g-reopen').addEventListener('click',function(){
+  var g=goalEdit;if(!g)return;var prev=curPrice();g.status='open';delete g.doneTs;goalEdit=null;close('goal');commit(prev,'Ziel wieder geöffnet');
+});
 $('#g-delete').addEventListener('click',function(){
   var g=goalEdit;if(!g)return;close('goal');
   ask('„'+g.name+'“ löschen?',g.status==='hit'?'Die ausgeschüttete Dividende verschwindet damit aus dem Depot.':'Das Ziel wird entfernt.','Ziel löschen',function(){
@@ -1087,29 +1101,39 @@ $('#g-delete').addEventListener('click',function(){
 });
 
 /* ---------- shorts ---------- */
-var shortPick=null, shortDays=7;
+var shortPick=null, shortDays=7, shortEdit=null;
 function freeNegatives(){return state.habits.filter(function(h){return h.type==='bad'&&!state.shorts.some(function(s){return s.habitId===h.id&&shortInfo[s.id]&&shortInfo[s.id].state==='open'})})}
 function renderShortSheet(){
-  var neg=freeNegatives();
-  $('#short-pick').innerHTML=neg.map(function(h){
-    var on=h.id===shortPick;
-    return '<button class="row bad" type="button" data-pick="'+h.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+esc(h.name)+'</span><span class="eff down">'+h.weight+' %</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
+  var e=shortEdit, h=e?{name:e.name,weight:e.weight}:habitById(shortPick);
+  $('#short-title').textContent=e?'Short bearbeiten':'Short eröffnen';
+  $('#short-pick-field').hidden=!!e;$('#short-delete').hidden=!e;$('#short-open').textContent=e?'Speichern':'Short eröffnen';
+  if(!e)$('#short-pick').innerHTML=freeNegatives().map(function(x){
+    var on=x.id===shortPick;
+    return '<button class="row bad" type="button" data-pick="'+x.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+esc(x.name)+'</span><span class="eff down">'+x.weight+' %</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
   }).join('');
   $$('[data-days]').forEach(function(b){b.setAttribute('aria-pressed',+b.getAttribute('data-days')===shortDays?'true':'false')});
-  var h=habitById(shortPick), st=h?stake(h.weight,shortDays):0;
-  $('#short-bet').innerHTML=h?'<span><b class="up">'+pct(st)+'</b> wenn du '+shortDays+' Tage ohne „'+esc(h.name)+'“ schaffst.</span><span><b class="down">'+pct(-st)+'</b> sobald du es in der Zeit einträgst, zusätzlich zum Trade selbst.</span><span class="note">Ein Short lässt sich nicht abbrechen.</span>':'';
+  var st=h?stake(h.weight,shortDays):0;
+  $('#short-bet').innerHTML=h?'<span><b class="up">'+pct(st)+'</b> wenn du '+shortDays+' Tage ohne „'+esc(h.name)+'“ schaffst.</span><span><b class="down">'+pct(-st)+'</b> sobald du es in der Zeit einträgst, zusätzlich zum Trade selbst.</span><span class="note">'+(e?'Die Laufzeit zählt ab dem Start ('+esc(dDay.format(e.start))+'). Dein Depot wird neu berechnet.':'Du kannst den Short später bearbeiten oder löschen.')+'</span>':'';
 }
 $('#add-short').addEventListener('click',function(){
   var neg=freeNegatives();
   if(!neg.length){toast(state.habits.some(function(h){return h.type==='bad'})?'Auf jeden negativen Trade läuft schon ein Short.':'Lege zuerst einen negativen Trade an.');return}
-  shortPick=neg[0].id;shortDays=7;renderShortSheet();open('short');
+  shortEdit=null;shortPick=neg[0].id;shortDays=7;renderShortSheet();open('short');
 });
 $('#short-pick').addEventListener('click',function(e){var b=e.target.closest('[data-pick]');if(b){shortPick=b.getAttribute('data-pick');renderShortSheet()}});
 $$('[data-days]').forEach(function(b){b.addEventListener('click',function(){shortDays=+b.getAttribute('data-days');renderShortSheet()})});
 $('#short-open').addEventListener('click',function(){
+  var prev=curPrice();
+  if(shortEdit){shortEdit.days=shortDays;shortEdit=null;close('short');commit(prev,'Short gespeichert');return}
   var h=habitById(shortPick);if(!h)return;
   state.shorts.push({id:uid(),habitId:h.id,name:h.name,weight:h.weight,start:Date.now(),days:shortDays});
   close('short');commit(null,'Short auf '+h.name+' eröffnet');
+});
+$('#short-delete').addEventListener('click',function(){
+  var s0=shortEdit;if(!s0)return;close('short');
+  ask('Short löschen?','„'+s0.name+'“: Der Short verschwindet. Ein schon abgerechneter Gewinn oder Verlust wird aus deinem Depot herausgerechnet.','Short löschen',function(){
+    var prev=curPrice();state.shorts=state.shorts.filter(function(x){return x.id!==s0.id});shortEdit=null;commit(prev,'Short gelöscht');
+  },function(){open('short')});
 });
 
 /* ---------- confirm ---------- */
@@ -1119,6 +1143,13 @@ function closeAsk(run){close('confirm');var f=run?onOk:onNo;onOk=onNo=null;if(f)
 $('#c-ok').addEventListener('click',function(){closeAsk(true)});
 $('#c-cancel').addEventListener('click',function(){closeAsk(false)});
 $('#confirm-backdrop').addEventListener('click',function(e){if(e.target===this)closeAsk(false)});
+$('#reset-all').addEventListener('click',function(){
+  close('profile');
+  ask('Depot zurücksetzen?','Alle Einträge, Ziele und Shorts werden gelöscht und dein Depot startet wieder bei 1.000,00 LPI. Dein Name und deine Trades bleiben.','Zurücksetzen',function(){
+    state={v:3,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
+    $('#demo-banner').hidden=true;rebuild();save();renderAll();toast('Dein Depot startet bei 1.000,00 LPI');
+  },function(){open('profile')});
+});
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
     state={v:3,demo:false,startTs:sod(Date.now()),profile:state.profile,habits:state.habits,logs:[],goals:[],shorts:[]};
