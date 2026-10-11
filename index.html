@@ -135,7 +135,7 @@ h1,h2,h3,p{margin:0}
 
 /* segmented */
 .seg{display:flex;background:var(--surface-2);border-radius:var(--r-ctl);padding:2px}
-.seg button{flex:1;padding:8px 0;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);text-align:center}
+.seg button{flex:1;min-width:0;padding:8px 2px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);text-align:center}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 
 /* history */
@@ -521,7 +521,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Trades und Bewertung</summary><div><p>Ein Trade ist etwas, das du tust, positiv oder negativ. Du bewertest ihn von 100 bis 2.000 LPI in 100er-Schritten. Um genau diesen Betrag steigt oder fällt dein Depot: <b>Ein Trade mit 1.000 LPI bewegt es um 1.000 LPI</b>.</p>
           <div class="mini"><b>100–400</b><span>Kleinigkeit oder Ausrutscher</span><b>500–800</b><span>Solide Routine, bremst etwas</span><b>900–1.200</b><span>Bringt dich voran, wirft dich zurück</span><b>1.300–1.600</b><span>Echte Überwindung, echter Schaden</span><b>1.700–2.000</b><span>Meilenstein oder Rückfall</span></div>
           <p>Zum Vergleich mit der alten Prozent-Bewertung: 50 % sind 1.000 LPI, 75 % sind 1.500 LPI, 100 % sind 2.000 LPI.</p></div></details>
-        <details class="rule"><summary>Formel: Serie und Markt</summary><div><p><b>Wert = Bewertung × Serie × Markt</b>, gerundet auf ganze LPI.</p><p><b>Serie:</b> Für jeden weiteren Tag in Folge mit demselben Trade gibt es +3 %, höchstens +30 %. Das gilt auch für negative Trades: Wiederholst du sie Tag für Tag, werden sie teurer.</p><p><b>Markt:</b> Jeder Tag hat eine Marktlage zwischen −8 % und +8 %. Sie gilt für alle Trades dieses Tages und steht oben auf der Trades-Seite.</p><p>Beispiel: Training mit 1.400 LPI am dritten Tag in Folge (× 1,06) bei Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
+        <details class="rule"><summary>Formel: Stärke, Serie und Markt</summary><div><p><b>Wert = Bewertung × Stärke × Serie × Markt</b>, gerundet auf ganze LPI.</p><p><b>Stärke:</b> Beim Eintragen wählst du, wie stark es heute war: Leicht (× 0,5), Normal (× 1), Stark (× 2) oder das Extrem (× 4). Das Extrem heißt bei positiven Trades „Extremer Aufschwung“, bei negativen „Börsencrash“.</p><p><b>Serie:</b> Für jeden weiteren Tag in Folge mit demselben Trade gibt es +3 %, höchstens +30 %. Das gilt auch für negative Trades: Wiederholst du sie Tag für Tag, werden sie teurer.</p><p><b>Markt:</b> Jeder Tag hat eine Marktlage zwischen −8 % und +8 %. Sie gilt für alle Trades dieses Tages und steht oben auf der Trades-Seite.</p><p>Beispiel: Training mit 1.400 LPI am dritten Tag in Folge (× 1,06) bei Markt +2,5 % (× 1,025) bringt 1.521 LPI.</p></div></details>
         <details class="rule"><summary>Tag ohne Trade</summary><div><p>Trägst du an einem Tag gar nichts ein, fällt dein Depot um <b>1,00 %</b>.</p></div></details>
         <details class="rule"><summary>Sektoren</summary><div><p>Jeder Trade gehört zu <b>KRP</b> (Körper), <b>GHN</b> (Gehirn) oder <b>FIN</b> (Finanzen). Jeder Sektor hat einen eigenen Wert. Tippe auf einen Sektor und du siehst Heute, Woche, Monat und Jahr.</p></div></details>
         <details class="rule"><summary>Ziele und Dividende</summary><div><p>Ein Ziel hat einen Stichtag und eine Dividende von 1 bis 10 %. Ab dem Stichtag bestätigst du, ob du es erreicht hast. Dann steigt <b>das ganze Depot</b> um die Dividende: der Gesamtwert und alle Sektoren.</p></div></details>
@@ -531,9 +531,20 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       </div>
     </details>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 20</div>
+    <div class="note" style="text-align:center">Version 21</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
+</div>
+
+<!-- strength sheet -->
+<div class="backdrop" id="strength-backdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="str-title">
+    <div class="grab"></div>
+    <h2 id="str-title"></h2>
+    <p class="rep-text">Wie stark war es heute?</p>
+    <div class="list" id="str-list"></div>
+    <button class="btn ghost" type="button" data-close>Abbrechen</button>
+  </div>
 </div>
 
 <!-- entry sheet -->
@@ -546,6 +557,8 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
       <label for="e-weight">Bewertung dieses Eintrags</label>
       <div class="wrow"><span class="wval" id="e-val"></span><span class="wlvl" id="e-lvl"></span></div>
       <input type="range" id="e-weight" min="0" max="19" step="1" value="9">
+      <div class="lab">Stärke</div>
+      <div class="seg" id="e-str" role="group" aria-label="Stärke"></div>
       <div class="note" id="e-calc"></div>
       <div class="note">Die Änderung gilt nur für diesen einen Eintrag. Dein Depot wird neu berechnet.</div>
     </div>
@@ -604,7 +617,7 @@ function validPts(w){w=+w||0;return Math.max(100,Math.min(2000,Math.round(w/100)
 var lpi=function(n){n=Math.round(fin(n));return (n>0?'+':n<0?'−':'')+nf0.format(Math.abs(n))+' LPI'};
 function eff(x){return x.pts!=null?lpi(x.pts):pct(x.pc)}
 function effCls(x){return cls(x.pts!=null?x.pts:x.pc)}
-/* What a trade is worth on a given day: rating x streak x market, rounded to whole LPI.
+/* What a trade is worth on a given day: rating x strength x streak x market, rounded to whole LPI.
    Streak: +3 % for every further day in a row with this trade, at most +30 %. It applies to negative trades too.
    Market: one mood per calendar day between -8 % and +8 %, the same for every trade of that day. */
 var STREAK_STEP=0.03, STREAK_MAX=0.30, MARKET_RANGE=0.08;
@@ -619,8 +632,12 @@ function streakDays(hid,dayTs,logs){
   return n;
 }
 function serie(n){return 1+Math.min(STREAK_MAX,STREAK_STEP*(n-1))}
-function worth(weight,sf,mf){return Math.max(1,Math.round(weight*(sf||1)*(mf||1)))}
-function valueFor(h,dayTs){var n=streakDays(h.id,dayTs,state.logs),sf=serie(n),mf=market(dayTs);return {n:n,sf:sf,mf:mf,val:worth(h.weight,sf,mf)}}
+/* Strength is chosen per entry: from a light version of the trade up to a crash (negative) or a boom (positive). */
+var STRENGTH=[{f:0.5,name:'Leicht',sub:'halber Wert'},{f:1,name:'Normal',sub:'voller Wert'},{f:2,name:'Stark',sub:'doppelter Wert'},{f:4,good:'Extremer Aufschwung',bad:'Börsencrash',sub:'vierfacher Wert'}];
+function strName(x,type,short){return x.name||(type==='good'?(short?'Aufschwung':x.good):(short?'Crash':x.bad))}
+function strOf(k){return STRENGTH.filter(function(x){return x.f===(k||1)})[0]||STRENGTH[1]}
+function worth(weight,sf,mf,k){return Math.max(1,Math.round(weight*(k||1)*(sf||1)*(mf||1)))}
+function valueFor(h,dayTs,k){var n=streakDays(h.id,dayTs,state.logs),sf=serie(n),mf=market(dayTs);return {n:n,sf:sf,mf:mf,k:k||1,val:worth(h.weight,sf,mf,k)}}
 var f3=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:3});
 var cls=function(n){n=r2(n);return n>0?'up':n<0?'down':'flat'};
 var arrow=function(n){n=r2(n);return n>0?'▲':n<0?'▼':'–'};
@@ -778,7 +795,7 @@ function curPrice(){return series.length?series[series.length-1].price:START}
 /* ---------- sheets ---------- */
 function open(name){$('#'+name+'-backdrop').hidden=false}
 function close(name){$('#'+name+'-backdrop').hidden=true}
-['habit','goal','short','profile','entry'].forEach(function(n){
+['habit','goal','short','profile','entry','strength'].forEach(function(n){
   var b=$('#'+n+'-backdrop');
   b.addEventListener('click',function(e){if(e.target===b||e.target.closest('[data-close]'))close(n)});
 });
@@ -976,14 +993,29 @@ $('#today-list').addEventListener('click',function(e){
   var act=b.getAttribute('data-act'), prev=curPrice(), t0=sod(Date.now());
   var mine=state.logs.filter(function(l){return l.habitId===h.id&&l.ts>=t0});
   if(act==='plus'||(act==='toggle'&&!mine.length)){
-    var vv=valueFor(h,t0);
-    state.logs.push({id:uid(),habitId:h.id,name:h.name,type:h.type,weight:h.weight,sf:vv.sf,mf:vv.mf,val:vv.val,sector:normSec(h.sector,h.name),ts:Date.now()});
-    rebuild();commit(prev,h.name+' · '+(h.type==='good'?'+':'−')+nf0.format(vv.val)+' LPI · '+fmt(curPrice())+' LPI');
+    openStrength(h);
   }else if(mine.length){
     var lastId=mine[mine.length-1].id;
     state.logs=state.logs.filter(function(l){return l.id!==lastId});
     commit(prev,h.name+' zurückgenommen');
   }
+});
+var strengthFor=null;
+function openStrength(h){
+  strengthFor=h;var t0=sod(Date.now());
+  $('#str-title').textContent=h.name;
+  $('#str-list').innerHTML=STRENGTH.map(function(x,i){
+    var v=valueFor(h,t0,x.f);
+    return '<button class="row '+h.type+'" type="button" data-str="'+i+'"><span class="row-name">'+strName(x,h.type)+'<span class="row-sub">'+x.sub+'</span></span><span class="eff '+(h.type==='good'?'up':'down')+'">'+(h.type==='good'?'+':'−')+nf0.format(v.val)+' LPI</span></button>';
+  }).join('');
+  open('strength');
+}
+$('#str-list').addEventListener('click',function(e){
+  var b=e.target.closest('[data-str]'), h=strengthFor;if(!b||!h)return;
+  var x=STRENGTH[+b.getAttribute('data-str')], prev=curPrice(), vv=valueFor(h,sod(Date.now()),x.f);
+  state.logs.push({id:uid(),habitId:h.id,name:h.name,type:h.type,weight:h.weight,k:x.f,sf:vv.sf,mf:vv.mf,val:vv.val,sector:normSec(h.sector,h.name),ts:Date.now()});
+  strengthFor=null;close('strength');
+  rebuild();commit(prev,h.name+(x.f!==1?' ('+strName(x,h.type)+')':'')+' · '+(h.type==='good'?'+':'−')+nf0.format(vv.val)+' LPI · '+fmt(curPrice())+' LPI');
 });
 var toastT=0;
 function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},2400)}
@@ -1033,7 +1065,7 @@ $('#habit-form').addEventListener('submit',function(e){
   var prevP=curPrice();
   if(editing){
     var eid=editing.id;editing.name=v.name;editing.type=v.type;editing.weight=v.weight;editing.multi=v.multi;editing.sector=v.sector;
-    if($('#f-retro').checked)state.logs.forEach(function(l){if(l.habitId===eid){l.name=v.name;l.type=v.type;l.weight=v.weight;l.sector=v.sector;l.val=worth(v.weight,l.sf,l.mf)}});
+    if($('#f-retro').checked)state.logs.forEach(function(l){if(l.habitId===eid){l.name=v.name;l.type=v.type;l.weight=v.weight;l.sector=v.sector;l.val=worth(v.weight,l.sf,l.mf,l.k)}});
   }
   else state.habits.push({id:uid(),name:v.name,type:v.type,weight:v.weight,multi:v.multi,sector:v.sector});
   editing=null;close('habit');
@@ -1300,7 +1332,7 @@ function renderReport(){
   var rev=evs.slice().reverse(), LIM=10, show=histAll?rev:rev.slice(0,LIM);
   $('#hist-meta').textContent=rev.length+(rev.length===1?' Eintrag':' Einträge');
   $('#rep-hist').innerHTML=rev.length?show.map(function(x){
-    var inner='<span class="row-name">'+esc(x.name)+'<span class="row-sub">'+esc(dDay.format(x.ts))+(x.kind==='miss'?'':' · '+esc(dTime.format(x.ts))+' Uhr')+'</span></span><span class="eff '+effCls(x)+'">'+eff(x)+'</span>';
+    var inner='<span class="row-name">'+esc(x.name)+'<span class="row-sub">'+esc(dDay.format(x.ts))+(x.kind==='miss'?'':' · '+esc(dTime.format(x.ts))+' Uhr')+(x.kind==='log'&&x.log.k&&x.log.k!==1?' · '+strName(strOf(x.log.k),x.log.type):'')+'</span></span><span class="eff '+effCls(x)+'">'+eff(x)+'</span>';
     return x.kind==='log'?'<button class="row" type="button" data-del="'+x.log.id+'" aria-label="'+esc(x.name)+' vom '+esc(dDay.format(x.ts))+' bearbeiten">'+inner+'<span class="chev" aria-hidden="true">›</span></button>':'<div class="row">'+inner+'</div>';
   }).join('')+(rev.length>LIM&&!histAll?'<button class="more" type="button" id="hist-more">Alle '+rev.length+' anzeigen</button>':''):'<div class="kv"><span>Noch nichts passiert.</span><span></span></div>';
 }
@@ -1309,22 +1341,24 @@ $('#rep-hist').addEventListener('click',function(e){
   var b=e.target.closest('[data-del]');if(!b)return;
   var l=state.logs.filter(function(x){return x.id===b.getAttribute('data-del')})[0];if(l)openEntry(l);
 });
-var entryEdit=null;
+var entryEdit=null, entryK=1;
 function syncEntry(){
   var l=entryEdit;if(!l)return;var wi=Math.max(0,Math.min(19,+$('#e-weight').value||0)), w=PTS[wi];
-  var ev0=worth(w,l.sf,l.mf);
+  var ev0=worth(w,l.sf,l.mf,entryK);
+  $('#e-str').innerHTML=STRENGTH.map(function(x,i){return '<button type="button" data-ek="'+i+'" aria-pressed="'+(x.f===entryK?'true':'false')+'">'+strName(x,l.type,true)+'</button>'}).join('');
   $('#e-val').textContent=(l.type==='good'?'+':'−')+nf0.format(ev0)+' LPI';
-  $('#e-calc').textContent='Bewertung '+nf0.format(w)+' × Serie '+f3.format(l.sf||1)+' × Markt '+f3.format(l.mf||1)+' = '+nf0.format(ev0)+' LPI';$('#e-val').className='wval '+(l.type==='good'?'up':'down');
+  $('#e-calc').textContent='Bewertung '+nf0.format(w)+' × Stärke '+String(entryK).replace('.',',')+' × Serie '+f3.format(l.sf||1)+' × Markt '+f3.format(l.mf||1)+' = '+nf0.format(ev0)+' LPI';$('#e-val').className='wval '+(l.type==='good'?'up':'down');
   $('#e-lvl').textContent=LEVELS[l.type][lvl(w)];
 }
 function openEntry(l){
   entryEdit=l;$('#entry-title').textContent=l.name;$('#entry-info').textContent=dFull.format(l.ts)+', '+dTime.format(l.ts)+' Uhr';
-  $('#e-weight').value=PTS.indexOf(validPts(l.weight));$('#entry-form').classList.toggle('bad',l.type==='bad');syncEntry();open('entry');
+  $('#e-weight').value=PTS.indexOf(validPts(l.weight));entryK=strOf(l.k).f;$('#entry-form').classList.toggle('bad',l.type==='bad');syncEntry();open('entry');
 }
 $('#e-weight').addEventListener('input',syncEntry);
+$('#e-str').addEventListener('click',function(e){var b=e.target.closest('[data-ek]');if(b){entryK=STRENGTH[+b.getAttribute('data-ek')].f;syncEntry()}});
 $('#entry-form').addEventListener('submit',function(e){
   e.preventDefault();var l=entryEdit;if(!l)return;var prev=curPrice();
-  l.weight=PTS[Math.max(0,Math.min(19,+$('#e-weight').value||0))];l.val=worth(l.weight,l.sf,l.mf);entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
+  l.weight=PTS[Math.max(0,Math.min(19,+$('#e-weight').value||0))];l.k=entryK;l.val=worth(l.weight,l.sf,l.mf,l.k);entryEdit=null;close('entry');commit(prev,'Eintrag geändert');
 });
 $('#e-delete').addEventListener('click',function(){
   var l=entryEdit;if(!l)return;close('entry');
@@ -1387,7 +1421,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden){reb
 document.addEventListener('keydown',function(e){
   if(e.key!=='Escape')return;
   if(!$('#confirm-backdrop').hidden){closeAsk(false);return}
-  ['entry','profile','short','goal','habit'].some(function(n){if(!$('#'+n+'-backdrop').hidden){close(n);return true}return false});
+  ['strength','entry','profile','short','goal','habit'].some(function(n){if(!$('#'+n+'-backdrop').hidden){close(n);return true}return false});
 });
 
 /* ---------- folds ---------- */
