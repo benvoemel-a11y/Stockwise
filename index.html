@@ -553,9 +553,28 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Chart und Historie</summary><div><p>Der Chart im Portfolio zeigt dein Depot für <b>1T, 1W, 1M, 1J</b> oder <b>Max</b>. Fahre mit dem Finger darüber und du siehst den Wert zu jedem Zeitpunkt.</p><p>Die Historie fasst <b>Woche, Monat und Jahr</b> zusammen: Performance, grüne und rote Tage, stärkster Treiber und größte Bremse. Der Trend vergleicht mit dem Zeitraum davor und zeigt, was besser und was schlechter lief. Ab 14 Tagen siehst du auch deinen stärksten und schwächsten Wochentag.</p><p>Im Verlauf stehen alle Einträge, Dividenden, Shorts und Tage ohne Trade.</p></div></details>
         <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele, Streaks und Shorts. Dein Name und deine Trades bleiben. Du wirst zweimal gefragt, ob du sicher bist.</p><p>Vor dem Zurücksetzen wird dein Depot gesichert. Mit „Zurücksetzen rückgängig machen“ holst du es im Account zurück. Gesichert ist immer nur der Stand vor dem letzten Zurücksetzen.</p></div></details>
         <details class="rule"><summary>Bedienung</summary><div><p>Zwischen Portfolio, Trades, Ziele und Historie wischst du zur Seite oder tippst unten auf die Leiste.</p><p>Bereiche wie Sektoren, Ziele, Streaks, Shorts, Verlauf und dieses Regelwerk kannst du einklappen. Die App merkt sich, was eingeklappt ist.</p><p>Oben rechts blendest du mit dem Auge den Namen „Stockwise“ aus und wechselst mit dem Mond zwischen Hell und Dunkel.</p></div></details>
-        <details class="rule"><summary>Daten und Speicher</summary><div><p>Dein Depot, deine Trades und dein Name liegen <b>nur auf diesem Gerät</b> im Speicher des Browsers. Es gibt kein Konto und keinen Server, und das Eintragen verbraucht keine Kapazität bei Claude.</p><p>Nach dem ersten Öffnen läuft die App auch ohne Internet.</p><p>Löschst du in Safari die Website-Daten, ist dein Depot weg. Gesichert wird nur der Stand vor dem letzten Zurücksetzen. Auf einem anderen Gerät beginnt ein neues Depot, außer du überträgst es: Im Account tippst du auf dem alten Gerät auf <b>Exportieren</b>, schickst die Datei an das neue Gerät und tippst dort auf <b>Importieren</b>. Alles, was auf dem neuen Gerät stand, wird dabei ersetzt und vorher gesichert.</p></div></details>
+        <details class="rule"><summary>Daten und Speicher</summary><div><p>Dein Depot, deine Trades und dein Name liegen <b>nur auf diesem Gerät</b> im Speicher des Browsers. Es gibt kein Konto und keinen Server, und das Eintragen verbraucht keine Kapazität bei Claude.</p><p>Nach dem ersten Öffnen läuft die App auch ohne Internet.</p><p>Löschst du in Safari die Website-Daten, ist dein Depot weg. Gesichert wird nur der Stand vor dem letzten Zurücksetzen. Mit <b>Sync</b> im Account meldest du dich mit E-Mail und Passwort an. Dann liegt eine Kopie deines Depots online und Handy und Mac sind automatisch gleich. Ohne Anmeldung beginnt auf einem anderen Gerät ein neues Depot, außer du überträgst es: Im Account tippst du auf dem alten Gerät auf <b>Exportieren</b>, schickst die Datei an das neue Gerät und tippst dort auf <b>Importieren</b>. Alles, was auf dem neuen Gerät stand, wird dabei ersetzt und vorher gesichert.</p></div></details>
       </div>
     </details>
+    <div id="sync-box" hidden>
+      <h2 style="margin-top:6px">Sync</h2>
+      <div id="sync-out">
+        <div class="note">Melde dich an, dann ist dein Depot auf Handy und Mac automatisch gleich.</div>
+        <div class="field"><label for="sync-mail">E-Mail</label><input class="inp" id="sync-mail" type="email" autocomplete="username" inputmode="email" placeholder="name@beispiel.de"></div>
+        <div class="field"><label for="sync-pass">Passwort</label><input class="inp" id="sync-pass" type="password" autocomplete="current-password" placeholder="mindestens 6 Zeichen"></div>
+        <div class="btn-row">
+          <button class="btn" type="button" id="sync-login">Anmelden</button>
+          <button class="btn ghost" type="button" id="sync-signup">Registrieren</button>
+        </div>
+      </div>
+      <div id="sync-in" hidden>
+        <div class="note" id="sync-status"></div>
+        <div class="btn-row">
+          <button class="btn ghost" type="button" id="sync-now">Jetzt abgleichen</button>
+          <button class="btn ghost" type="button" id="sync-logout">Abmelden</button>
+        </div>
+      </div>
+    </div>
     <h2 style="margin-top:6px">Auf anderes Gerät übertragen</h2>
     <div class="note">Auf dem alten Gerät exportieren, die Datei per AirDrop, Mail oder Nachricht schicken und auf dem neuen Gerät importieren.</div>
     <div class="btn-row">
@@ -566,7 +585,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 30</div>
+    <div class="note" style="text-align:center">Version 31</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -822,14 +841,14 @@ function load(){
     if(!s.startTs)s.startTs=s.logs.length?sod(Math.min.apply(null,s.logs.map(function(l){return l.ts}))):sod(Date.now());
     return s}catch(e){return null}
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function save(quiet){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}if(!quiet)syncSoon()}
 var state=load()||freshState();
 /* the account outlives the example data, so the welcome screen knows the name */
 try{var pr=JSON.parse(localStorage.getItem('mytrade.profile')||'null');
   if(pr&&typeof pr==='object'&&!(state.profile&&state.profile.name))state.profile={name:String(pr.name||''),age:pr.age||''}}catch(e){}
 /* one-time reset requested for version 17: every saved depot starts again at 1,000 LPI */
 try{if(localStorage.getItem('mytrade.wipe')!=='17'){state.logs=[];state.goals=[];state.shorts=[];state.demo=false;state.startTs=sod(Date.now());localStorage.setItem('mytrade.wipe','17')}}catch(e){}
-save();
+save(true);
 var series=[], secSeries={}, shortInfo={}, streakInfo={};
 function habitById(id){return state.habits.filter(function(h){return h.id===id})[0]}
 function stake(w,days){return Math.round(w*days/4)}
@@ -1698,10 +1717,96 @@ document.addEventListener('keydown',function(e){
 })();
 document.addEventListener('touchstart',function(){},{passive:true});
 
+
+/* Version 31: sync through Supabase. Each account has one row with the whole depot.
+   The device remembers which online version it last saw; changes from both sides at once are asked about. */
+var SB_URL='', SB_KEY='';
+var SB_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+var sb=null, sbUser=null, syncBusy=false, syncAgain=false, syncTimer=null, syncAskOpen=false;
+var SYNC_VER='mytrade.sync.ver', SYNC_JSON='mytrade.sync.json', SYNC_AT='mytrade.sync.at';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
+function dirty(){return JSON.stringify(state)!==lsGet(SYNC_JSON)}
+function markSynced(ver){lsSet(SYNC_VER,ver);lsSet(SYNC_JSON,JSON.stringify(state));lsSet(SYNC_AT,String(Date.now()));renderSync()}
+function syncSoon(){if(!sbUser)return;clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,1200)}
+function renderSync(){
+  if(!sb){$('#sync-box').hidden=true;return}
+  $('#sync-box').hidden=false;$('#sync-out').hidden=!!sbUser;$('#sync-in').hidden=!sbUser;
+  if(sbUser){var at=+lsGet(SYNC_AT);$('#sync-status').textContent='Angemeldet als '+(sbUser.email||'')+(at?' · zuletzt synchronisiert '+new Intl.DateTimeFormat('de-DE',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(at):'')+(navigator.onLine===false?' · offline':'')}
+}
+function takeRemote(row){
+  var st=row.data;if(!st||!Array.isArray(st.habits)||!Array.isArray(st.logs))return false;
+  var cur=lsGet(KEY);
+  if(hasData()&&cur!==JSON.stringify(st))lsSet(BKEY,JSON.stringify({ts:Date.now(),lpi:curPrice(),state:state}));
+  lsSet(KEY,JSON.stringify(st));
+  var s2=load();if(!s2){lsSet(KEY,cur);return false}
+  state=s2;lsSet('mytrade.wipe','17');if(state.profile&&state.profile.name)lsSet('mytrade.profile',JSON.stringify(state.profile));
+  save(true);markSynced(row.updated_at);
+  $('#demo-banner').hidden=true;rebuild();renderProfile();renderAll();renderBackup();
+  return true;
+}
+function pushLocal(){
+  var ver=new Date().toISOString()+'-'+Math.random().toString(36).slice(2,7);
+  return sb.from('depots').upsert({user_id:sbUser.id,data:state,updated_at:ver},{onConflict:'user_id'}).then(function(r){if(r.error)throw r.error;markSynced(ver)});
+}
+function syncNow(){
+  if(!sb||!sbUser)return Promise.resolve();
+  if(syncBusy){syncAgain=true;return Promise.resolve()}
+  syncBusy=true;clearTimeout(syncTimer);
+  return sb.from('depots').select('data,updated_at').eq('user_id',sbUser.id).maybeSingle().then(function(r){
+    if(r.error)throw r.error;
+    var row=r.data, seen=lsGet(SYNC_VER), mine=dirty();
+    if(!row)return pushLocal();
+    if(row.updated_at===seen)return mine?pushLocal():markSynced(seen);
+    /* the online depot changed on another device */
+    if(!mine||!seen&&!hasData()){takeRemote(row);toast('Depot synchronisiert');return}
+    if(syncAskOpen)return;syncAskOpen=true;
+    var n=(row.data&&row.data.logs||[]).length;
+    ask('Welchen Stand behalten?','Dein Depot wurde auf diesem Gerät und auf einem anderen Gerät geändert. Online stehen '+nf0.format(n)+(n===1?' Eintrag':' Einträge')+', hier '+nf0.format(state.logs.length)+'. Der Stand, den du nicht behältst, wird gesichert und lässt sich im Account zurückholen.','Online-Stand nehmen',function(){syncAskOpen=false;takeRemote(row);toast('Online-Stand übernommen')},function(){syncAskOpen=false;pushLocal().then(function(){toast('Dieser Stand ist jetzt online')}).catch(syncErr)},'btn');
+  }).catch(syncErr).then(function(){syncBusy=false;renderSync();if(syncAgain){syncAgain=false;syncNow()}});
+}
+function syncErr(e){if(navigator.onLine!==false)console.warn('sync',e);renderSync()}
+function authMsg(e){var m=(e&&e.message||'')+'';
+  if(/invalid login/i.test(m))return 'E-Mail oder Passwort stimmt nicht.';
+  if(/not confirmed/i.test(m))return 'Bestätige zuerst den Link in deiner E-Mail.';
+  if(/already registered/i.test(m))return 'Diese E-Mail ist schon registriert. Tippe auf Anmelden.';
+  if(/password/i.test(m))return 'Das Passwort braucht mindestens 6 Zeichen.';
+  return 'Das hat nicht geklappt. Bist du online?'}
+function authGo(kind){
+  var mail=$('#sync-mail').value.trim(), pass=$('#sync-pass').value;
+  if(!mail||!pass){toast('E-Mail und Passwort eingeben.');return}
+  var f=kind==='up'?sb.auth.signUp({email:mail,password:pass}):sb.auth.signInWithPassword({email:mail,password:pass});
+  f.then(function(r){
+    if(r.error){toast(authMsg(r.error));return}
+    if(!r.data.session){toast('Fast fertig: Bestätige den Link in deiner E-Mail und melde dich dann an.');return}
+    sbUser=r.data.session.user;$('#sync-pass').value='';
+    /* a new login on this device: no online version seen yet */
+    lsSet(SYNC_VER,null);lsSet(SYNC_JSON,null);renderSync();toast('Angemeldet');syncNow();
+  }).catch(function(e){toast(authMsg(e))});
+}
+$('#sync-login').addEventListener('click',function(){authGo('in')});
+$('#sync-signup').addEventListener('click',function(){authGo('up')});
+$('#sync-now').addEventListener('click',function(){syncNow().then(function(){toast('Synchronisiert')})});
+$('#sync-logout').addEventListener('click',function(){sb.auth.signOut().catch(function(){}).then(function(){sbUser=null;lsSet(SYNC_VER,null);lsSet(SYNC_JSON,null);lsSet(SYNC_AT,null);renderSync();toast('Abgemeldet. Dein Depot bleibt auf diesem Gerät.')})});
+function initSync(){
+  if(!SB_URL||!SB_KEY)return;
+  function go(){
+    if(!window.supabase||!window.supabase.createClient)return;
+    sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'mytrade.auth'}});
+    sb.auth.getSession().then(function(r){sbUser=r.data&&r.data.session?r.data.session.user:null;renderSync();if(sbUser)syncNow()});
+    sb.auth.onAuthStateChange(function(ev,ses){if(ev==='SIGNED_OUT'){sbUser=null;renderSync()}else if(ses){sbUser=ses.user}});
+    document.addEventListener('visibilitychange',function(){if(!document.hidden&&sbUser)syncNow()});
+    window.addEventListener('online',function(){if(sbUser)syncNow()});
+  }
+  if(window.supabase)return go();
+  var sc=document.createElement('script');sc.src=SB_LIB;sc.async=true;sc.onload=go;document.head.appendChild(sc);
+}
+
 /* ---------- boot ---------- */
 rebuild();
 $('#demo-banner').hidden=!state.demo;
 renderProfile();renderAll();renderBackup();
+initSync();
 })();
 </script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
