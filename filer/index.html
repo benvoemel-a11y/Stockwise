@@ -33,10 +33,10 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .acts span{width:58px;display:flex;align-items:center;justify-content:center}.acts svg{width:16px;height:16px}
 .ae{background:#a3a3a3;color:#2a2a2a}.ax{background:#2a2a2a;color:#d6d6d6}
 .row .n{flex:1;min-width:0;color:var(--ink);transition:color .5s ease;word-break:break-word}
-.row .nt{background:linear-gradient(var(--soft),var(--soft)) no-repeat 0 55%/0 1px;transition:background-size .5s ease}
+.row .nt{background:linear-gradient(#3f3f3f,#3f3f3f) no-repeat 0 56%/0 2px;transition:background-size .6s cubic-bezier(.65,0,.35,1)}
 .row .t{color:var(--mid);text-align:right;transition:color .35s;white-space:nowrap}.row .r{color:#7a7a7a;white-space:nowrap}
 .row.late:not(.done) .n,.row.late:not(.done) .t{color:var(--red)}
-.done .n{color:var(--soft)}.done .nt{background-size:100% 1px}.done .t{color:var(--soft)}
+.done .n{color:var(--soft)}.done .nt{background-size:100% 2px}.done .t{color:var(--soft)}
 .out{transition:height .45s ease,opacity .4s ease,margin .45s ease!important;opacity:0}
 .pm{display:inline-flex;align-items:center;justify-content:center;width:12px;color:#6a6a6a;flex:none;align-self:center}.pm svg{width:12px;height:12px}.pm.sp{visibility:hidden}
 .prio .nt{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:#2a2a2a}.prio.done .nt{text-decoration:none}.prio.done .pm{color:#9a9a9a}
@@ -141,12 +141,12 @@ if(!out.length)return "";const anyC=out.some(o=>o.h.prio)||items(T).some(x=>x.pr
 return '<div class="s'+(st.size+1)+'" id="carry">'+out.map(({k,h})=>{const d=D(k),r=relDay(d),lab=(r||WS[wd(d)]+" "+d.getDate()+"."+(d.getMonth()+1)+".")+(h.time?" "+h.time:"");
 return rowH({cls:"late "+(h.prio?"prio":""),key:"h"+h.id,name:h.name,tap:`tg('${k}','h${h.id}',true,this)`,pm:flag(anyC,h.prio),
  inner:nameH(h.name)+`<span class="t">${lab}</span>`,edit:`editItem('${k}','h${h.id}',this.closest('.row'))`,remove:`del('${k}','h${h.id}',this.closest('.row'))`})}).join("")+'</div>'}
-function shade(d){const h=items(d),r=h.length?h.filter(x=>x.done).length/h.length:0,s=Math.round(150*(1-r))+20;return [Math.round(r*100),`rgb(${s},${s},${s})`]}
-function strip(d){const [w,c]=shade(d);return `<div class="strip" style="height:4px;background:#a3a3a3;margin-bottom:18px"><div id="fill" style="height:4px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div>`}
+function shade(d){const h=items(d),r=h.length?h.filter(x=>x.done).length/h.length:0,s=Math.round(105*(1-r))+25;return [Math.round(r*100),`rgb(${s},${s},${s})`]}
+function strip(d){const [w,c]=shade(d);return `<div class="strip" style="height:5px;background:#9a9a9a;margin-bottom:18px"><div id="fill" style="height:5px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div>`}
 function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const [w,c]=shade(d);f.style.width=w+"%";f.style.background=c}
 const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span>`;
 /* Plus dreht sich erst, dann öffnet das Feld. Ein unsichtbares Hilfsfeld hält die Tastatur auf dem iPhone offen. */
-function plusTap(el,key){if(el.classList.contains("spin"))return;el.classList.add("spin");const r=el.getBoundingClientRect(),tmp=document.createElement("input");tmp.style.cssText=`position:fixed;left:0;top:${Math.max(0,r.top)}px;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0`;tmp.setAttribute("aria-hidden","true");document.body.appendChild(tmp);tmp.focus();setTimeout(()=>{openAdd(key);setTimeout(()=>tmp.remove(),50)},680)}
+function plusTap(el,key){if(el.classList.contains("spin"))return;haptic();el.classList.add("spin");const r=el.getBoundingClientRect(),tmp=document.createElement("input");tmp.style.cssText=`position:fixed;left:0;top:${Math.max(0,r.top)}px;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0`;tmp.setAttribute("aria-hidden","true");document.body.appendChild(tmp);tmp.focus();setTimeout(()=>{openAdd(key);setTimeout(()=>tmp.remove(),50)},680)}
 const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="neuer Eintrag"${v!=null?` value="${esc(v)}"`:""}>`;
 function adder(key,routine){if(!adding)return plusHtml(key);
 return `<div class="pop addwrap"><div class="addrow">${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></div>`+
@@ -189,26 +189,35 @@ function markLate(){const lst=$("#lst");if(!lst||!lst.dataset.day)return;const k
 const d=new Date(),now=pad(d.getHours())+":"+pad(d.getMinutes()),its=new Map(items(D(k)).map(x=>[x.key,x]));
 lst.querySelectorAll(":scope > .row").forEach(r=>{const x=its.get(r.dataset.key);r.classList.toggle("late",!!x&&!x.done&&(k<today||(k==today&&!!x.time&&x.time<now)))})}
 setInterval(markLate,30000);
-function day(s){if(adding)closeAdd();if(editing)saveEdit();const old=cur;cur=s===0?T:new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+s,12);if(iso(old)==iso(cur))return;slide=cur>old?"slR":"slL";adding=false;
+function day(s){if(adding)closeAdd();if(editing)saveEdit();const old=cur;cur=s===0?T:new Date(cur.getFullYear(),cur.getMonth(),cur.getDate()+s,12);if(iso(old)==iso(cur))return;haptic();slide=cur>old?"slR":"slL";adding=false;
 const fwd=cur>old,dx=$("#dtx"),prev=dx?dx.textContent:"";anim=false;render();$("#app").scrollTop=0;
 const a=document.getElementById(fwd?"arR":"arL");if(a){a.classList.remove("kl","kr");void a.offsetWidth;a.classList.add(fwd?"kr":"kl")}
 const nd=$("#dtx");if(nd&&prev){const txt=nd.textContent;nd.textContent=prev;nd.style.animation="flipO .2s ease forwards";
 setTimeout(()=>{if(!nd.isConnected)return;nd.textContent=txt;nd.style.animation="flipI .26s ease"},200)}}
 function go(v){if(editing)saveEdit();view=v;adding=false;openOpt=null;if(v=="cal")sel=T;if(v=="main")cur=T;render();$("#app").scrollTop=0}
-function gearTap(el){if(el.classList.contains("spin"))return;el.classList.add("spin");setTimeout(()=>go('menu'),420)}
+function gearTap(el){if(el.classList.contains("spin"))return;haptic();el.classList.add("spin");setTimeout(()=>go('menu'),420)}
 function toggleOpt(o){openOpt=openOpt==o?null:o;anim=false;render()}
 function setSize(i){st.size=+i;save();anim=false;render()}
+
+/* ---------- Haptisches Feedback ----------
+   iPhone-Safari kennt kein navigator.vibrate. Ab iOS 18 löst das Umschalten eines
+   versteckten Schalters (input switch) ein kurzes Tippen der Taptic Engine aus. */
+const hapEl=(()=>{try{const l=document.createElement("label"),i=document.createElement("input");i.type="checkbox";i.setAttribute("switch","");i.tabIndex=-1;
+ l.appendChild(i);l.setAttribute("aria-hidden","true");l.style.cssText="position:fixed;left:-100px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden";document.body.appendChild(l);return l}catch(_){return null}})();
+function haptic(n){n=n||1;try{if(navigator.vibrate&&navigator.vibrate(n>1?[12,60,12]:12))return}catch(_){}
+ if(!hapEl)return;const a=document.activeElement,keep=a&&a.tagName=="INPUT"&&a!==hapEl.firstChild;
+ for(let i=0;i<n;i++)setTimeout(()=>{try{hapEl.click();if(keep&&document.activeElement!==a)a.focus()}catch(_){}},i*90)}
 
 /* ---------- Aktionen ---------- */
 function collapse(el,done){el.style.height=el.offsetHeight+"px";el.offsetHeight;el.classList.add("out");el.style.height="0px";el.style.marginBottom="0";setTimeout(()=>{el.remove();done&&done()},480)}
 function emptyCheck(){if(!document.querySelector("#lst .row")||($("#carry")&&!document.querySelector("#carry .row"))){anim=false;keepScroll(render)}}
-function tg(k,key,hide,el){if(el.dataset.busy)return;if(el===openRow){closeSwipe();return}const now=setDone(k,key);el.classList.toggle("done",now);updStrip(D(k));
+function tg(k,key,hide,el){if(el.dataset.busy)return;if(el===openRow){closeSwipe();return}const now=setDone(k,key);haptic(now&&items(D(k)).every(x=>x.done)?2:1);el.classList.toggle("done",now);updStrip(D(k));
 if(view=="cal")setTimeout(()=>{anim=false;keepScroll(render)},400);
 if(hide&&now){el.dataset.busy=1;setTimeout(()=>collapse(el,emptyCheck),700)}}
-function del(k,key,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;openRow=null;const id=key.slice(1);
+function del(k,key,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;haptic();openRow=null;const id=key.slice(1);
 if(key[0]=="h")st.days[k]=(st.days[k]||[]).filter(x=>x.id!=id);else(st.rskip[k]=st.rskip[k]||[]).push(id);
 save();updStrip(D(k));collapse(el,()=>{emptyCheck();if(view=="cal"){anim=false;keepScroll(render)}})}
-function delR(id,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;openRow=null;st.routines=st.routines.filter(r=>r.id!==id);save();collapse(el,()=>{if(!st.routines.length){anim=false;render()}})}
+function delR(id,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;haptic();openRow=null;st.routines=st.routines.filter(r=>r.id!==id);save();collapse(el,()=>{if(!st.routines.length){anim=false;render()}})}
 function parseTime(ft){const t=ft?ft.value.trim():"";if(!t)return {ok:true,time:null};
 const m=t.match(/^(\d{1,2}):?(\d{2})?$/),mm=m?(m[2]||"00"):"";
 if(!m||+m[1]>23||+mm>59){ft.value="";ft._last="";ft.placeholder="07:30";ft.focus();return {ok:false}}
@@ -218,7 +227,7 @@ if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-save();adding=false;anim=false;keepScroll(render);const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
+haptic();save();adding=false;anim=false;keepScroll(render);const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
 
 /* ---------- Bearbeiten ---------- */
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
@@ -279,7 +288,7 @@ document.addEventListener("touchmove",e=>{if(!g)return;const t=e.touches[0],dx=t
 function finishGesture(ok){if(!g)return;const m=g.mode;clearTimeout(g.lp);
  if(m=="drag"){endDrag(ok);swallowClick()}
  if(m=="swipe"){const rin=g.row.querySelector(".rin");rin.style.transition="";
-  if(ok&&g.off!=null&&g.off<-ACT/2){if(openRow&&openRow!==g.row)closeSwipe();rin.style.transform=`translateX(${-ACT}px)`;openRow=g.row}
+  if(ok&&g.off!=null&&g.off<-ACT/2){if(openRow&&openRow!==g.row)closeSwipe();rin.style.transform=`translateX(${-ACT}px)`;if(openRow!==g.row)haptic();openRow=g.row}
   else{rin.style.transform="";if(openRow===g.row)openRow=null}swallowClick()}
  if(m=="day"){if(ok&&Math.abs(g.dx||0)>60)day(g.dx<0?1:-1);swallowClick()}
  g=null}
@@ -292,7 +301,7 @@ let drag=null;
 function startDrag(){if(!g||!g.row||g.mode)return;const row=g.row,rws=[...row.parentNode.querySelectorAll(":scope > .row")];if(rws.length<2)return;
  closeSwipe(true);g.mode="drag";const gap=rws[1].offsetTop-rws[0].offsetTop-rws[0].offsetHeight;
  drag={row,rows:rws,idx:rws.indexOf(row),gap,shift:row.offsetHeight+gap,top0:row.offsetTop,ni:null};
- rws.forEach(r=>{if(r!==row)r.classList.add("shift")});row.classList.add("dragging");try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}}
+ rws.forEach(r=>{if(r!==row)r.classList.add("shift")});row.classList.add("dragging");haptic();try{navigator.vibrate&&navigator.vibrate(10)}catch(_){}}
 function moveDrag(dy){if(!drag)return;const {rows,row,idx,shift,top0}=drag,first=rows[0],last=rows[rows.length-1];
  const min=first.offsetTop-top0,max=last.offsetTop+last.offsetHeight-row.offsetHeight-top0;
  const y=Math.max(min,Math.min(max,dy));row.style.transform=`translateY(${y}px)`;
