@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v9";
+const VERSION="v10";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -211,8 +211,11 @@ function setSize(i){st.size=+i;save();anim=false;render()}
 const hapEl=(()=>{try{const l=document.createElement("label"),i=document.createElement("input");i.type="checkbox";i.setAttribute("switch","");i.tabIndex=-1;
  l.appendChild(i);l.setAttribute("aria-hidden","true");l.style.cssText="position:fixed;left:-100px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden";document.body.appendChild(l);return l}catch(_){return null}})();
 function haptic(n){n=n||1;try{if(navigator.vibrate&&navigator.vibrate(n>1?[12,60,12]:12))return}catch(_){}
- if(!hapEl)return;const a=document.activeElement,keep=a&&a.tagName=="INPUT"&&a!==hapEl.firstChild;
- for(let i=0;i<n;i++)setTimeout(()=>{try{hapEl.click();if(keep&&document.activeElement!==a)a.focus()}catch(_){}},i*90)}
+ if(!hapEl)return;
+ const pulse=()=>{const a=document.activeElement;
+  if(a&&(a.tagName=="INPUT"||a.tagName=="TEXTAREA")&&a!==hapEl.firstChild)return; /* nie während getippt wird – sonst geht die Tastatur zu */
+  try{hapEl.click();if(document.activeElement===hapEl.firstChild)hapEl.firstChild.blur()}catch(_){}};
+ pulse();for(let i=1;i<n;i++)setTimeout(pulse,i*90)}
 
 /* ---------- Aktionen ---------- */
 function collapse(el,done){el.style.height=el.offsetHeight+"px";el.offsetHeight;el.classList.add("out");el.style.height="0px";el.style.marginBottom="0";setTimeout(()=>{el.remove();done&&done()},480)}
@@ -233,7 +236,7 @@ if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-haptic();save();adding=false;anim=false;keepScroll(render);const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
+save();adding=false;anim=false;keepScroll(render);haptic();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
 
 /* ---------- Bearbeiten ---------- */
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
@@ -346,7 +349,7 @@ let wrapTap=false;
 function refocus(){const f=document.querySelector(".addwrap .fn,.editwrap .fn");if(f)f.focus()}
 function commitInput(){if(editing){saveEdit();return}if(adding){const f=$(".addwrap .fn");if(f&&f.value.trim())submit();else closeAdd()}}
 function enterGo(e){if(e)e.preventDefault();commitInput()}
-document.addEventListener("focusout",e=>{const w=e.target.closest&&e.target.closest(".addwrap,.editwrap");if(!w)return;
+document.addEventListener("focusout",e=>{const w=e.target.closest&&e.target.closest(".addwrap,.editwrap");if(!w)return;if(hapEl&&e.relatedTarget===hapEl.firstChild){e.target.focus();return}
  setTimeout(()=>{if(!w.isConnected||wrapTap)return;const a=document.activeElement;if(a&&w.contains(a))return;
   if(editing&&editing.box===w)saveEdit();else if(adding&&w.classList.contains("addwrap"))commitInput()},80)});
 document.addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest(".addwrap,.editwrap")){wrapTap=true;setTimeout(()=>wrapTap=false,450)}},true);
