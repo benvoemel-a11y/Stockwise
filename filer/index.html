@@ -8,13 +8,16 @@
 <meta name="apple-mobile-web-app-title" content="Filer">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#b9b9b9">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#b9b9b9">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="icon" href="icon-192.png?v=2">
 <title>Filer</title>
 <style>
-:root{--bg:#b9b9b9;--ink:#1f1f1f;--mid:#5e5e5e;--soft:#8a8a8a;--press:#afafaf;--red:#d93f37}
+:root{color-scheme:light only;--bg:#b9b9b9;--ink:#1f1f1f;--mid:#5e5e5e;--soft:#8a8a8a;--press:#afafaf;--red:#d93f37}
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;overscroll-behavior:none}
 body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:15px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
