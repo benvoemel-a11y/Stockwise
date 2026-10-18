@@ -49,7 +49,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .s1 .rin{font-size:13px;padding:6px 10px}.s2 .row{margin-bottom:4px}.s3 .row{margin-bottom:8px}.s3 .rin{padding:12px 14px;font-size:20px;font-weight:600}
 
 /* Hinzufügen / Bearbeiten */
-.plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .45s cubic-bezier(.4,0,.2,1) forwards;pointer-events:none;z-index:20}@keyframes pspin{70%{opacity:1}to{transform:rotate(90deg);opacity:0}}
+.plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20}@keyframes pspin{to{transform:rotate(90deg);opacity:0}}
 .addrow{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px;margin-top:10px;background:#c6c6c6}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
 .addrow input::placeholder{color:#8f8f8f}
@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v11";
+const VERSION="v12";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -151,7 +151,7 @@ function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const
 const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span>`;
 /* Plus dreht sich, während das Eingabefeld sofort offen ist und die Tastatur direkt kommt. */
 function plusTap(el,key){haptic();const r=el.getBoundingClientRect(),c=el.cloneNode(true);c.removeAttribute("onclick");
- c.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;margin:0`;c.classList.add("spin");document.body.appendChild(c);setTimeout(()=>c.remove(),500);
+ c.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;margin:0`;c.classList.add("spin");document.body.appendChild(c);setTimeout(()=>c.remove(),280);
  openAdd(key)}
 const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"${v!=null?` value="${esc(v)}"`:""}>`;
 function adder(key,routine){if(!adding)return plusHtml(key);
