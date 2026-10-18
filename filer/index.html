@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v13";
+const VERSION="v14";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -111,7 +111,27 @@ let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem("f
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
-try{localStorage.setItem("filer",JSON.stringify(st))}catch(_){toast("speichern fehlgeschlagen")}}
+const json=JSON.stringify(st);try{localStorage.setItem("filer",json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
+
+/* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
+   Jede Änderung wird zusätzlich als Stand im Verlauf abgelegt (die letzten 300). */
+let idbP=null,lastSnap=null;
+function idb(){return idbP||(idbP=new Promise((res,rej)=>{try{const r=indexedDB.open("filer",1);
+ r.onupgradeneeded=()=>{const db=r.result;db.createObjectStore("kv");db.createObjectStore("snaps",{keyPath:"t"})};
+ r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))}
+async function idbSave(json){try{if(lastSnap===null){const all=(await idbGet("snaps"))||[];lastSnap=all.length?all.reduce((a,b)=>a.t>b.t?a:b).json:""}const db=await idb(),tx=db.transaction(["kv","snaps"],"readwrite");tx.objectStore("kv").put(json,"state");
+ if(json!==lastSnap){lastSnap=json;const s=tx.objectStore("snaps");s.put({t:Date.now(),json});
+  const kr=s.getAllKeys();kr.onsuccess=()=>{const k=kr.result;if(k.length>300)k.slice(0,k.length-300).forEach(x=>s.delete(x))}}}catch(_){}}
+function idbGet(store,key){return idb().then(db=>new Promise(res=>{const r=key==null?db.transaction(store).objectStore(store).getAll():db.transaction(store).objectStore(store).get(key);r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)})).catch(()=>null)}
+function countOf(d){let n=d.routines?d.routines.length:0,f=0;for(const k in d.days||{}){n+=d.days[k].length;f+=d.days[k].filter(x=>x.done).length}for(const k in d.rdone||{})f+=d.rdone[k].length;return [n,f]}
+function loadState(d){st=Object.assign({},BASE,d);delete st.level;for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};if(!Array.isArray(st.routines))st.routines=[]}
+async function loadHist(){const box=$("#hist");if(!box)return;const all=(await idbGet("snaps"))||[];all.sort((a,b)=>b.t-a.t);
+ if(!all.length){box.innerHTML='<div class="muted" style="padding:9px 10px">noch kein Verlauf</div>';return}
+ box.innerHTML=all.map(x=>{const d=new Date(x.t);let n=[0,0];try{n=countOf(JSON.parse(x.json))}catch(_){}
+  return `<div class="row" onclick="restoreSnap(${x.t})"><div class="rin"><span class="n">${short(d)}</span><span class="t">${n[0]} · ${n[1]} erledigt · ${pad(d.getHours())}:${pad(d.getMinutes())}</span></div></div>`}).join("")}
+async function restoreSnap(t){const all=(await idbGet("snaps"))||[],x=all.find(y=>y.t===t);if(!x)return;
+ const d=new Date(t);if(!confirm("Auf den Stand von "+short(d)+", "+pad(d.getHours())+":"+pad(d.getMinutes())+" zurücksetzen?"))return;
+ try{loadState(JSON.parse(x.json));save();haptic();view="main";cur=T;render();toast("Stand wiederhergestellt")}catch(_){toast("Stand defekt")}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
 
 function items(d){const k=iso(d),dn=st.rdone[k]||[],sk=st.rskip[k]||[];
@@ -185,12 +205,13 @@ if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL"
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
  `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts(S.map((s,i)=>[i,s,"font-size:"+[13,15,20][i]+"px"]),st.size,"setSize"):"")+
- `<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
+ `<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
  `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren</div>`:"")+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
+if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("menu")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
-a.innerHTML=`<div class="${anim?"fade":""}">${h}</div>`;anim=true;markLate()}
+a.innerHTML=`<div class="${anim?"fade":""}">${h}</div>`;anim=true;markLate();if(view=="hist")loadHist()}
 function markLate(){const lst=$("#lst");if(!lst||!lst.dataset.day)return;const k=lst.dataset.day,today=iso(noon(new Date()));
 const d=new Date(),now=pad(d.getHours())+":"+pad(d.getMinutes()),its=new Map(items(D(k)).map(x=>[x.key,x]));
 lst.querySelectorAll(":scope > .row").forEach(r=>{const x=its.get(r.dataset.key);r.classList.toggle("late",!!x&&!x.done&&(k<today||(k==today&&!!x.time&&x.time<now)))})}
@@ -340,7 +361,7 @@ function importData(){const f=$("#file");f.value="";f.click()}
 $("#file").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;
 try{const d=JSON.parse(await file.text());if(!d||typeof d!="object"||!("days" in d||"routines" in d))throw 0;
  if(!confirm("Aktuelle Einträge durch die Datei ersetzen?"))return;
- st=Object.assign({},BASE,d);delete st.level;for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};if(!Array.isArray(st.routines))st.routines=[];
+ loadState(d);
  save();openOpt=null;view="main";cur=T;render();toast("Daten geladen")}catch(_){toast("Datei passt nicht")}});
 
 /* ---------- Tastatur & Tippen außerhalb ----------
@@ -369,7 +390,10 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden){rollDay()
 window.addEventListener("pageshow",rollDay);
 
 render();
-if(!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);st.seenHint=true;save()}
+(async()=>{let had=null;try{had=localStorage.getItem("filer")}catch(_){}
+ if(!had){const j=await idbGet("kv","state");if(j){try{loadState(JSON.parse(j));save();anim=false;render();toast("Daten wiederhergestellt");return}catch(_){}}}
+ else idbSave(had);
+ if(!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);st.seenHint=true;save()}})();
 /* Updates: neue Version suchen, sobald Filer geöffnet wird, und dann einmal neu laden */
 if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;let reloaded=false;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||reloaded||adding||editing)return;reloaded=true;location.reload()});
