@@ -10,8 +10,8 @@
 <meta name="theme-color" content="#b9b9b9">
 <meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+<link rel="icon" href="icon-192.png?v=2">
 <title>Filer</title>
 <style>
 :root{--bg:#b9b9b9;--ink:#1f1f1f;--mid:#5e5e5e;--soft:#8a8a8a;--press:#afafaf;--red:#d93f37}
@@ -46,7 +46,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .s1 .rin{font-size:13px;padding:6px 10px}.s2 .row{margin-bottom:4px}.s3 .row{margin-bottom:8px}.s3 .rin{padding:12px 14px;font-size:20px;font-weight:600}
 
 /* Hinzufügen / Bearbeiten */
-.plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .5s cubic-bezier(.4,0,.2,1) forwards}@keyframes pspin{to{transform:rotate(90deg)}}
+.plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .8s cubic-bezier(.4,0,.2,1) forwards}@keyframes pspin{to{transform:rotate(90deg)}}
 .addrow{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px;margin-top:10px;background:#c6c6c6}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
 .addrow input::placeholder{color:#8f8f8f}
@@ -146,7 +146,7 @@ function strip(d){const [w,c]=shade(d);return `<div class="strip" style="height:
 function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const [w,c]=shade(d);f.style.width=w+"%";f.style.background=c}
 const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span>`;
 /* Plus dreht sich erst, dann öffnet das Feld. Ein unsichtbares Hilfsfeld hält die Tastatur auf dem iPhone offen. */
-function plusTap(el,key){if(el.classList.contains("spin"))return;el.classList.add("spin");const r=el.getBoundingClientRect(),tmp=document.createElement("input");tmp.style.cssText=`position:fixed;left:0;top:${Math.max(0,r.top)}px;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0`;tmp.setAttribute("aria-hidden","true");document.body.appendChild(tmp);tmp.focus();setTimeout(()=>{openAdd(key);setTimeout(()=>tmp.remove(),50)},400)}
+function plusTap(el,key){if(el.classList.contains("spin"))return;el.classList.add("spin");const r=el.getBoundingClientRect(),tmp=document.createElement("input");tmp.style.cssText=`position:fixed;left:0;top:${Math.max(0,r.top)}px;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0`;tmp.setAttribute("aria-hidden","true");document.body.appendChild(tmp);tmp.focus();setTimeout(()=>{openAdd(key);setTimeout(()=>tmp.remove(),50)},680)}
 const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="neuer Eintrag"${v!=null?` value="${esc(v)}"`:""}>`;
 function adder(key,routine){if(!adding)return plusHtml(key);
 return `<div class="pop addwrap"><div class="addrow">${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></div>`+
