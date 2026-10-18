@@ -84,6 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
+const VERSION="v9";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -185,7 +186,7 @@ if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
  `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts(S.map((s,i)=>[i,s,"font-size:"+[13,15,20][i]+"px"]),st.size,"setSize"):"")+
  `<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
- `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren</div>`:"");
+ `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren</div>`:"")+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
@@ -366,7 +367,11 @@ window.addEventListener("pageshow",rollDay);
 
 render();
 if(!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);st.seenHint=true;save()}
-if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+/* Updates: neue Version suchen, sobald Filer geöffnet wird, und dann einmal neu laden */
+if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;let reloaded=false;
+ navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||reloaded||adding||editing)return;reloaded=true;location.reload()});
+ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)reg.update().catch(()=>{})})}).catch(()=>{}))}
 </script>
 </body>
 </html>
