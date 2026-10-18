@@ -21,7 +21,7 @@
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;overscroll-behavior:none}
 body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:15px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
- padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 40px) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
+ padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 40px + var(--kb,0px)) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
 .fade{animation:fin .42s ease}@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pop{animation:pop .42s ease}@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-weight:600;min-height:40px}
@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v14";
+const VERSION="v15";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -382,6 +382,15 @@ if(view=="main"&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){e.preventDefault()
 document.addEventListener("pointerdown",e=>{const t=e.target;
 if(editing&&!t.closest(".editwrap")){saveEdit();swallowClick();return}
 if(adding&&!t.closest(".addwrap")){const f=$(".addwrap .fn");if(f&&f.value.trim())submit();else closeAdd();swallowClick()}});
+
+/* ---------- Tastatur: Eingabezeile immer sichtbar über der Tastatur ---------- */
+function kbHeight(){const v=window.visualViewport;return v?Math.max(0,window.innerHeight-v.height-v.offsetTop):0}
+function showInput(){const f=document.querySelector(".addwrap,.editwrap");if(!f)return;const v=window.visualViewport,a=$("#app"),
+ top=(v?v.offsetTop:0),visH=v?v.height:window.innerHeight,r=f.getBoundingClientRect(),want=top+visH*0.42;
+ if(r.bottom>top+visH-24||r.top<top+60)a.scrollTo({top:a.scrollTop+(r.top-want),behavior:"smooth"})}
+function fitKeyboard(){const kb=kbHeight();document.documentElement.style.setProperty("--kb",kb+"px");if(window.scrollY)window.scrollTo(0,0);if(kb>0)showInput()}
+if(window.visualViewport){visualViewport.addEventListener("resize",fitKeyboard);visualViewport.addEventListener("scroll",()=>{if(window.scrollY)window.scrollTo(0,0)})}
+document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches(".fn,.ft")){setTimeout(fitKeyboard,60);setTimeout(fitKeyboard,350)}});
 
 /* ---------- neuer Tag ---------- */
 function rollDay(){const n=noon(new Date());if(iso(n)!==iso(T)){if(iso(cur)==iso(T))cur=n;T=n;if(!adding&&!editing){anim=false;render()}}}
