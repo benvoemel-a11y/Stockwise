@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v15";
+const VERSION="v16";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -408,6 +408,13 @@ if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||reloaded||adding||editing)return;reloaded=true;location.reload()});
  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(reg=>{
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)reg.update().catch(()=>{})})}).catch(()=>{}))}
+/* Beim Zurückkehren in die App: neue Version auf GitHub? Dann einmal neu laden. */
+let lastCheck=0;
+async function checkUpdate(){if(Date.now()-lastCheck<20000)return;lastCheck=Date.now();
+ try{const t=await (await fetch("index.html?_="+Date.now(),{cache:"no-store"})).text(),m=t.match(/const VERSION="([^"]+)"/);
+  if(m&&m[1]!==VERSION){const go=()=>{if(adding||editing||drag){setTimeout(go,1500);return}location.reload()};go()}}catch(_){}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdate()});
+window.addEventListener("load",()=>setTimeout(checkUpdate,1500));
 </script>
 </body>
 </html>
