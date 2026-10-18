@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v10";
+const VERSION="v11";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -153,7 +153,7 @@ const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span
 function plusTap(el,key){haptic();const r=el.getBoundingClientRect(),c=el.cloneNode(true);c.removeAttribute("onclick");
  c.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;margin:0`;c.classList.add("spin");document.body.appendChild(c);setTimeout(()=>c.remove(),500);
  openAdd(key)}
-const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="neuer Eintrag"${v!=null?` value="${esc(v)}"`:""}>`;
+const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"${v!=null?` value="${esc(v)}"`:""}>`;
 function adder(key,routine){if(!adding)return plusHtml(key);
 return `<div class="pop addwrap"><form class="addrow" action="javascript:void 0" onsubmit="enterGo(event)"><button type="submit" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></button>${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></form>`+
 (routine?`<div class="days">${WS.map((s,i)=>`<span class="dy ${newDays.includes(i)?"on":""}" onclick="tday(${i},this)">${s}</span>`).join("")}</div>`:"")+`</div>`}
