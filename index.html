@@ -585,7 +585,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 31</div>
+    <div class="note" style="text-align:center">Version 32</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1720,8 +1720,8 @@ document.addEventListener('touchstart',function(){},{passive:true});
 
 /* Version 31: sync through Supabase. Each account has one row with the whole depot.
    The device remembers which online version it last saw; changes from both sides at once are asked about. */
-var SB_URL='', SB_KEY='';
-var SB_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+var SB_URL='https://pakdmaofkuuahrohigdt.supabase.co', SB_KEY='sb_publishable_MlvCc2U09_J95ivnxL4qEw_OsACmhOl';
+var SB_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js';
 var sb=null, sbUser=null, syncBusy=false, syncAgain=false, syncTimer=null, syncAskOpen=false;
 var SYNC_VER='mytrade.sync.ver', SYNC_JSON='mytrade.sync.json', SYNC_AT='mytrade.sync.at';
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
