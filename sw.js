@@ -1,6 +1,6 @@
 // Stockwise: keeps the app usable without a connection.
 // Online: always load the newest version, bypassing the browser cache, and refresh the copy. Offline: use the saved copy.
-const CACHE = 'stockwise-v22';
+const CACHE = 'stockwise-v23';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-512.png', 'icon-1024.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
