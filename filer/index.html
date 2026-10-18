@@ -35,8 +35,8 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .acts{position:absolute;top:0;right:0;bottom:0;display:flex}
 .acts span{width:58px;display:flex;align-items:center;justify-content:center}.acts svg{width:16px;height:16px}
 .ae{background:#a3a3a3;color:#2a2a2a}.ax{background:#2a2a2a;color:#d6d6d6}
-.row .n{flex:1;min-width:0;color:var(--ink);transition:color .5s ease;word-break:break-word}
-.row .nt{background:linear-gradient(#3f3f3f,#3f3f3f) no-repeat 0 56%/0 2px;transition:background-size .6s cubic-bezier(.65,0,.35,1)}
+.row .n{flex:1;min-width:0;color:var(--ink);transition:color .3s ease;word-break:break-word}
+.row .nt{background:linear-gradient(#3f3f3f,#3f3f3f) no-repeat 0 56%/0 2px;transition:background-size .32s cubic-bezier(.4,0,.2,1)}
 .row .t{color:var(--mid);text-align:right;transition:color .35s;white-space:nowrap}.row .r{color:#7a7a7a;white-space:nowrap}
 .row.late:not(.done) .n,.row.late:not(.done) .t{color:var(--red)}
 .done .n{color:var(--soft)}.done .nt{background-size:100% 2px}.done .t{color:var(--soft)}
@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v12";
+const VERSION="v13";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -222,7 +222,7 @@ function collapse(el,done){el.style.height=el.offsetHeight+"px";el.offsetHeight;
 function emptyCheck(){if(!document.querySelector("#lst .row")||($("#carry")&&!document.querySelector("#carry .row"))){anim=false;keepScroll(render)}}
 function tg(k,key,hide,el){if(el.dataset.busy)return;if(el===openRow){closeSwipe();return}const now=setDone(k,key);haptic(now&&items(D(k)).every(x=>x.done)?2:1);el.classList.toggle("done",now);updStrip(D(k));
 if(view=="cal")setTimeout(()=>{anim=false;keepScroll(render)},400);
-if(hide&&now){el.dataset.busy=1;setTimeout(()=>collapse(el,emptyCheck),700)}}
+if(hide&&now){el.dataset.busy=1;setTimeout(()=>collapse(el,emptyCheck),550)}}
 function del(k,key,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;haptic();openRow=null;const id=key.slice(1);
 if(key[0]=="h")st.days[k]=(st.days[k]||[]).filter(x=>x.id!=id);else(st.rskip[k]=st.rskip[k]||[]).push(id);
 save();updStrip(D(k));collapse(el,()=>{emptyCheck();if(view=="cal"){anim=false;keepScroll(render)}})}
