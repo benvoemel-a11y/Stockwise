@@ -553,13 +553,20 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
         <details class="rule"><summary>Chart und Historie</summary><div><p>Der Chart im Portfolio zeigt dein Depot für <b>1T, 1W, 1M, 1J</b> oder <b>Max</b>. Fahre mit dem Finger darüber und du siehst den Wert zu jedem Zeitpunkt.</p><p>Die Historie fasst <b>Woche, Monat und Jahr</b> zusammen: Performance, grüne und rote Tage, stärkster Treiber und größte Bremse. Der Trend vergleicht mit dem Zeitraum davor und zeigt, was besser und was schlechter lief. Ab 14 Tagen siehst du auch deinen stärksten und schwächsten Wochentag.</p><p>Im Verlauf stehen alle Einträge, Dividenden, Shorts und Tage ohne Trade.</p></div></details>
         <details class="rule"><summary>Bearbeiten, Löschen, Zurücksetzen</summary><div><p>Trades bearbeitest du auf der Trades-Seite über „Bearbeiten“. Eine neue Bewertung gilt ab dem nächsten Eintrag, außer du übernimmst sie für alle bisherigen.</p><p>Einzelne Einträge änderst oder löschst du in der Historie unter Verlauf, auch ihre Stärke. Heutige Einträge nimmst du auf der Trades-Seite zurück.</p><p>„Depot zurücksetzen“ hier im Account löscht alle Einträge, Ziele, Streaks und Shorts. Dein Name und deine Trades bleiben. Du wirst zweimal gefragt, ob du sicher bist.</p><p>Vor dem Zurücksetzen wird dein Depot gesichert. Mit „Zurücksetzen rückgängig machen“ holst du es im Account zurück. Gesichert ist immer nur der Stand vor dem letzten Zurücksetzen.</p></div></details>
         <details class="rule"><summary>Bedienung</summary><div><p>Zwischen Portfolio, Trades, Ziele und Historie wischst du zur Seite oder tippst unten auf die Leiste.</p><p>Bereiche wie Sektoren, Ziele, Streaks, Shorts, Verlauf und dieses Regelwerk kannst du einklappen. Die App merkt sich, was eingeklappt ist.</p><p>Oben rechts blendest du mit dem Auge den Namen „Stockwise“ aus und wechselst mit dem Mond zwischen Hell und Dunkel.</p></div></details>
-        <details class="rule"><summary>Daten und Speicher</summary><div><p>Dein Depot, deine Trades und dein Name liegen <b>nur auf diesem Gerät</b> im Speicher des Browsers. Es gibt kein Konto und keinen Server, und das Eintragen verbraucht keine Kapazität bei Claude.</p><p>Nach dem ersten Öffnen läuft die App auch ohne Internet.</p><p>Löschst du in Safari die Website-Daten, ist dein Depot weg. Gesichert wird nur der Stand vor dem letzten Zurücksetzen. Auf einem anderen Gerät beginnt ein neues Depot.</p></div></details>
+        <details class="rule"><summary>Daten und Speicher</summary><div><p>Dein Depot, deine Trades und dein Name liegen <b>nur auf diesem Gerät</b> im Speicher des Browsers. Es gibt kein Konto und keinen Server, und das Eintragen verbraucht keine Kapazität bei Claude.</p><p>Nach dem ersten Öffnen läuft die App auch ohne Internet.</p><p>Löschst du in Safari die Website-Daten, ist dein Depot weg. Gesichert wird nur der Stand vor dem letzten Zurücksetzen. Auf einem anderen Gerät beginnt ein neues Depot, außer du überträgst es: Im Account tippst du auf dem alten Gerät auf <b>Exportieren</b>, schickst die Datei an das neue Gerät und tippst dort auf <b>Importieren</b>. Alles, was auf dem neuen Gerät stand, wird dabei ersetzt und vorher gesichert.</p></div></details>
       </div>
     </details>
+    <h2 style="margin-top:6px">Auf anderes Gerät übertragen</h2>
+    <div class="note">Auf dem alten Gerät exportieren, die Datei per AirDrop, Mail oder Nachricht schicken und auf dem neuen Gerät importieren.</div>
+    <div class="btn-row">
+      <button class="btn ghost" type="button" id="export-all">Exportieren</button>
+      <button class="btn ghost" type="button" id="import-all">Importieren</button>
+    </div>
+    <input type="file" id="import-file" hidden>
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 29</div>
+    <div class="note" style="text-align:center">Version 30</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1415,6 +1422,41 @@ $('#restore-all').addEventListener('click',function(){
     $('#demo-banner').hidden=true;rebuild();save();renderProfile();renderAll();renderBackup();
     toast('Dein Depot ist zurück: '+nf0.format(Math.round(curPrice()))+' LPI');
   },function(){open('profile')},'btn');
+});
+
+/* Version 30: move the whole depot to another device as a file */
+function exportName(){var d=new Date(),z=function(n){return (n<10?'0':'')+n};return 'stockwise-'+d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'.json'}
+$('#export-all').addEventListener('click',function(){
+  var txt=JSON.stringify({app:'stockwise',ts:Date.now(),state:state});
+  var name=exportName(), file=null;
+  try{file=new File([txt],name,{type:'application/json'})}catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:'Stockwise Depot'}).then(function(){toast('Exportiert')}).catch(function(err){if(!err||err.name!=='AbortError')dl()});
+  }else dl();
+  function dl(){try{var u=URL.createObjectURL(new Blob([txt],{type:'application/json'}));var a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);toast('Gespeichert als '+name)}catch(e){toast('Exportieren nicht möglich.')}}
+});
+$('#import-all').addEventListener('click',function(){$('#import-file').value='';$('#import-file').click()});
+$('#import-file').addEventListener('change',function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var d=null;try{d=JSON.parse(r.result)}catch(e){}
+    var st=d&&d.state;
+    if(!st||!Array.isArray(st.habits)||!Array.isArray(st.logs)){toast('Diese Datei ist kein Stockwise-Export.');return}
+    close('profile');
+    ask('Depot importieren?','Die Datei vom '+dDay.format(d.ts||Date.now())+' enthält '+nf0.format(st.habits.length)+' Trades und '+nf0.format(st.logs.length)+(st.logs.length===1?' Eintrag':' Einträge')+'. Sie ersetzt alles auf diesem Gerät. Der jetzige Stand wird vorher gesichert.','Importieren',function(){
+      var cur=null;
+      try{if(hasData())localStorage.setItem(BKEY,JSON.stringify({ts:Date.now(),lpi:curPrice(),state:state}));cur=localStorage.getItem(KEY);localStorage.setItem(KEY,JSON.stringify(st))}catch(e){toast('Importieren nicht möglich.');return}
+      var s=load();
+      if(!s){try{if(cur!=null)localStorage.setItem(KEY,cur)}catch(e){}toast('Die Datei ist nicht lesbar.');return}
+      state=s;
+      try{localStorage.setItem('mytrade.wipe','17');if(state.profile)localStorage.setItem('mytrade.profile',JSON.stringify(state.profile))}catch(e){}
+      $('#demo-banner').hidden=true;rebuild();save();renderProfile();renderAll();renderBackup();
+      toast('Importiert: '+nf0.format(Math.round(curPrice()))+' LPI');
+    },function(){open('profile')},'btn');
+  };
+  r.onerror=function(){toast('Die Datei ist nicht lesbar.')};
+  r.readAsText(f);
 });
 $('#demo-start').addEventListener('click',function(){
   ask('Eigenes Depot starten?','Die Beispieldaten verschwinden und dein Depot startet bei 1.000,00 LPI. Die Trades bleiben als Startliste, du kannst sie anpassen oder löschen.','Depot starten',function(){
