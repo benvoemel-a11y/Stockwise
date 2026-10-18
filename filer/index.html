@@ -152,7 +152,7 @@ const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span
 function plusTap(el,key){if(el.classList.contains("spin"))return;haptic();el.classList.add("spin");const r=el.getBoundingClientRect(),tmp=document.createElement("input");tmp.style.cssText=`position:fixed;left:0;top:${Math.max(0,r.top)}px;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0`;tmp.setAttribute("aria-hidden","true");document.body.appendChild(tmp);tmp.focus();setTimeout(()=>{openAdd(key);setTimeout(()=>tmp.remove(),50)},680)}
 const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="neuer Eintrag"${v!=null?` value="${esc(v)}"`:""}>`;
 function adder(key,routine){if(!adding)return plusHtml(key);
-return `<div class="pop addwrap"><div class="addrow">${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></div>`+
+return `<div class="pop addwrap"><form class="addrow" action="javascript:void 0" onsubmit="enterGo(event)"><button type="submit" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></button>${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></form>`+
 (routine?`<div class="days">${WS.map((s,i)=>`<span class="dy ${newDays.includes(i)?"on":""}" onclick="tday(${i},this)">${s}</span>`).join("")}</div>`:"")+`</div>`}
 function fmt(el){const back=el.value.length<(el._last||"").length;let v=el.value.replace(/\D/g,"");if(v&&+v[0]>2)v="0"+v;v=v.slice(0,4);
 if(v.length>2||(v.length==2&&!back))v=v.slice(0,2)+":"+v.slice(2);el.value=v;el._last=v}
@@ -161,7 +161,7 @@ function openAdd(key){closeSwipe();adding=true;addKey=key;anim=false;render();co
 function closeAdd(){const w=$(".addwrap");adding=false;newDays=[0,1,2,3,4,5,6];if(!w)return;w.classList.add("closing");
 setTimeout(()=>{if(w.isConnected){const s=document.createElement("span");s.innerHTML=plusHtml(addKey);const p=s.firstChild;p.style.animation="pop .35s ease";w.replaceWith(p)}},250)}
 function addTime(){const c=document.querySelector(".addwrap .clk,.editwrap .clk");if(!c)return;const ft=document.createElement("input");ft.className="ft";ft.placeholder="--:--";ft.maxLength=5;ft.inputMode="numeric";ft.setAttribute("enterkeyhint","done");ft.spellcheck=false;ft.oninput=()=>fmt(ft);ft.style.animation="pop .25s ease";c.replaceWith(ft);ft.focus()}
-function tday(i,el){newDays=newDays.includes(i)?newDays.filter(x=>x!==i):[...newDays,i].sort();el.classList.toggle("on")}
+function tday(i,el){newDays=newDays.includes(i)?newDays.filter(x=>x!==i):[...newDays,i].sort();el.classList.toggle("on");refocus()}
 
 function calendar(){const y=sel.getFullYear(),m=sel.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
 let c=WS.map(w=>`<span class="muted" style="padding:4px 0">${w}</span>`).join("")+"<span></span>".repeat(f);
@@ -235,8 +235,8 @@ haptic();save();adding=false;anim=false;keepScroll(render);const r=[...document.
 /* ---------- Bearbeiten ---------- */
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
 function dLabel(d){const r=relDay(d);return (r?r+" · ":"")+short(d)}
-function editRowHtml(name,time,extra,prio){return `<div class="editwrap pop"><div class="addrow">${nameInput(name)}<span class="pri ${prio?"on":""}" onclick="togPri(this)">${FLAG}</span>`+
-(time?`<input class="ft" placeholder="--:--" maxlength="5" inputmode="numeric" enterkeyhint="done" spellcheck="false" value="${time}" oninput="fmt(this)">`:`<span class="clk" onclick="addTime()">${CLOCK}</span>`)+`</div>${extra}</div>`}
+function editRowHtml(name,time,extra,prio){return `<div class="editwrap pop"><form class="addrow" action="javascript:void 0" onsubmit="enterGo(event)"><button type="submit" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></button>${nameInput(name)}<span class="pri ${prio?"on":""}" onclick="togPri(this)">${FLAG}</span>`+
+(time?`<input class="ft" placeholder="--:--" maxlength="5" inputmode="numeric" enterkeyhint="done" spellcheck="false" value="${time}" oninput="fmt(this)">`:`<span class="clk" onclick="addTime()">${CLOCK}</span>`)+`</form>${extra}</div>`}
 function startEdit(el,html,state){if(adding)closeAdd();if(editing)saveEdit();openRow=null;
 if(!el.isConnected)return;
 const w=document.createElement("div");w.innerHTML=html;const box=w.firstChild;el.replaceWith(box);editing=Object.assign(state,{box});
@@ -247,7 +247,7 @@ function shiftEd(s){if(!editing||!editing.date)return;editing.date=new Date(edit
 const l=editing.box.querySelector(".dl");l.textContent=dLabel(editing.date);l.style.animation="none";l.offsetHeight;l.style.animation="pop .2s ease"}
 function editRoutine(id,el){if(!el||!el.isConnected)el=document.querySelector('#lst .row[data-key="'+id+'"]');if(!el)return;const r=st.routines.find(x=>x.id==id);if(!r)return;edDays=r.days.slice();
 startEdit(el,editRowHtml(r.name,r.time,`<div class="days">${WS.map((s,i)=>`<span class="dy ${edDays.includes(i)?"on":""}" onclick="edDay(${i},this)">${s}</span>`).join("")}</div>`,r.prio),{rid:id})}
-function edDay(i,el){edDays=edDays.includes(i)?edDays.filter(x=>x!==i):[...edDays,i].sort();el.classList.toggle("on")}
+function edDay(i,el){edDays=edDays.includes(i)?edDays.filter(x=>x!==i):[...edDays,i].sort();el.classList.toggle("on");refocus()}
 function cancelEdit(){editing=null;anim=false;keepScroll(render)}
 function keepScroll(fn){const a=$("#app"),y=a.scrollTop;fn();a.scrollTop=y}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),2000)}
@@ -337,10 +337,20 @@ try{const d=JSON.parse(await file.text());if(!d||typeof d!="object"||!("days" in
  st=Object.assign({},BASE,d);delete st.level;for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};if(!Array.isArray(st.routines))st.routines=[];
  save();openOpt=null;view="main";cur=T;render();toast("Daten geladen")}catch(_){toast("Datei passt nicht")}});
 
-/* ---------- Tastatur & Tippen außerhalb ---------- */
+/* ---------- Tastatur & Tippen außerhalb ----------
+   Enter, „Fertig“ oder Tastatur zuklappen speichert sofort – kein Zwischenschritt. */
+let wrapTap=false;
+function refocus(){const f=document.querySelector(".addwrap .fn,.editwrap .fn");if(f)f.focus()}
+function commitInput(){if(editing){saveEdit();return}if(adding){const f=$(".addwrap .fn");if(f&&f.value.trim())submit();else closeAdd()}}
+function enterGo(e){if(e)e.preventDefault();commitInput()}
+document.addEventListener("focusout",e=>{const w=e.target.closest&&e.target.closest(".addwrap,.editwrap");if(!w)return;
+ setTimeout(()=>{if(!w.isConnected||wrapTap)return;const a=document.activeElement;if(a&&w.contains(a))return;
+  if(editing&&editing.box===w)saveEdit();else if(adding&&w.classList.contains("addwrap"))commitInput()},80)});
+document.addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closest(".addwrap,.editwrap")){wrapTap=true;setTimeout(()=>wrapTap=false,450)}},true);
 document.addEventListener("keydown",e=>{
-if(editing){if(e.key==="Escape"){cancelEdit();return}if(e.key==="Enter"){e.preventDefault();saveEdit()}return}
-if(adding){if(e.key==="Escape"){closeAdd();return}if(e.key==="Enter"){e.preventDefault();submit()}return}
+const ent=e.key==="Enter"||e.keyCode===13;
+if(editing){if(e.key==="Escape"){cancelEdit();return}if(ent){e.preventDefault();saveEdit()}return}
+if(adding){if(e.key==="Escape"){closeAdd();return}if(ent){e.preventDefault();commitInput()}return}
 if(view=="main"&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){e.preventDefault();day(e.key==="ArrowLeft"?-1:1)}});
 document.addEventListener("pointerdown",e=>{const t=e.target;
 if(editing&&!t.closest(".editwrap")){saveEdit();swallowClick();return}
