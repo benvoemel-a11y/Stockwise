@@ -144,7 +144,7 @@ if(view=="main"){const isT=iso(cur)==iso(T);h=`<div class="hd"><span class="dnav
 if(view=="menu")h=`<div class="hd"><span>Menü</span><span class="ic" onclick="go('main')">‹ zurück</span></div>`+
 `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
 `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts("size",S.map((s,i)=>[i,s,"font-size:"+[12,14,19][i]+"px"]),st.size,"setSize"):"")+
-`<div class="mi" onclick="toggleOpt('level')">Fenster</div>`+(openOpt=="level"?opts("level",L,st.level,"setLevel"):"")+`<div class="muted" style="padding:24px 8px 0;font-size:11px;opacity:.7">Filer Mac v3</div>`;
+`<div class="mi" onclick="toggleOpt('level')">Fenster</div>`+(openOpt=="level"?opts("level",L,st.level,"setLevel"):"")+`<div class="muted" style="padding:24px 8px 0;font-size:11px;opacity:.7">Filer Mac v4</div>`;
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${nice(TM())}</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+calendar();
 if(view=="rt")h=`<div class="hd"><span>Routinen</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+routineList()+adder("rt",true);
@@ -182,9 +182,7 @@ if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length)return;st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-save();anim=false;render();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop");
-/* Enter: direkt die nächste leere Zeile öffnen */
-const nf=document.querySelector(".fn");if(nf)nf.focus()}
+save();adding=false;anim=false;render();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
 /* ---------- Bearbeiten ---------- */
 let editing=null;
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
