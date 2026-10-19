@@ -91,7 +91,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v22";
+const VERSION="v23";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -201,14 +201,14 @@ function tday(i,el){newDays=newDays.includes(i)?newDays.filter(x=>x!==i):[...new
 /* Kalender: Kacheln, erledigte Tage in einem Grau, Serie „Tage in Folge“ */
 function dayFull(d){const h=items(d);return h.length>0&&h.every(x=>x.done)}
 function streak(){let d=new Date(T),n=0;if(!dayFull(d))d.setDate(d.getDate()-1);for(let i=0;i<3650&&dayFull(d);i++){n++;d.setDate(d.getDate()-1)}return n}
-function calendar(){const y=sel.getFullYear(),m=sel.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),tk=iso(T),sk=streak();
+function calendar(){const y=sel.getFullYear(),m=sel.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),tk=iso(T);
 let c=WS.map(w=>`<span class="cwd">${w.toUpperCase()}</span>`).join("")+"<span></span>".repeat(f);
 for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];
  if(k>tk)cl.push("fut");else if(dayFull(d))cl.push("full");
  if((st.days[k]&&st.days[k].length))cl.push("has");if(k===tk)cl.push("today");if(k===iso(sel))cl.push("sel");
  c+=`<span class="${cl.join(" ")}" onclick="pick(${y},${m},${i})">${i}</span>`}
 return `<div class="calhd"><span class="ic" onclick="mv(-1)">‹</span><span class="calm">${M[m]} ${y}</span><span class="ic" onclick="mv(1)">›</span></div>`+
- `<div class="calsub"><span>Archiv · erledigte Tage</span><b>${sk} ${sk==1?"Tag":"Tage"} in Folge</b></div>`+
+ `<div class="calsub"><span>Archiv · erledigte Tage</span></div>`+
  `<div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
 function routineList(){if(!st.routines.length)return '<div class="muted" style="padding:9px 10px">keine routinen</div>';
 const anyP=st.routines.some(x=>x.prio);
