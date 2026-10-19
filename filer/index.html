@@ -60,7 +60,8 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .clk,.pri{color:#9a9a9a;display:inline-flex;align-items:center;padding:10px 4px;transition:color .2s,transform .15s}.clk svg{width:18px;height:18px}.pri svg{width:15px;height:15px}
 .clk:active,.pri:active{transform:scale(.8)}.pri.on{color:var(--ink)}
 .days{display:flex;gap:4px;padding:6px 4px 0;font-size:15px;flex-wrap:wrap}.dy{color:var(--soft);padding:6px 6px;transition:color .2s,transform .15s}.dy:active{transform:scale(.85)}.dy.on{color:#3a3a3a;text-decoration:underline}
-.strip+.plus,.hd+.plus{margin-top:0}.strip+.addwrap .addrow,.hd+.addwrap .addrow{margin-top:0}
+.stripw+.plus,.hd+.plus{margin-top:0}.stripw+.addwrap .addrow,.hd+.addwrap .addrow{margin-top:0}
+.stripw{display:flex;align-items:center;gap:12px;margin-bottom:18px}#pct{font-size:12px;color:#3a3a3a;min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
 .closing{transition:opacity .25s ease,transform .25s ease;opacity:0;transform:translateY(-3px)}
 .editwrap{margin:0 0 6px}.editwrap .addrow{margin-top:0}
 .dline{align-items:center}.dline .dl{color:#3a3a3a;min-width:0}
@@ -68,9 +69,12 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Menü, Kalender */
 .mi{padding:14px 10px;transition:background .3s,padding-left .3s}.mi:active{background:#a6a6a6;padding-left:14px}
 .opts{display:flex;gap:22px;padding:2px 10px 12px;align-items:baseline}.opt{color:#7a7a7a;padding:4px 0;transition:color .2s}.opt:active{color:#000}.opt.on{color:var(--ink);font-weight:600}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 4px;text-align:center;margin-bottom:14px}
-.cd{color:#4f4f4f;padding:8px 0;transition:background .2s,color .2s,transform .12s}.cd:active{transform:scale(.88)}
-.cd.has{color:var(--ink);font-weight:600}.cd.today{text-decoration:underline}.cd.sel{background:#2a2a2a;color:#d6d6d6}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;margin-bottom:18px}
+.calhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}.calhd .ic{font-size:22px;padding:4px 12px;margin:0 -12px}.calm{font-weight:700;font-size:20px}
+.calsub{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:#6a6a6a;margin-bottom:18px}.calsub b{color:var(--ink);font-weight:700}
+.cwd{font-size:12px;color:#6a6a6a;padding:2px 0 4px}
+.cd{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#c6c6c6;color:#3f3f3f;font-size:14px;transition:background .3s,color .3s,transform .12s,box-shadow .2s}.cd:active{transform:scale(.9)}
+.cd.has{font-weight:700}.cd.full{background:#4a4a4a;color:#ececec}.cd.fut{background:#c2c2c2;color:#9a9a9a}.cd.fut.has{color:#5e5e5e}.cd.today{text-decoration:underline;text-underline-offset:3px}.cd.sel{box-shadow:0 0 0 2px #1f1f1f}
 .muted{color:#777}
 .dnav{display:flex;align-items:center;gap:4px}.ar{color:var(--mid);font-weight:400;padding:6px 8px;font-size:18px;transition:color .2s,transform .15s}.ar:first-child{margin-left:-8px}.ar:active{color:#000}
 @keyframes kl{0%,100%{transform:none}40%{transform:translateX(-6px)}}@keyframes kr{0%,100%{transform:none}40%{transform:translateX(6px)}}.kl{animation:kl .42s ease}.kr{animation:kr .42s ease}
@@ -87,7 +91,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v21";
+const VERSION="v22";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -170,8 +174,8 @@ return '<div class="s'+(st.size+1)+'" id="carry">'+out.map(({k,h})=>{const d=D(k
 return rowH({cls:"late "+(h.prio?"prio":""),key:"h"+h.id,name:h.name,tap:`tg('${k}','h${h.id}',true,this)`,pm:flag(anyC,h.prio),
  inner:nameH(h.name)+`<span class="t">${lab}</span>`,edit:`editItem('${k}','h${h.id}',this.closest('.row'))`,remove:`del('${k}','h${h.id}',this.closest('.row'))`})}).join("")+'</div>'}
 function shade(d){const h=items(d),r=h.length?h.filter(x=>x.done).length/h.length:0,s=Math.round(105*(1-r))+25;return [Math.round(r*100),`rgb(${s},${s},${s})`]}
-function strip(d){const [w,c]=shade(d);return `<div class="strip" style="height:5px;background:#9a9a9a;margin-bottom:18px"><div id="fill" style="height:5px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div>`}
-function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const [w,c]=shade(d);f.style.width=w+"%";f.style.background=c}
+function strip(d){const [w,c]=shade(d);return `<div class="stripw"><div class="strip" style="height:5px;background:#9a9a9a;flex:1"><div id="fill" style="height:5px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div><span id="pct">${w} %</span></div>`}
+function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const [w,c]=shade(d);f.style.width=w+"%";f.style.background=c;const p=$("#pct");if(p)p.textContent=w+" %"}
 const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span>`;
 /* Plus dreht sich, während das Eingabefeld sofort offen ist und die Tastatur direkt kommt. */
 function plusTap(el,key){haptic();const r=el.getBoundingClientRect(),c=el.cloneNode(true);c.removeAttribute("onclick");
@@ -194,10 +198,18 @@ setTimeout(()=>{if(w.isConnected){const s=document.createElement("span");s.inner
 function addTime(){const c=document.querySelector(".addwrap .clk,.editwrap .clk");if(!c)return;const ft=document.createElement("input");ft.className="ft";ft.placeholder="--:--";ft.maxLength=5;ft.inputMode="numeric";ft.setAttribute("enterkeyhint","done");ft.spellcheck=false;ft.oninput=()=>fmt(ft);ft.style.animation="pop .25s ease";c.replaceWith(ft);ft.focus()}
 function tday(i,el){newDays=newDays.includes(i)?newDays.filter(x=>x!==i):[...newDays,i].sort();el.classList.toggle("on");refocus()}
 
-function calendar(){const y=sel.getFullYear(),m=sel.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
-let c=WS.map(w=>`<span class="muted" style="padding:4px 0">${w}</span>`).join("")+"<span></span>".repeat(f);
-for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];if(st.days[k]&&st.days[k].length)cl.push("has");if(k===iso(T))cl.push("today");if(k===iso(sel))cl.push("sel");c+=`<span class="${cl.join(" ")}" onclick="pick(${y},${m},${i})">${i}</span>`}
-return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span class="ic" style="font-size:22px;padding:4px 14px" onclick="mv(-1)">‹</span><span style="font-weight:600">${M[m]} ${y}</span><span class="ic" style="font-size:22px;padding:4px 14px" onclick="mv(1)">›</span></div><div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<iso(T)?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
+/* Kalender: Kacheln, erledigte Tage in einem Grau, Serie „Tage in Folge“ */
+function dayFull(d){const h=items(d);return h.length>0&&h.every(x=>x.done)}
+function streak(){let d=new Date(T),n=0;if(!dayFull(d))d.setDate(d.getDate()-1);for(let i=0;i<3650&&dayFull(d);i++){n++;d.setDate(d.getDate()-1)}return n}
+function calendar(){const y=sel.getFullYear(),m=sel.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),tk=iso(T),sk=streak();
+let c=WS.map(w=>`<span class="cwd">${w.toUpperCase()}</span>`).join("")+"<span></span>".repeat(f);
+for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];
+ if(k>tk)cl.push("fut");else if(dayFull(d))cl.push("full");
+ if((st.days[k]&&st.days[k].length))cl.push("has");if(k===tk)cl.push("today");if(k===iso(sel))cl.push("sel");
+ c+=`<span class="${cl.join(" ")}" onclick="pick(${y},${m},${i})">${i}</span>`}
+return `<div class="calhd"><span class="ic" onclick="mv(-1)">‹</span><span class="calm">${M[m]} ${y}</span><span class="ic" onclick="mv(1)">›</span></div>`+
+ `<div class="calsub"><span>Archiv · erledigte Tage</span><b>${sk} ${sk==1?"Tag":"Tage"} in Folge</b></div>`+
+ `<div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
 function routineList(){if(!st.routines.length)return '<div class="muted" style="padding:9px 10px">keine routinen</div>';
 const anyP=st.routines.some(x=>x.prio);
 return '<div id="lst" data-rt="1" class="s'+(st.size+1)+'">'+st.routines.map(r=>rowH({cls:r.prio?"prio":"",key:r.id,name:r.name,pm:flag(anyP,r.prio),
