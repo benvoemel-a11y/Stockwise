@@ -26,7 +26,8 @@ img{max-width:100%}
 :root{
   --bg:#E3E3E7; --surface:#F2F2F4; --surface-2:#D5D5DA; --fg:#2C2C2E; --muted:#6C6C70; --faint:#9C9CA1;
   --line:rgba(60,60,67,.16);
-  --up:#48484A; --up-soft:rgba(72,72,74,.12); --down:#A8504A; --down-soft:rgba(168,80,74,.12);
+  --up:#48484A; --up-soft:rgba(72,72,74,.12); --down:#8E8E93; --down-soft:rgba(142,142,147,.14);
+  --good:#0C8442; --good-soft:rgba(12,132,66,.12); --bad:#D12F23; --bad-soft:rgba(209,47,35,.11);
   --inv-bg:#48484A; --inv-fg:#F2F2F4; --overlay:rgba(28,28,30,.36);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
   --r-card:18px; --r-ctl:12px;
@@ -35,7 +36,8 @@ img{max-width:100%}
   :root:not([data-theme="light"]){
     --bg:#1C1C1E; --surface:#2C2C2E; --surface-2:#3A3A3C; --fg:#E5E5EA; --muted:#98989D; --faint:#636366;
     --line:rgba(255,255,255,.1);
-    --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#D9827B; --down-soft:rgba(217,130,123,.16);
+    --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#7C7C80; --down-soft:rgba(124,124,128,.18);
+  --good:#30D158; --good-soft:rgba(48,209,88,.16); --bad:#FF453A; --bad-soft:rgba(255,69,58,.16);
     --inv-bg:#D1D1D6; --inv-fg:#1C1C1E; --overlay:rgba(0,0,0,.55);
     color-scheme:dark;
   }
@@ -43,7 +45,8 @@ img{max-width:100%}
 :root[data-theme="dark"]{
   --bg:#1C1C1E; --surface:#2C2C2E; --surface-2:#3A3A3C; --fg:#E5E5EA; --muted:#98989D; --faint:#636366;
   --line:rgba(255,255,255,.1);
-  --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#D9827B; --down-soft:rgba(217,130,123,.16);
+  --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#7C7C80; --down-soft:rgba(124,124,128,.18);
+  --good:#30D158; --good-soft:rgba(48,209,88,.16); --bad:#FF453A; --bad-soft:rgba(255,69,58,.16);
   --inv-bg:#D1D1D6; --inv-fg:#1C1C1E; --overlay:rgba(0,0,0,.55);
   color-scheme:dark;
 }
@@ -54,7 +57,7 @@ button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;padding:0;text-align:inherit}
 :focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-radius:6px}
 h1,h2,h3,p{margin:0}
-.up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--muted)}
+.up{color:var(--up)} .down{color:var(--down)} .tg{color:var(--good)} .tb{color:var(--bad)} .flat{color:var(--muted)}
 
 .shell{height:100%;max-width:480px;margin-inline:auto;display:flex;flex-direction:column}
 .top{flex:none;display:flex;align-items:center;gap:8px;padding:10px 16px 6px}
@@ -121,8 +124,8 @@ h1,h2,h3,p{margin:0}
 button.eff{padding:6px 0 6px 8px}
 .row-act{flex:none;display:flex;align-items:center;gap:4px}
 .check,.step{width:36px;height:36px;border-radius:50%;background:var(--surface-2);font-size:20px;font-weight:500;line-height:1;display:grid;place-items:center;flex:none}
-.row.good .check[aria-pressed="true"]{background:var(--up);color:var(--inv-fg)}
-.row.bad .check[aria-pressed="true"]{background:var(--down);color:var(--inv-fg)}
+.row.good .check[aria-pressed="true"]{background:var(--good);color:var(--inv-fg)}
+.row.bad .check[aria-pressed="true"]{background:var(--bad);color:var(--inv-fg)}
 .check.go{background:var(--up);color:var(--inv-fg)}
 .cnt{min-width:26px;white-space:nowrap;text-align:center;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .chev{color:var(--faint);font-size:18px;flex:none;padding-right:4px}
@@ -189,8 +192,8 @@ button.eff{padding:6px 0 6px 8px}
 .typ label{flex:1;position:relative}
 .typ input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
 .typ span{display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 12px;border-radius:var(--r-ctl);background:var(--bg);border:1px solid var(--line);font-weight:600;color:var(--muted);white-space:nowrap}
-.typ input:checked + span.g{background:var(--up-soft);border-color:transparent;color:var(--up)}
-.typ input:checked + span.b{background:var(--down-soft);border-color:transparent;color:var(--down)}
+.typ input:checked + span.g{background:var(--good-soft);border-color:transparent;color:var(--good)}
+.typ input:checked + span.b{background:var(--bad-soft);border-color:transparent;color:var(--bad)}
 .typ input:checked + span.n{background:var(--inv-bg);border-color:transparent;color:var(--inv-fg)}
 .typ input:focus-visible + span{outline:2px solid var(--fg);outline-offset:2px}
 .typ.sec label{flex:0 1 auto}
@@ -198,8 +201,8 @@ button.eff{padding:6px 0 6px 8px}
 .wrow{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
 .wval{font-size:34px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .wlvl{font-size:14px;font-weight:600;text-align:right}
-input[type=range]{width:100%;accent-color:var(--up);height:28px;margin:0}
-.sheet.bad input[type=range]{accent-color:var(--down)}
+input[type=range]{width:100%;accent-color:var(--good);height:28px;margin:0}
+.sheet.bad input[type=range]{accent-color:var(--bad)}
 .switch{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
 .switch input{width:22px;height:22px;accent-color:var(--fg)}
 details.help{border-radius:var(--r-ctl);background:var(--bg);padding:12px 14px}
@@ -587,7 +590,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center" id="app-ver">Version 34</div>
+    <div class="note" style="text-align:center" id="app-ver">Version 35</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -701,7 +704,7 @@ function lvl(w){return Math.max(0,Math.min(4,Math.floor((w*5/UNIT-1)/20)))}
 function validPts(w){w=+w||0;return Math.max(UNIT,Math.min(20*UNIT,Math.round(w/UNIT)*UNIT))}
 var lpi=function(n){n=Math.round(fin(n));return (n>0?'+':n<0?'−':'')+nf0.format(Math.abs(n))+' LPI'};
 function eff(x){return x.pts!=null?lpi(x.pts):pct(x.pc)}
-function effCls(x){return cls(x.pts!=null?x.pts:x.pc)}
+function effCls(x){if(x.kind==='log'&&x.pts!=null)return x.pts>=0?'tg':'tb';return cls(x.pts!=null?x.pts:x.pc)}
 /* What a trade is worth on a given day: rating x strength x streak x market, rounded to whole LPI.
    Streak: +3 % for every further day in a row with this trade, at most +30 %. It applies to negative trades too.
    Market: up to +/-8 % from your own form of the last 7 days plus a daily swing of at most +/-2 %. Positive trades use it as it is, negative trades use the mirror image. */
@@ -1064,7 +1067,7 @@ function renderToday(){
       var c=counts[h.id]||0, n=esc(h.name), act;
       if(editMode){
         html+='<button class="row '+h.type+'" type="button" data-edit="'+h.id+'"><span class="row-name">'+n+'<span class="row-sub">'+secName(h.sector)+(h.multi?' · mehrmals pro Tag':'')+'</span></span>'+
-          '<span class="rate '+(h.type==='good'?'up':'down')+'">'+nf0.format(h.weight)+' LPI</span><span class="chev" aria-hidden="true">›</span></button>';
+          '<span class="rate '+(h.type==='good'?'tg':'tb')+'">'+nf0.format(h.weight)+' LPI</span><span class="chev" aria-hidden="true">›</span></button>';
         return;
       }
       if(h.multi){
@@ -1073,7 +1076,7 @@ function renderToday(){
       }else{
         act='<button class="check" type="button" data-act="toggle" data-id="'+h.id+'" aria-pressed="'+(c?'true':'false')+'" aria-label="'+n+(c?' für heute zurücknehmen':' für heute eintragen')+'">'+(c?'✓':'+')+'</button>';
       }
-      html+='<div class="row '+h.type+'"><button class="row-name" type="button" data-edit="'+h.id+'" aria-label="'+n+' bearbeiten">'+n+'</button><button class="eff '+(h.type==='good'?'up':'down')+'" type="button" data-strset="'+h.id+'" aria-label="Stärke für '+n+' ändern">'+effectToday(h)+(h.k&&h.k!==1?'<small class="plain">'+strName(strOf(h.k),h.type,true)+'</small>':'')+'</button><div class="row-act">'+act+'</div></div>';
+      html+='<div class="row '+h.type+'"><button class="row-name" type="button" data-edit="'+h.id+'" aria-label="'+n+' bearbeiten">'+n+'</button><button class="eff '+(h.type==='good'?'tg':'tb')+'" type="button" data-strset="'+h.id+'" aria-label="Stärke für '+n+' ändern">'+effectToday(h)+(h.k&&h.k!==1?'<small class="plain">'+strName(strOf(h.k),h.type,true)+'</small>':'')+'</button><div class="row-act">'+act+'</div></div>';
     });
     html+='</div></div>';
   });
@@ -1142,7 +1145,7 @@ function openStrength(h){
   $('#str-list').innerHTML=STRENGTH.map(function(x,i){
     var v=valueFor(h,t0,x.f);
     var on=x.f===strOf(h.k).f;
-    return '<button class="row '+h.type+'" type="button" data-str="'+i+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+strName(x,h.type)+'<span class="row-sub">'+x.sub+'</span></span><span class="eff '+(h.type==='good'?'up':'down')+'">'+(h.type==='good'?'+':'−')+nf0.format(v.val)+' LPI</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
+    return '<button class="row '+h.type+'" type="button" data-str="'+i+'" aria-pressed="'+(on?'true':'false')+'"><span class="row-name">'+strName(x,h.type)+'<span class="row-sub">'+x.sub+'</span></span><span class="eff '+(h.type==='good'?'tg':'tb')+'">'+(h.type==='good'?'+':'−')+nf0.format(v.val)+' LPI</span><span class="check" aria-hidden="true" aria-pressed="'+(on?'true':'false')+'">'+(on?'✓':'')+'</span></button>';
   }).join('');
   open('strength');
 }
@@ -1582,7 +1585,7 @@ function renderReport(){
   }).join(''):'<div class="kv"><span>Keine Dividende in diesem Zeitraum.</span><span></span></div>';
   $('#rep-kv').innerHTML=
     '<div class="kv"><span>Depot</span><span>'+fmt(p0)+' → '+fmt(p1)+' LPI</span></div>'+
-    '<div class="kv"><span>Trades</span><span><span class="up">▲ '+good+'</span> · <span class="down">▼ '+bad+'</span></span></div>'+
+    '<div class="kv"><span>Trades</span><span><span class="tg">▲ '+good+'</span> · <span class="tb">▼ '+bad+'</span></span></div>'+
     '<div class="kv"><span>Tage</span><span><span class="up">'+green+' grün</span> · <span class="down">'+red+' rot</span></span></div>'+
     '<div class="kv"><span>Tage ohne Trade</span><span'+(missed?' class="down"':'')+'>'+missed+(missed?' · '+pct(-MISS*missed):'')+'</span></div>'+
     '<div class="kv"><span>Dividenden</span><span class="'+cls(divs)+'">'+(divs?pct(divs):'–')+'</span></div>'+
@@ -1812,7 +1815,7 @@ initSync();
 })();
 </script>
 <script>/* the open app checks for a newer version and reloads itself */
-(function(){var cur=34,busy=false,last=0;
+(function(){var cur=35,busy=false,last=0;
 function check(){var n=Date.now();if(busy||n-last<20000||navigator.onLine===false)return;busy=true;last=n;
   fetch('index.html?v='+n,{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){var m=/id="app-ver">Version (\d+)</.exec(t);
     if(m&&+m[1]>cur){if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(function(g){if(g)g.update()}).catch(function(){});setTimeout(function(){location.reload()},300)}}).catch(function(){}).then(function(){busy=false})}
