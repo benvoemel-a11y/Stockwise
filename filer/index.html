@@ -52,6 +52,8 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20}@keyframes pspin{to{transform:rotate(90deg);opacity:0}}
 .addrow{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px;margin-top:10px;background:#c6c6c6}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
+/* Im Eingabefeld: Cursor mit Finger ziehen, Lupe und Leertasten-Trackpad erlauben */
+.addrow input,.addrow input *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;touch-action:auto!important;cursor:text;overflow:hidden;text-overflow:clip}
 .addrow input::placeholder{color:#8f8f8f}
 .addrow .fn{flex:1;min-width:0}.addrow .ft{width:56px;text-align:right}
 .clk,.pri{color:#9a9a9a;display:inline-flex;align-items:center;padding:10px 4px;transition:color .2s,transform .15s}.clk svg{width:18px;height:18px}.pri svg{width:15px;height:15px}
@@ -84,7 +86,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v17";
+const VERSION="v18";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
