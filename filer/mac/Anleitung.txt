@@ -1,0 +1,18 @@
+FILER FÜR DEN MAC – installieren oder aktualisieren (ca. 2 Minuten)
+=====================================================================
+
+1. Das Programm „Terminal“ öffnen:
+   ⌘ + Leertaste drücken, „Terminal“ eintippen, Enter.
+
+2. Diese Zeile komplett kopieren, im Terminal mit ⌘ + V einfügen und Enter drücken:
+
+   bash -c "$(curl -fsSL https://benvoemel-a11y.github.io/Stockwise/filer/mac/install.sh)"
+
+3. Falls ein Fenster fragt, ob ein Werkzeug von Apple installiert werden soll:
+   „Installieren“ klicken, warten, dann Schritt 2 noch einmal machen.
+
+4. Nach 1–2 Minuten steht „Fertig“ und Filer öffnet sich.
+   Filer liegt auf dem Schreibtisch – am besten ins Dock ziehen.
+
+Für ein Update später einfach Schritt 1 und 2 wiederholen.
+Deine Einträge bleiben dabei erhalten und liegen nur auf deinem Mac.
