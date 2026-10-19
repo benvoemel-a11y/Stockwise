@@ -50,10 +50,11 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 
 /* Hinzufügen / Bearbeiten */
 .plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000}.plus.spin{color:#000;animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20}@keyframes pspin{to{transform:rotate(90deg);opacity:0}}
-.addrow{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px;margin-top:10px;background:#c6c6c6}
+.addrow{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 10px;margin-top:10px;background:#c6c6c6}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
 /* Im Eingabefeld: Cursor mit Finger ziehen, Lupe und Leertasten-Trackpad erlauben */
-.addrow input,.addrow input *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;touch-action:auto!important;cursor:text;overflow:hidden;text-overflow:clip}
+.addrow textarea.fn{all:unset;flex:1;min-width:0;font-family:inherit;font-size:16px;line-height:22px;padding:11px 0;color:var(--ink);caret-color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;resize:none;overflow:hidden;display:block;box-sizing:content-box;min-height:22px}
+.addrow textarea,.addrow input,.addrow input *{-webkit-user-select:text!important;user-select:text!important;-webkit-touch-callout:default!important;touch-action:auto!important;cursor:text;overflow:hidden;text-overflow:clip}
 .addrow input::placeholder{color:#8f8f8f}
 .addrow .fn{flex:1;min-width:0}.addrow .ft{width:56px;text-align:right}
 .clk,.pri{color:#9a9a9a;display:inline-flex;align-items:center;padding:10px 4px;transition:color .2s,transform .15s}.clk svg{width:18px;height:18px}.pri svg{width:15px;height:15px}
@@ -86,7 +87,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v19";
+const VERSION="v20";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -176,7 +177,11 @@ const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span
 function plusTap(el,key){haptic();const r=el.getBoundingClientRect(),c=el.cloneNode(true);c.removeAttribute("onclick");
  c.style.cssText=`position:fixed;left:${r.left}px;top:${r.top}px;margin:0`;c.classList.add("spin");document.body.appendChild(c);setTimeout(()=>c.remove(),280);
  openAdd(key)}
-const nameInput=v=>`<input class="fn" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done"${v!=null?` value="${esc(v)}"`:""}>`;
+/* Name-Feld: bricht langen Text um und wächst mit, statt ihn abzuschneiden */
+const nameInput=v=>`<textarea class="fn" rows="1" spellcheck="false" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" oninput="growFn(this)">${v!=null?esc(v):""}</textarea>`;
+function growFn(el){if(/\n/.test(el.value)){const p=el.selectionStart;el.value=el.value.replace(/\n+/g," ");try{el.setSelectionRange(p,p)}catch(_){}}el.style.height="0px";el.style.height=el.scrollHeight-22+"px";}
+function growAll(){document.querySelectorAll("textarea.fn").forEach(growFn)}
+document.addEventListener("focusin",e=>{if(e.target.matches&&e.target.matches("textarea.fn"))growFn(e.target)});
 function adder(key,routine){if(!adding)return plusHtml(key);
 return `<div class="pop addwrap"><form class="addrow" action="javascript:void 0" onsubmit="enterGo(event)"><button type="submit" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></button>${nameInput()}<span class="pri" onclick="togPri(this)">${FLAG}</span><span class="clk" onclick="addTime()">${CLOCK}</span></form>`+
 (routine?`<div class="days">${WS.map((s,i)=>`<span class="dy ${newDays.includes(i)?"on":""}" onclick="tday(${i},this)">${s}</span>`).join("")}</div>`:"")+`</div>`}
