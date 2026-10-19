@@ -91,7 +91,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v24";
+const VERSION="v25";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -272,12 +272,13 @@ function parseTime(ft){const t=ft?ft.value.trim():"";if(!t)return {ok:true,time:
 const m=t.match(/^(\d{1,2}):?(\d{2})?$/),mm=m?(m[2]||"00"):"";
 if(!m||+m[1]>23||+mm>59){ft.value="";ft._last="";ft.placeholder="07:30";ft.focus();return {ok:false}}
 return {ok:true,time:pad(+m[1])+":"+mm}}
-function submit(){const fn=$(".addwrap .fn"),ft=$(".addwrap .ft");if(!fn)return;let n=fn.value.trim(),prio=!!$(".addwrap .pri.on");if(/^!+\s*/.test(n)){prio=true;n=n.replace(/^!+\s*/,"")}
+function submit(again){const fn=$(".addwrap .fn"),ft=$(".addwrap .ft");if(!fn)return;let n=fn.value.trim(),prio=!!$(".addwrap .pri.on");if(/^!+\s*/.test(n)){prio=true;n=n.replace(/^!+\s*/,"")}
 if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-save();adding=false;anim=false;keepScroll(render);haptic();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
+save();adding=!!again;anim=false;keepScroll(render);haptic();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop");
+ if(again){const f=$(".addwrap .fn");if(f){f.focus();setTimeout(fitKeyboard,60)}}}
 
 /* ---------- Bearbeiten ---------- */
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
@@ -403,8 +404,9 @@ try{const d=JSON.parse(await file.text());if(!d||typeof d!="object"||!("days" in
    Enter, „Fertig“ oder Tastatur zuklappen speichert sofort – kein Zwischenschritt. */
 let wrapTap=false;
 function refocus(){const f=document.querySelector(".addwrap .fn,.editwrap .fn");if(f)f.focus()}
-function commitInput(){if(editing){saveEdit();return}if(adding){const f=$(".addwrap .fn");if(f&&f.value.trim())submit();else closeAdd()}}
-function enterGo(e){if(e)e.preventDefault();commitInput()}
+/* again=true (Enter): nach dem Speichern öffnet sich direkt die nächste Zeile */
+function commitInput(again){if(editing){saveEdit();return}if(adding){const f=$(".addwrap .fn");if(f&&f.value.trim())submit(again);else closeAdd()}}
+function enterGo(e){if(e)e.preventDefault();commitInput(true)}
 document.addEventListener("focusout",e=>{const w=e.target.closest&&e.target.closest(".addwrap,.editwrap");if(!w)return;if(hapEl&&e.relatedTarget===hapEl.firstChild){e.target.focus();return}
  setTimeout(()=>{if(!w.isConnected||wrapTap)return;const a=document.activeElement;if(a&&w.contains(a))return;
   if(editing&&editing.box===w)saveEdit();else if(adding&&w.classList.contains("addwrap"))commitInput()},80)});
@@ -412,7 +414,7 @@ document.addEventListener("pointerdown",e=>{if(e.target.closest&&e.target.closes
 document.addEventListener("keydown",e=>{
 const ent=e.key==="Enter"||e.keyCode===13;
 if(editing){if(e.key==="Escape"){cancelEdit();return}if(ent){e.preventDefault();saveEdit()}return}
-if(adding){if(e.key==="Escape"){closeAdd();return}if(ent){e.preventDefault();commitInput()}return}
+if(adding){if(e.key==="Escape"){closeAdd();return}if(ent){e.preventDefault();commitInput(true)}return}
 if(view=="main"&&(e.key==="ArrowLeft"||e.key==="ArrowRight")){e.preventDefault();day(e.key==="ArrowLeft"?-1:1)}});
 document.addEventListener("pointerdown",e=>{const t=e.target;
 if(editing&&!t.closest(".editwrap")){saveEdit();swallowClick();return}

@@ -1,5 +1,5 @@
 // Filer – offline verfügbar. Bei jedem Update VERSION erhöhen.
-const VERSION = "filer-v24";
+const VERSION = "filer-v25";
 const FILES = ["./", "index.html", "manifest.json", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-1024.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" }))))); self.skipWaiting(); });
 self.addEventListener("activate", e => {

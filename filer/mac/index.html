@@ -182,7 +182,9 @@ if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length)return;st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-save();adding=false;anim=false;render();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
+save();anim=false;render();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop");
+/* Enter: direkt die nächste leere Zeile öffnen */
+const nf=document.querySelector(".fn");if(nf)nf.focus()}
 /* ---------- Bearbeiten ---------- */
 let editing=null;
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
