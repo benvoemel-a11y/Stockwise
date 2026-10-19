@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,6 +17,7 @@
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
+html,body{touch-action:manipulation;-webkit-text-size-adjust:100%}
 img{max-width:100%}
 [hidden]{display:none!important}
 </style>
@@ -25,7 +26,7 @@ img{max-width:100%}
 :root{
   --bg:#F2F2F7; --surface:#FFFFFF; --surface-2:#E8E8ED; --fg:#0B0B0F; --muted:#6A6A72; --faint:#A3A3AB;
   --line:rgba(60,60,67,.14);
-  --up:#0C8442; --up-soft:rgba(12,132,66,.12); --down:#D12F23; --down-soft:rgba(209,47,35,.11);
+  --up:#48484A; --up-soft:rgba(72,72,74,.12); --down:#D12F23; --down-soft:rgba(209,47,35,.11);
   --inv-bg:#0B0B0F; --inv-fg:#FFFFFF; --overlay:rgba(0,0,0,.36);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
   --r-card:18px; --r-ctl:12px;
@@ -34,7 +35,7 @@ img{max-width:100%}
   :root:not([data-theme="light"]){
     --bg:#000000; --surface:#151517; --surface-2:#26262A; --fg:#F5F5F7; --muted:#98989F; --faint:#5E5E64;
     --line:rgba(255,255,255,.1);
-    --up:#30D158; --up-soft:rgba(48,209,88,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
+    --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
     --inv-bg:#F5F5F7; --inv-fg:#000000; --overlay:rgba(0,0,0,.62);
     color-scheme:dark;
   }
@@ -42,7 +43,7 @@ img{max-width:100%}
 :root[data-theme="dark"]{
   --bg:#000000; --surface:#151517; --surface-2:#26262A; --fg:#F5F5F7; --muted:#98989F; --faint:#5E5E64;
   --line:rgba(255,255,255,.1);
-  --up:#30D158; --up-soft:rgba(48,209,88,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
+  --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
   --inv-bg:#F5F5F7; --inv-fg:#000000; --overlay:rgba(0,0,0,.62);
   color-scheme:dark;
 }
@@ -62,9 +63,8 @@ h1,h2,h3,p{margin:0}
 .logo{width:31px;height:24px;flex:none;color:var(--fg)}
 .logo .lg-b{fill:none;stroke:currentColor;stroke-width:5.4;stroke-linejoin:round;stroke-linecap:round}
 .logo .lg-f{fill:none;stroke:currentColor;stroke-width:3.4;stroke-linecap:round;opacity:.45}
-.logo .lg-c{fill:none;stroke:#48484A;stroke-width:9.5;stroke-linejoin:round;stroke-linecap:round}
+.logo .lg-c{fill:none;stroke:var(--up);stroke-width:9.5;stroke-linejoin:round;stroke-linecap:round}
 .logo .lg-d{fill:var(--up)}
-:root[data-theme="dark"] .logo .lg-c{stroke:#AEAEB2}
 .brand.off{visibility:hidden}
 .brand .my{color:var(--fg)} .brand .tr{color:var(--up)}
 .icon-btn{width:38px;height:38px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;flex:none;font-weight:700;font-size:15px}
@@ -587,7 +587,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 32</div>
+    <div class="note" style="text-align:center">Version 33</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1811,6 +1811,7 @@ renderProfile();renderAll();renderBackup();
 initSync();
 })();
 </script>
+<script>/* no pinch or double-tap zoom */['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
 </html>
