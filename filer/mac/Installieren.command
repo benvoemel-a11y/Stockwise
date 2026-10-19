@@ -38,7 +38,11 @@ if ! "$PY" -c "import AppKit, WebKit, Quartz, PyObjCTools.AppHelper"; then
 fi
 
 # 3) App bauen (ersetzt die alte Version)
-pkill -f "Filer.app/Contents/Resources/main.py" >/dev/null 2>&1; sleep 0.5
+# Laufendes Filer sicher beenden, damit wirklich die neue Version startet
+osascript -e 'tell application "Filer" to quit' >/dev/null 2>&1
+pkill -f "Filer.app/Contents/" >/dev/null 2>&1
+pkill -f "Resources/main.py" >/dev/null 2>&1
+sleep 1
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp main.py index.html icon.png "$APP/Contents/Resources/"
@@ -93,7 +97,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleIconFile</key><string>Filer</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>
-  <key>CFBundleVersion</key><string>4</string>
+  <key>CFBundleVersion</key><string>5</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
