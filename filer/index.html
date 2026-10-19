@@ -91,7 +91,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v25";
+const VERSION="v26";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -219,7 +219,7 @@ function opts(list,cur,fn){return `<div class="opts pop">${list.map(([v,label,st
 const back=to=>`<span class="ic" onclick="go('${to}')">‹ zurück</span>`;
 
 /* ---------- Ansichten ---------- */
-function render(){closeSwipe(true);const a=$("#app");let h="";
+function render(keep){closeSwipe(true);const a=$("#app");let h="";
 if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span><span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
  `<div id="pane" class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
@@ -232,7 +232,14 @@ if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+ca
 if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("menu")}</div>`+syncView();
 if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("menu")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
-a.innerHTML=`<div class="${anim?"fade":""}">${h}</div>`;anim=true;markLate();if(view=="hist")loadHist()}
+const html=`<div class="${anim?"fade":""}">${h}</div>`,w=keep&&a.querySelector(".addwrap");
+ if(w){/* Eingabezeile behalten (Tastatur bleibt auf dem iPhone offen), alles drumherum neu aufbauen */
+  const t=document.createElement("div");t.innerHTML=`<div>${h}</div>`;const tw=t.querySelector(".addwrap"),lp=w.parentNode;
+  if(tw){const tp=tw.parentNode,kids=[...tp.childNodes],i=kids.indexOf(tw);[...lp.childNodes].forEach(n=>{if(n!==w)n.remove()});
+   kids.slice(0,i).forEach(n=>lp.insertBefore(n,w));kids.slice(i+1).forEach(n=>lp.appendChild(n));
+   const lpp=lp.parentNode;if(lpp&&tp.parentNode){[...lpp.childNodes].forEach(n=>{if(n!==lp)n.remove()});const pk=[...tp.parentNode.childNodes],pi=pk.indexOf(tp);pk.slice(0,pi).forEach(n=>lpp.insertBefore(n,lp));pk.slice(pi+1).forEach(n=>lpp.appendChild(n))}
+   anim=true;markLate();return}}
+ a.innerHTML=html;anim=true;markLate();if(view=="hist")loadHist()}
 function markLate(){const lst=$("#lst");if(!lst||!lst.dataset.day)return;const k=lst.dataset.day,today=iso(noon(new Date()));
 const d=new Date(),now=pad(d.getHours())+":"+pad(d.getMinutes()),its=new Map(items(D(k)).map(x=>[x.key,x]));
 lst.querySelectorAll(":scope > .row").forEach(r=>{const x=its.get(r.dataset.key);r.classList.toggle("late",!!x&&!x.done&&(k<today||(k==today&&!!x.time&&x.time<now)))})}
@@ -277,8 +284,12 @@ if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
 if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
-save();adding=!!again;anim=false;keepScroll(render);haptic();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop");
- if(again){const f=$(".addwrap .fn");if(f){f.focus();setTimeout(fitKeyboard,60)}}}
+save();anim=false;haptic();
+ if(again){/* gleiche Zeile leeren und offen lassen */adding=true;keepScroll(()=>render(true));fn.value="";growFn(fn);const pr=$(".addwrap .pri");if(pr)pr.classList.remove("on");
+  const t2=$(".addwrap .ft");if(t2){const c=document.createElement("span");c.className="clk";c.setAttribute("onclick","addTime()");c.innerHTML=CLOCK;t2.replaceWith(c)}
+  if(document.activeElement!==fn)fn.focus();setTimeout(fitKeyboard,60)}
+ else{adding=false;keepScroll(render)}
+ const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
 
 /* ---------- Bearbeiten ---------- */
 function relDay(d){const diff=Math.round((noon(d)-T)/864e5);return diff==0?"heute":diff==1?"morgen":diff==-1?"gestern":""}
