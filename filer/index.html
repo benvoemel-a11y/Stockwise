@@ -30,7 +30,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 
 /* Zeilen */
 .row{position:relative;overflow:hidden}
-.rin{position:relative;z-index:1;display:flex;align-items:baseline;gap:14px;padding:9px 10px;background:var(--bg);transition:transform .32s ease,background .3s}
+.rin{position:relative;z-index:1;display:flex;align-items:baseline;gap:14px;padding:9px 10px;background:var(--bg);transition:transform .3s cubic-bezier(.2,.9,.25,1),background .3s;will-change:transform;backface-visibility:hidden}
 .row:active .rin{background:var(--press)}
 .acts{position:absolute;top:0;right:0;bottom:0;display:flex}
 .acts span{width:58px;display:flex;align-items:center;justify-content:center}.acts svg{width:16px;height:16px}
@@ -86,7 +86,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v18";
+const VERSION="v19";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -204,7 +204,7 @@ const back=to=>`<span class="ic" onclick="go('${to}')">‹ zurück</span>`;
 /* ---------- Ansichten ---------- */
 function render(){closeSwipe(true);const a=$("#app");let h="";
 if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span><span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
- `<div class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
+ `<div id="pane" class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
  `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts(S.map((s,i)=>[i,s,"font-size:"+[13,15,20][i]+"px"]),st.size,"setSize"):"")+
@@ -311,20 +311,35 @@ document.addEventListener("touchstart",e=>{
  g={x0:t.clientX,y0:t.clientY,row:row&&!row.dataset.busy?row:null,mode:null};
  if(g.row&&g.row.closest("#lst")&&g.row!==openRow)g.lp=setTimeout(startDrag,430);
 },{passive:true});
-document.addEventListener("touchmove",e=>{if(!g)return;const t=e.touches[0],dx=t.clientX-g.x0,dy=t.clientY-g.y0;
+let gRaf=0;
+function gPaint(){gRaf=0;if(!g)return;
+ if(g.mode=="swipe"&&g.row){g.row.querySelector(".rin").style.transform=`translate3d(${g.off}px,0,0)`}
+ if(g.mode=="day"){const p=$("#pane");if(p){const x=g.dx*0.9;p.style.transform=`translate3d(${x}px,0,0)`;p.style.opacity=String(Math.max(.35,1-Math.abs(x)/520))}}}
+document.addEventListener("touchmove",e=>{if(!g)return;const t=e.touches[0],now=performance.now();let dx=t.clientX-g.x0;const dy=t.clientY-g.y0;
  if(g.mode=="drag"){e.preventDefault();moveDrag(dy);return}
- if(!g.mode){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;clearTimeout(g.lp);
-  if(Math.abs(dx)>Math.abs(dy)*1.2)g.mode=g.row?"swipe":(view=="main"?"day":"none");else g.mode="scroll"}
- if(g.mode=="swipe"){e.preventDefault();const rin=g.row.querySelector(".rin"),base=g.row===openRow?-ACT:0;
-  let off=base+dx;if(off>0)off=0;if(off<-ACT)off=-ACT+(off+ACT)*.3;g.off=off;rin.style.transition="none";rin.style.transform=`translateX(${off}px)`}
- if(g.mode=="day"){e.preventDefault();g.dx=dx}
+ if(!g.mode){if(Math.abs(dx)<7&&Math.abs(dy)<7)return;clearTimeout(g.lp);
+  if(Math.abs(dx)>Math.abs(dy)*1.15){g.mode=g.row?"swipe":(view=="main"?"day":"none");g.x0=t.clientX;dx=0;
+   if(g.mode=="swipe")g.row.querySelector(".rin").style.transition="none";
+   if(g.mode=="day"){const p=$("#pane");if(p)p.style.transition="none"}}
+  else g.mode="scroll"}
+ if(g.mode=="swipe"||g.mode=="day"){e.preventDefault();
+  if(g.lt){const v=(t.clientX-g.lx)/Math.max(1,now-g.lt);g.vx=g.vx==null?v:g.vx*0.6+v*0.4}g.lx=t.clientX;g.lt=now}
+ if(g.mode=="swipe"){const base=g.row===openRow?-ACT:0;let off=base+dx;
+  if(off>0)off=off*0.25;if(off<-ACT)off=-ACT+(off+ACT)*.3;g.off=off}
+ if(g.mode=="day")g.dx=dx;
+ if(!gRaf)gRaf=requestAnimationFrame(gPaint)
 },{passive:false});
-function finishGesture(ok){if(!g)return;const m=g.mode;clearTimeout(g.lp);
+const SNAP="transform .3s cubic-bezier(.2,.9,.25,1)";
+function finishGesture(ok){if(!g)return;const m=g.mode,vx=g.vx||0;clearTimeout(g.lp);if(gRaf){cancelAnimationFrame(gRaf);gRaf=0}
  if(m=="drag"){endDrag(ok);swallowClick()}
- if(m=="swipe"){const rin=g.row.querySelector(".rin");rin.style.transition="";
-  if(ok&&g.off!=null&&g.off<-ACT/2){if(openRow&&openRow!==g.row)closeSwipe();rin.style.transform=`translateX(${-ACT}px)`;if(openRow!==g.row)haptic();openRow=g.row}
+ if(m=="swipe"){const rin=g.row.querySelector(".rin");rin.style.transition=SNAP+",background .3s";
+  const open=ok&&g.off!=null&&(vx<-0.25||(vx<=0.25&&g.off<-ACT/2));
+  if(open){if(openRow&&openRow!==g.row)closeSwipe();rin.style.transform=`translate3d(${-ACT}px,0,0)`;if(openRow!==g.row)haptic();openRow=g.row}
   else{rin.style.transform="";if(openRow===g.row)openRow=null}swallowClick()}
- if(m=="day"){if(ok&&Math.abs(g.dx||0)>60)day(g.dx<0?1:-1);swallowClick()}
+ if(m=="day"){const p=$("#pane"),dx=g.dx||0,go=ok&&(Math.abs(dx)>70||(Math.abs(vx)>0.3&&Math.abs(dx)>20)),dir=(Math.abs(dx)>20?dx:vx)<0?1:-1;
+  if(p){if(go){p.style.transition="transform .16s ease-in,opacity .16s ease-in";p.style.transform=`translate3d(${-dir*innerWidth*0.5}px,0,0)`;p.style.opacity="0";setTimeout(()=>day(dir),150)}
+   else{p.style.transition=SNAP+",opacity .3s";p.style.transform="";p.style.opacity=""}}
+  swallowClick()}
  g=null}
 function cancelGesture(){finishGesture(false)}
 document.addEventListener("touchend",()=>finishGesture(true));
