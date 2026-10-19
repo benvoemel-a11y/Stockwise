@@ -11,4 +11,6 @@ for f in main.py index.html icon.png Installieren.command; do
     echo "Download fehlgeschlagen ($f). Bitte Internetverbindung prüfen."; exit 1
   fi
 done
+V="$(grep -o "Filer Mac v[0-9]*" "$TMP/index.html" | head -1)"
+echo "Neue Version: ${V:-unbekannt}"
 bash "$TMP/Installieren.command"
