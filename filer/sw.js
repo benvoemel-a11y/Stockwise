@@ -1,5 +1,5 @@
 // Filer – offline verfügbar. Bei jedem Update VERSION erhöhen.
-const VERSION = "filer-v16";
+const VERSION = "filer-v17";
 const FILES = ["./", "index.html", "manifest.json", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-1024.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" }))))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
@@ -9,6 +9,7 @@ self.addEventListener("activate", e => {
 // Der Zeitstempel umgeht GitHubs 10-Minuten-Zwischenspeicher, so kommt jede neue Version sofort an.
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  if (!e.request.url.startsWith(location.origin)) return;
   const url = new URL(e.request.url);
   const fresh = url.origin === location.origin ? (url.searchParams.set("_", Date.now()), url.href) : e.request.url;
   e.respondWith(fetch(fresh, { cache: "no-store" }).then(r => {

@@ -84,7 +84,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v16";
+const VERSION="v17";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -111,7 +111,8 @@ let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem("f
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
-const json=JSON.stringify(st);try{localStorage.setItem("filer",json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
+st.updatedAt=Date.now();storeLocal();schedulePush()}
+function storeLocal(){const json=JSON.stringify(st);try{localStorage.setItem("filer",json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
 
 /* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
    Jede Änderung wird zusätzlich als Stand im Verlauf abgelegt (die letzten 300). */
@@ -205,10 +206,11 @@ if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL"
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
  `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts(S.map((s,i)=>[i,s,"font-size:"+[13,15,20][i]+"px"]),st.size,"setSize"):"")+
- `<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
+ `<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
  `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren</div>`:"")+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
+if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("menu")}</div>`+syncView();
 if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("menu")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
 a.innerHTML=`<div class="${anim?"fade":""}">${h}</div>`;anim=true;markLate();if(view=="hist")loadHist()}
@@ -383,6 +385,53 @@ document.addEventListener("pointerdown",e=>{const t=e.target;
 if(editing&&!t.closest(".editwrap")){saveEdit();swallowClick();return}
 if(adding&&!t.closest(".addwrap")){const f=$(".addwrap .fn");if(f&&f.value.trim())submit();else closeAdd();swallowClick()}});
 
+/* ---------- Sync über GitHub ----------
+   Jede Änderung landet als filer.json im privaten Repo <dein-name>/filer-data.
+   Beim Öffnen holt Filer den neueren Stand. Der Schlüssel bleibt nur auf diesem Gerät. */
+const GH_REPO="filer-data",GH_FILE="filer.json";
+let gh=(()=>{try{return JSON.parse(localStorage.getItem("filer.gh")||"null")}catch(_){return null}})(),ghSha=null,pushT=null,pushing=false,pushAgain=false,syncState="",syncAt=0;
+const b64e=t=>btoa(unescape(encodeURIComponent(t))),b64d=t=>decodeURIComponent(escape(atob(t.replace(/\s/g,""))));
+function ghApi(path,opt={}){return fetch("https://api.github.com"+path,{...opt,cache:"no-store",headers:{Authorization:"Bearer "+gh.token,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opt.body?{"Content-Type":"application/json"}:{})}})}
+const ghPath=()=>`/repos/${gh.login}/${GH_REPO}/contents/${GH_FILE}`;
+function setSync(s){syncState=s;if(s=="ok")syncAt=Date.now();const l=document.getElementById("synclbl");if(l)l.textContent=syncLabel()}
+function syncLabel(){if(!gh)return "aus";if(syncState=="err")return "fehler";if(syncState=="busy")return "…";if(syncAt){const d=new Date(syncAt);return "✓ "+pad(d.getHours())+":"+pad(d.getMinutes())}return "an"}
+async function ghPull(){const r=await ghApi(ghPath());if(r.status==404){ghSha=null;return null}if(!r.ok)throw new Error(r.status);const j=await r.json();ghSha=j.sha;return JSON.parse(b64d(j.content))}
+async function ghPush(){if(!gh)return;if(pushing){pushAgain=true;return}pushing=true;setSync("busy");
+ try{for(let i=0;i<2;i++){const body={message:"Filer "+new Date().toLocaleString("de-DE"),content:b64e(JSON.stringify(st,null,1))};if(ghSha)body.sha=ghSha;
+   const r=await ghApi(ghPath(),{method:"PUT",body:JSON.stringify(body)});
+   if(r.ok){ghSha=(await r.json()).content.sha;setSync("ok");break}
+   if(r.status==409||r.status==422){await ghPull();continue}
+   if(r.status==401||r.status==403){setSync("err");toast("Sync: Schlüssel ungültig");break}
+   throw new Error(r.status)}}catch(_){setSync("err")}
+ pushing=false;if(pushAgain){pushAgain=false;ghPush()}}
+function schedulePush(){if(!gh)return;clearTimeout(pushT);pushT=setTimeout(ghPush,1200)}
+let pullBusy=false;
+async function pullIfNewer(){if(!gh||pullBusy)return;pullBusy=true;
+ try{const d=await ghPull();if(!d){await ghPush();pullBusy=false;return}
+  if((d.updatedAt||0)>(st.updatedAt||0)){const apply=()=>{if(adding||editing||drag){setTimeout(apply,1500);return}loadState(d);storeLocal();anim=false;keepScroll(render)};apply();setSync("ok")}
+  else if((d.updatedAt||0)<(st.updatedAt||0))await ghPush();else setSync("ok")}catch(_){setSync("err")}pullBusy=false}
+function syncInit(){if(gh)pullIfNewer()}
+setInterval(()=>{if(!document.hidden)pullIfNewer()},60000);
+function syncView(){if(gh)return `<div class="muted" style="padding:0 10px 14px;line-height:1.7">verbunden mit<br><span style="color:var(--ink)">${esc(gh.login)}/${GH_REPO}</span><br>Stand: <span id="synclbl">${syncLabel()}</span></div>`+
+ `<div class="mi" onclick="syncNow()">jetzt abgleichen</div><div class="mi" onclick="syncOff()">trennen</div>`;
+ return `<div class="muted" style="padding:0 10px 14px;font-size:13px;line-height:1.7">Speichert jede Änderung in deinem privaten GitHub-Repo <b>${GH_REPO}</b>. So sind deine Einträge überall gleich – über den Link, das Icon oder den Mac.</div>`+
+ `<form class="addrow" style="margin:0 0 10px" onsubmit="event.preventDefault();syncOn()" autocomplete="on"><input type="text" name="username" value="filer" autocomplete="username" style="display:none"><input id="ghtok" type="password" name="password" autocomplete="current-password" placeholder="GitHub-Schlüssel einfügen" style="flex:1;min-width:0" enterkeyhint="go"></form>`+
+ `<div class="mi" onclick="syncOn()">verbinden</div>`}
+async function syncOn(){const i=$("#ghtok"),tok=i?i.value.trim():"";if(!tok){toast("Schlüssel einfügen");return}
+ if(i)i.blur();toast("verbinde …");
+ try{const r=await fetch("https://api.github.com/user",{cache:"no-store",headers:{Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"}});
+  if(!r.ok){toast("Schlüssel ungültig");return}const login=(await r.json()).login;gh={token:tok,login};
+  const rr=await ghApi(`/repos/${login}/${GH_REPO}`);if(!rr.ok){gh=null;toast(rr.status==404?"Repo "+GH_REPO+" nicht gefunden":"kein Zugriff auf "+GH_REPO);return}
+  const d=await ghPull();
+  try{localStorage.setItem("filer.gh",JSON.stringify(gh))}catch(_){}
+  if(d&&countOf(d)[0]>0){const mine=countOf(st)[0];
+   if(!mine||confirm("Online liegen schon "+countOf(d)[0]+" Einträge. Diese laden?\n\nAbbrechen = deine "+mine+" Einträge von hier hochladen.")){loadState(d);storeLocal();setSync("ok")}
+   else await ghPush()}
+  else await ghPush();
+  haptic();anim=false;render();toast("Sync an")}catch(_){gh=null;toast("Verbindung fehlgeschlagen")}}
+async function syncNow(){await pullIfNewer();if(syncState!="err")await ghPush();anim=false;render();toast(syncState=="err"?"Sync fehlgeschlagen":"abgeglichen")}
+function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;gh=null;ghSha=null;try{localStorage.removeItem("filer.gh")}catch(_){}anim=false;render()}
+
 /* ---------- Tastatur: Eingabezeile immer sichtbar über der Tastatur ---------- */
 function kbHeight(){const v=window.visualViewport;return v?Math.max(0,window.innerHeight-v.height-v.offsetTop):0}
 function showInput(){const f=document.querySelector(".addwrap,.editwrap");if(!f)return;const v=window.visualViewport,a=$("#app"),
@@ -400,9 +449,11 @@ window.addEventListener("pageshow",rollDay);
 
 render();
 (async()=>{let had=null;try{had=localStorage.getItem("filer")}catch(_){}
- if(!had){const j=await idbGet("kv","state");if(j){try{loadState(JSON.parse(j));save();anim=false;render();toast("Daten wiederhergestellt");return}catch(_){}}}
+ if(!had){const j=await idbGet("kv","state");if(j){try{loadState(JSON.parse(j));storeLocal();anim=false;render();toast("Daten wiederhergestellt");syncInit();return}catch(_){}}}
  else idbSave(had);
- if(!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);st.seenHint=true;save()}})();
+ let hint=null;try{hint=localStorage.getItem("filer.hint")}catch(_){}
+ if(!hint&&!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);try{localStorage.setItem("filer.hint","1")}catch(_){}}
+ syncInit()})();
 /* Updates: neue Version suchen, sobald Filer geöffnet wird, und dann einmal neu laden */
 if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;let reloaded=false;
  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!had||reloaded||adding||editing)return;reloaded=true;location.reload()});
@@ -413,7 +464,7 @@ let lastCheck=0;
 async function checkUpdate(){if(Date.now()-lastCheck<20000)return;lastCheck=Date.now();
  try{const t=await (await fetch("index.html?_="+Date.now(),{cache:"no-store"})).text(),m=t.match(/const VERSION="([^"]+)"/);
   if(m&&m[1]!==VERSION){const go=()=>{if(adding||editing||drag){setTimeout(go,1500);return}location.reload()};go()}}catch(_){}}
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdate()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){checkUpdate();pullIfNewer()}});
 window.addEventListener("load",()=>setTimeout(checkUpdate,1500));
 </script>
 </body>
