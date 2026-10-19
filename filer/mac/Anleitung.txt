@@ -6,7 +6,7 @@ FILER FÜR DEN MAC – installieren oder aktualisieren (ca. 2 Minuten)
 
 2. Diese Zeile komplett kopieren, im Terminal mit ⌘ + V einfügen und Enter drücken:
 
-   bash -c "$(curl -fsSL https://benvoemel-a11y.github.io/Stockwise/filer/mac/install.sh)"
+   bash -c "$(curl -fsSL https://raw.githubusercontent.com/benvoemel-a11y/Stockwise/main/filer/mac/install.sh)"
 
 3. Falls ein Fenster fragt, ob ein Werkzeug von Apple installiert werden soll:
    „Installieren“ klicken, warten, dann Schritt 2 noch einmal machen.

@@ -1,8 +1,9 @@
 #!/bin/bash
 # Filer für den Mac installieren oder aktualisieren – mit einer Zeile im Terminal:
-#   bash -c "$(curl -fsSL https://benvoemel-a11y.github.io/Stockwise/filer/mac/install.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/benvoemel-a11y/Stockwise/main/filer/mac/install.sh)"
 # Deine Einträge (~/.filer.json) bleiben dabei erhalten.
-URL="https://benvoemel-a11y.github.io/Stockwise/filer/mac"
+# Direkt aus dem Repo laden (unabhängig von GitHub Pages)
+URL="https://raw.githubusercontent.com/benvoemel-a11y/Stockwise/main/filer/mac"
 TMP="$(mktemp -d)/Filer"
 mkdir -p "$TMP" || exit 1
 echo "Lade die neueste Filer-Version …"
