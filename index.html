@@ -7,8 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Stockwise">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#E3E3E7" media="(prefers-color-scheme: light)">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="apple-touch-icon" sizes="1024x1024" href="icon-1024.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -24,27 +24,27 @@ img{max-width:100%}
 <style>
 /* Layout: one-screen app. Fixed header, four pages side by side in a swipeable pager, tab bar at the bottom. */
 :root{
-  --bg:#F2F2F7; --surface:#FFFFFF; --surface-2:#E8E8ED; --fg:#0B0B0F; --muted:#6A6A72; --faint:#A3A3AB;
-  --line:rgba(60,60,67,.14);
-  --up:#48484A; --up-soft:rgba(72,72,74,.12); --down:#D12F23; --down-soft:rgba(209,47,35,.11);
-  --inv-bg:#0B0B0F; --inv-fg:#FFFFFF; --overlay:rgba(0,0,0,.36);
+  --bg:#E3E3E7; --surface:#F2F2F4; --surface-2:#D5D5DA; --fg:#2C2C2E; --muted:#6C6C70; --faint:#9C9CA1;
+  --line:rgba(60,60,67,.16);
+  --up:#48484A; --up-soft:rgba(72,72,74,.12); --down:#A8504A; --down-soft:rgba(168,80,74,.12);
+  --inv-bg:#48484A; --inv-fg:#F2F2F4; --overlay:rgba(28,28,30,.36);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI",Roboto,Arial,sans-serif;
   --r-card:18px; --r-ctl:12px;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#000000; --surface:#151517; --surface-2:#26262A; --fg:#F5F5F7; --muted:#98989F; --faint:#5E5E64;
+    --bg:#1C1C1E; --surface:#2C2C2E; --surface-2:#3A3A3C; --fg:#E5E5EA; --muted:#98989D; --faint:#636366;
     --line:rgba(255,255,255,.1);
-    --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
-    --inv-bg:#F5F5F7; --inv-fg:#000000; --overlay:rgba(0,0,0,.62);
+    --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#D9827B; --down-soft:rgba(217,130,123,.16);
+    --inv-bg:#D1D1D6; --inv-fg:#1C1C1E; --overlay:rgba(0,0,0,.55);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#000000; --surface:#151517; --surface-2:#26262A; --fg:#F5F5F7; --muted:#98989F; --faint:#5E5E64;
+  --bg:#1C1C1E; --surface:#2C2C2E; --surface-2:#3A3A3C; --fg:#E5E5EA; --muted:#98989D; --faint:#636366;
   --line:rgba(255,255,255,.1);
-  --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#FF453A; --down-soft:rgba(255,69,58,.16);
-  --inv-bg:#F5F5F7; --inv-fg:#000000; --overlay:rgba(0,0,0,.62);
+  --up:#AEAEB2; --up-soft:rgba(174,174,178,.16); --down:#D9827B; --down-soft:rgba(217,130,123,.16);
+  --inv-bg:#D1D1D6; --inv-fg:#1C1C1E; --overlay:rgba(0,0,0,.55);
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -587,7 +587,7 @@ details.fold > summary .meta{font-size:14px;color:var(--muted);font-variant-nume
     <button class="btn ghost" type="button" id="restore-all" hidden>Zurücksetzen rückgängig machen</button>
     <div class="note" id="restore-note" style="text-align:center" hidden></div>
     <button class="btn danger" type="button" id="reset-all">Depot zurücksetzen</button>
-    <div class="note" style="text-align:center">Version 33</div>
+    <div class="note" style="text-align:center" id="app-ver">Version 34</div>
     <button class="btn ghost" type="button" data-close>Schließen</button>
   </form>
 </div>
@@ -1811,6 +1811,12 @@ renderProfile();renderAll();renderBackup();
 initSync();
 })();
 </script>
+<script>/* the open app checks for a newer version and reloads itself */
+(function(){var cur=34,busy=false,last=0;
+function check(){var n=Date.now();if(busy||n-last<20000||navigator.onLine===false)return;busy=true;last=n;
+  fetch('index.html?v='+n,{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){var m=/id="app-ver">Version (\d+)</.exec(t);
+    if(m&&+m[1]>cur){if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration)navigator.serviceWorker.getRegistration().then(function(g){if(g)g.update()}).catch(function(){});setTimeout(function(){location.reload()},300)}}).catch(function(){}).then(function(){busy=false})}
+document.addEventListener('visibilitychange',function(){if(!document.hidden)check()});window.addEventListener('focus',check);setInterval(check,60000);setTimeout(check,3000)})();</script>
 <script>/* no pinch or double-tap zoom */['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,function(e){e.preventDefault()},{passive:false})});</script>
 <script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}</script>
 </body>
