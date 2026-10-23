@@ -94,7 +94,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v27";
+const VERSION="v28";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -228,12 +228,14 @@ if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL"
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
  stepRow("size","Schriftgröße")+
- `<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
- `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"")+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
+ `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
+/* Mehr: Sync, Daten und Bedienung gesammelt */
+if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
+ `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"");
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
-if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("menu")}</div>`+syncView();
-if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("menu")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
+if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("more")}</div>`+syncView();
+if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("more")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
 const html=`<div class="${anim?"fade":""}">${h}</div>`,w=keep&&a.querySelector(".addwrap");
  if(w){/* Eingabezeile behalten (Tastatur bleibt auf dem iPhone offen), alles drumherum neu aufbauen */
