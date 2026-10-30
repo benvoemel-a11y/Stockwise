@@ -21,7 +21,7 @@
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;overscroll-behavior:none}
 body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:15px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
- padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 40px + var(--kb,0px)) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
+ padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 110px + var(--kb,0px)) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
 .fade{animation:fin .42s ease}@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pop{animation:pop .42s ease}@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-weight:600;min-height:40px}
@@ -49,7 +49,10 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .s1 .rin{font-size:13px;padding:6px 10px}.s2 .row{margin-bottom:4px}.s3 .row{margin-bottom:8px}.s3 .rin{padding:12px 14px;font-size:20px;font-weight:600}
 
 /* Hinzufügen / Bearbeiten */
-.plus{display:inline-block;margin-top:10px;padding:6px 10px;color:var(--mid);font-size:26px;line-height:1;transition:transform .45s,color .3s}.plus:active{color:#000000}.plus.spin{color:#000000;animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20}@keyframes pspin{to{transform:rotate(90deg);opacity:0}}
+/* Runder, schwebender Plus-Knopf unten rechts */
+.plus{position:fixed;right:calc(env(safe-area-inset-right) + 22px);bottom:calc(env(safe-area-inset-bottom) + 30px);width:58px;height:58px;border-radius:50%;background:#2c2c2c;color:#cfcfcf;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:300;line-height:1;padding:0 0 3px;margin:0;box-sizing:border-box;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:5;transition:transform .2s ease,background .2s}
+.plus:active{transform:scale(.9);background:#1f1f1f}
+.plus.spin{animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20;right:auto!important;bottom:auto!important}@keyframes pspin{to{transform:rotate(90deg) scale(.85);opacity:0}}
 .addrow{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 10px;margin-top:10px;background:#949494}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
 /* Im Eingabefeld: Cursor mit Finger ziehen, Lupe und Leertasten-Trackpad erlauben */
@@ -94,7 +97,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v28";
+const VERSION="v29";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
