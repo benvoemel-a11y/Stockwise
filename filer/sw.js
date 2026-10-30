@@ -1,9 +1,10 @@
 // Filer – offline verfügbar. Bei jedem Update VERSION erhöhen.
-const VERSION = "filer-v30";
+const PREFIX = self.location.pathname.includes("/filer-2/") ? "filer2-" : "filer-";
+const VERSION = PREFIX + "v31";
 const FILES = ["./", "index.html", "manifest.json", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-1024.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES.map(f => new Request(f, { cache: "reload" }))))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIX) && k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 // Erst Netz (damit Updates ankommen), sonst Cache (offline).
 // Der Zeitstempel umgeht GitHubs 10-Minuten-Zwischenspeicher, so kommt jede neue Version sofort an.

@@ -99,7 +99,10 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v30";
+/* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
+   Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
+const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
+const VERSION="v31";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -122,17 +125,17 @@ const $=s=>document.querySelector(s);
 
 /* ---------- Daten (bleiben nur auf diesem iPhone) ---------- */
 const BASE={days:{},routines:[],rdone:{},rskip:{},order:{},size:1};
-let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem("filer")||"null")}catch(e){return null}})()||{});
+let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem(APP)||"null")}catch(e){return null}})()||{});
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
 st.updatedAt=Date.now();storeLocal();schedulePush()}
-function storeLocal(){const json=JSON.stringify(st);try{localStorage.setItem("filer",json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
+function storeLocal(){const json=JSON.stringify(st);try{localStorage.setItem(APP,json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
 
 /* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
    Jede Änderung wird zusätzlich als Stand im Verlauf abgelegt (die letzten 300). */
 let idbP=null,lastSnap=null;
-function idb(){return idbP||(idbP=new Promise((res,rej)=>{try{const r=indexedDB.open("filer",1);
+function idb(){return idbP||(idbP=new Promise((res,rej)=>{try{const r=indexedDB.open(APP,1);
  r.onupgradeneeded=()=>{const db=r.result;db.createObjectStore("kv");db.createObjectStore("snaps",{keyPath:"t"})};
  r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))}
 async function idbSave(json){try{if(lastSnap===null){const all=(await idbGet("snaps"))||[];lastSnap=all.length?all.reduce((a,b)=>a.t>b.t?a:b).json:""}const db=await idb(),tx=db.transaction(["kv","snaps"],"readwrite");tx.objectStore("kv").put(json,"state");
@@ -466,8 +469,8 @@ if(adding&&!t.closest(".addwrap")){const f=$(".addwrap .fn");if(f&&f.value.trim(
 /* ---------- Sync über GitHub ----------
    Jede Änderung landet als filer.json im privaten Repo <dein-name>/filer-data.
    Beim Öffnen holt Filer den neueren Stand. Der Schlüssel bleibt nur auf diesem Gerät. */
-const GH_REPO="filer-data",GH_FILE="filer.json";
-let gh=(()=>{try{return JSON.parse(localStorage.getItem("filer.gh")||"null")}catch(_){return null}})(),ghSha=null,pushT=null,pushing=false,pushAgain=false,syncState="",syncAt=0;
+const GH_REPO="filer-data",GH_FILE=APP=="filer2"?"filer-2.json":"filer.json";
+let gh=(()=>{try{return JSON.parse(localStorage.getItem(APP+".gh")||"null")}catch(_){return null}})(),ghSha=null,pushT=null,pushing=false,pushAgain=false,syncState="",syncAt=0;
 const b64e=t=>btoa(unescape(encodeURIComponent(t))),b64d=t=>decodeURIComponent(escape(atob(t.replace(/\s/g,""))));
 function ghApi(path,opt={}){return fetch("https://api.github.com"+path,{...opt,cache:"no-store",headers:{Authorization:"Bearer "+gh.token,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(opt.body?{"Content-Type":"application/json"}:{})}})}
 const ghPath=()=>`/repos/${gh.login}/${GH_REPO}/contents/${GH_FILE}`;
@@ -501,14 +504,14 @@ async function syncOn(){const i=$("#ghtok"),tok=i?i.value.trim():"";if(!tok){toa
   if(!r.ok){toast("Schlüssel ungültig");return}const login=(await r.json()).login;gh={token:tok,login};
   const rr=await ghApi(`/repos/${login}/${GH_REPO}`);if(!rr.ok){gh=null;toast(rr.status==404?"Repo "+GH_REPO+" nicht gefunden":"kein Zugriff auf "+GH_REPO);return}
   const d=await ghPull();
-  try{localStorage.setItem("filer.gh",JSON.stringify(gh))}catch(_){}
+  try{localStorage.setItem(APP+".gh",JSON.stringify(gh))}catch(_){}
   if(d&&countOf(d)[0]>0){const mine=countOf(st)[0];
    if(!mine||confirm("Online liegen schon "+countOf(d)[0]+" Einträge. Diese laden?\n\nAbbrechen = deine "+mine+" Einträge von hier hochladen.")){loadState(d);storeLocal();setSync("ok")}
    else await ghPush()}
   else await ghPush();
   haptic();anim=false;render();toast("Sync an")}catch(_){gh=null;toast("Verbindung fehlgeschlagen")}}
 async function syncNow(){await pullIfNewer();if(syncState!="err")await ghPush();anim=false;render();toast(syncState=="err"?"Sync fehlgeschlagen":"abgeglichen")}
-function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;gh=null;ghSha=null;try{localStorage.removeItem("filer.gh")}catch(_){}anim=false;render()}
+function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;gh=null;ghSha=null;try{localStorage.removeItem(APP+".gh")}catch(_){}anim=false;render()}
 
 /* ---------- Tastatur: Eingabezeile immer sichtbar über der Tastatur ---------- */
 function kbHeight(){const v=window.visualViewport;return v?Math.max(0,window.innerHeight-v.height-v.offsetTop):0}
@@ -526,11 +529,11 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden){rollDay()
 window.addEventListener("pageshow",rollDay);
 
 render();
-(async()=>{let had=null;try{had=localStorage.getItem("filer")}catch(_){}
+(async()=>{let had=null;try{had=localStorage.getItem(APP)}catch(_){}
  if(!had){const j=await idbGet("kv","state");if(j){try{loadState(JSON.parse(j));storeLocal();anim=false;render();toast("Daten wiederhergestellt");syncInit();return}catch(_){}}}
  else idbSave(had);
- let hint=null;try{hint=localStorage.getItem("filer.hint")}catch(_){}
- if(!hint&&!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);try{localStorage.setItem("filer.hint","1")}catch(_){}}
+ let hint=null;try{hint=localStorage.getItem(APP+".hint")}catch(_){}
+ if(!hint&&!st.seenHint){setTimeout(()=>toast("Tipp: Menü › Bedienung"),900);try{localStorage.setItem(APP+".hint","1")}catch(_){}}
  syncInit()})();
 /* Updates: neue Version suchen, sobald Filer geöffnet wird, und dann einmal neu laden */
 if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;let reloaded=false;
