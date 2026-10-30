@@ -21,7 +21,7 @@
 html,body{margin:0;height:100%;background:var(--bg);overflow:hidden;overscroll-behavior:none}
 body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:15px;line-height:1.5;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%}
 #app{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
- padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 110px + var(--kb,0px)) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
+ padding:calc(env(safe-area-inset-top) + 14px) calc(env(safe-area-inset-right) + 18px) calc(env(safe-area-inset-bottom) + 60px + var(--kb,0px)) calc(env(safe-area-inset-left) + 18px);box-sizing:border-box}
 .fade{animation:fin .42s ease}@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .pop{animation:pop .42s ease}@keyframes pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-weight:600;min-height:40px}
@@ -52,6 +52,8 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Runder, schwebender Plus-Knopf unten rechts */
 .plus{position:fixed;right:calc(env(safe-area-inset-right) + 22px);bottom:calc(env(safe-area-inset-bottom) + 30px);width:58px;height:58px;border-radius:50%;background:#2c2c2c;color:#cfcfcf;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:300;line-height:1;padding:0 0 3px;margin:0;box-sizing:border-box;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:5;transition:transform .2s ease,background .2s}
 .plus:active{transform:scale(.9);background:#1f1f1f}
+.plus{display:none!important}
+.taphint{padding:9px 10px;color:#4f4f4f;font-size:13px}
 .plus.spin{animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20;right:auto!important;bottom:auto!important}@keyframes pspin{to{transform:rotate(90deg) scale(.85);opacity:0}}
 .addrow{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 10px;margin-top:10px;background:#949494}
 .addrow input{all:unset;font-family:inherit;font-size:16px;line-height:44px;height:44px;color:var(--ink);caret-color:var(--ink);-webkit-user-select:text;user-select:text}
@@ -97,7 +99,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 <input type="file" id="file" accept="application/json,.json">
 <script>
 "use strict";
-const VERSION="v29";
+const VERSION="v30";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -168,6 +170,7 @@ const flag=(any,on)=>any?`<span class="pm ${on?"":"sp"}">${FLAG}</span>`:"";
 const nameH=n=>`<span class="n"><span class="nt">${esc(n)}</span></span>`;
 
 function rows(d,hide){let h=items(d);const all=h.length;if(hide)h=h.filter(x=>!x.done);
+if(!h.length&&!all&&view=="main"&&!adding)return '<div class="taphint">tippen, um etwas hinzuzufügen</div>';
 if(!h.length)return hide&&all?'<div class="muted" style="padding:9px 10px">alles erledigt</div>':(view=="cal"?'<div class="muted" style="padding:9px 10px">keine Einträge</div>':"");
 const k=iso(d),anyP=h.some(x=>x.prio)||(view=="main"&&k==iso(T)&&Object.keys(st.days).some(q=>q<iso(T)&&st.days[q].some(x=>!x.done&&x.prio)));
 return '<div class="s'+(st.size+1)+'" id="lst" data-day="'+k+'">'+h.map(x=>rowH({cls:(x.done?"done ":"")+(x.prio?"prio":""),key:x.key,name:x.name,
@@ -234,7 +237,7 @@ if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
 if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
- `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"");
+ `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">freie Fläche antippen – neuer Eintrag<br>antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"");
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
 if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("more")}</div>`+syncView();
@@ -276,6 +279,12 @@ const from=dir>0?"translateY(0)":"translateY(-50%)",to=dir>0?"translateY(-50%)":
 const an=tr.animate([{transform:from},{transform:to}],{duration:230,easing:"cubic-bezier(.22,.9,.25,1)",fill:"forwards"});
 w._a=an;an.onfinish=()=>{if(w._a!==an)return;w._a=null;w.textContent=txt}}
 function setSize(i){st.size=+i;save();anim=false;render()}
+
+/* ---------- Freie Fläche antippen = neuer Eintrag ---------- */
+$("#app").addEventListener("click",e=>{if(adding||editing||openRow)return;
+ const t=e.target;if(t.closest(".row,.hd,.ic,.ar,.cal,.calhd,.mi,.opts,.addwrap,.editwrap,.acts,input,textarea,a,.days"))return;
+ const k=view=="main"?iso(cur):view=="cal"?iso(sel):view=="rt"?"rt":null;if(!k)return;
+ haptic();openAdd(k)});
 
 /* ---------- Haptisches Feedback ----------
    iPhone-Safari kennt kein navigator.vibrate. Ab iOS 18 löst das Umschalten eines
