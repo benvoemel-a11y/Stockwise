@@ -102,7 +102,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v31";
+const VERSION="v32";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -185,8 +185,8 @@ if(!out.length)return "";const anyC=out.some(o=>o.h.prio)||items(T).some(x=>x.pr
 return '<div class="s'+(st.size+1)+'" id="carry">'+out.map(({k,h})=>{const d=D(k),r=relDay(d),lab=(r||WS[wd(d)]+" "+d.getDate()+"."+(d.getMonth()+1)+".")+(h.time?" "+h.time:"");
 return rowH({cls:"late "+(h.prio?"prio":""),key:"h"+h.id,name:h.name,tap:`tg('${k}','h${h.id}',true,this)`,pm:flag(anyC,h.prio),
  inner:nameH(h.name)+`<span class="t">${lab}</span>`,edit:`editItem('${k}','h${h.id}',this.closest('.row'))`,remove:`del('${k}','h${h.id}',this.closest('.row'))`})}).join("")+'</div>'}
-function shade(d){const h=items(d),r=h.length?h.filter(x=>x.done).length/h.length:0,s=Math.round(78*(1-r))+19;return [Math.round(r*100),`rgb(${s},${s},${s})`]}
-function strip(d){const [w,c]=shade(d);return `<div class="stripw"><div class="strip" style="height:5px;background:#737373;flex:1"><div id="fill" style="height:5px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div><span id="pct">${w} %</span></div>`}
+function shade(d){const h=items(d),r=h.length?h.filter(x=>x.done).length/h.length:0,s=lift(Math.round(78*(1-r))+19);return [Math.round(r*100),`rgb(${s},${s},${s})`]}
+function strip(d){const [w,c]=shade(d);return `<div class="stripw"><div class="strip" style="height:5px;background:${liftHex('#737373')};flex:1"><div id="fill" style="height:5px;width:${w}%;background:${c};transition:width .75s ease,background .75s ease"></div></div><span id="pct">${w} %</span></div>`}
 function updStrip(d){if(view=="main")d=cur;const f=$("#fill");if(!f)return;const [w,c]=shade(d);f.style.width=w+"%";f.style.background=c;const p=$("#pct");if(p)p.textContent=w+" %"}
 const plusHtml=key=>`<span class="plus" onclick="plusTap(this,'${key}')">+</span>`;
 /* Plus dreht sich, während das Eingabefeld sofort offen ist und die Tastatur direkt kommt. */
@@ -231,12 +231,12 @@ function opts(list,cur,fn){return `<div class="opts pop">${list.map(([v,label,st
 const back=to=>`<span class="ic" onclick="go('${to}')">‹ zurück</span>`;
 
 /* ---------- Ansichten ---------- */
-function render(keep){closeSwipe(true);const a=$("#app");let h="";
+function render(keep){if((st.light||0)!==lightOn)applyLight();closeSwipe(true);const a=$("#app");let h="";
 if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span><span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
  `<div id="pane" class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
- stepRow("size","Schriftgröße")+
+ stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
 if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
@@ -267,8 +267,19 @@ function go(v){if(editing)saveEdit();view=v;adding=false;openOpt=null;if(v=="cal
 function gearTap(el){if(el.classList.contains("spin"))return;haptic();el.classList.add("spin");setTimeout(()=>go('menu'),420)}
 function toggleOpt(o){openOpt=openOpt==o?null:o;anim=false;render()}
 
+/* ---------- Helligkeit in Stufen ----------
+   Hebt alle Grautöne an: Flächen werden deutlich heller, dunkle Schrift bleibt fast unverändert. */
+const LIGHT=[0,.4,.75,1],LIGHTN=["normal","hell","heller","max"];let lightOn=0,BASECSS=null;
+function lift(v){const t=LIGHT[st.light||0]||0;return v>=242?v:Math.round(v+t*(v/255)*(242-v))}
+function liftHex(h){const v=lift(parseInt(h.slice(1,3),16)).toString(16).padStart(2,"0");return "#"+v+v+v}
+function applyLight(){const el=document.querySelector("style");if(!el)return;if(BASECSS==null)BASECSS=el.textContent;
+ el.textContent=BASECSS.replace(/#([0-9a-fA-F]{6})\b/g,(m,h)=>h.slice(0,2)==h.slice(2,4)&&h.slice(2,4)==h.slice(4,6)?liftHex(m):m);
+ document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.setAttribute("content",liftHex("#8a8a8a")));lightOn=st.light||0;
+ const f=$("#fill");if(f){const [w,c]=shade(cur);f.style.background=c;f.parentNode.style.background=liftHex("#737373")}}
+
 /* ---------- Auswahl mit ‹ Wert › (wie am Mac) ---------- */
-const STEP={size:{keys:()=>[0,1,2],get:()=>st.size,label:v=>S[v],set:v=>{st.size=v;save()}}};
+const STEP={size:{keys:()=>[0,1,2],get:()=>st.size,label:v=>S[v],set:v=>{st.size=v;save()}},
+ light:{keys:()=>[0,1,2,3],get:()=>st.light||0,label:v=>LIGHTN[v],set:v=>{st.light=v;save();applyLight()}}};
 function stepRow(id,title){const c=STEP[id];return `<div class="mi mrow ${openOpt==id?"open":""}" onclick="tgStep('${id}',this,event)"><span class="mt">${title}</span><span class="sp"></span><span class="reveal"><span class="ar hit" id="${id}L" onpointerdown="stepDown(event,'${id}',-1)"><i>‹</i></span><span class="dtx dw" id="${id}W">${c.label(c.get())}</span><span class="ar hit" id="${id}R" onpointerdown="stepDown(event,'${id}',1)"><i>›</i></span></span></div>`}
 function stepDown(e,id,s){e.preventDefault();e.stopPropagation();haptic();stepOpt(id,s)}
 function tgStep(id,el,ev){if(ev&&ev.target.closest&&ev.target.closest(".reveal"))return;const was=el.classList.contains("open");document.querySelectorAll(".mrow").forEach(r=>r.classList.remove("open"));openOpt=was?null:id;if(!was)el.classList.add("open")}
