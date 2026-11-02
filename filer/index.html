@@ -102,7 +102,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v32";
+const VERSION="v33";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -367,7 +367,9 @@ else{const nk=iso(e.date),id=e.key.slice(1);
  else{const r=st.routines.find(x=>x.id==id);if(r){
   if(nk!==e.k){(st.rskip[e.k]=st.rskip[e.k]||[]).push(id);
    const done=(st.rdone[e.k]||[]).includes(id);(st.days[nk]=st.days[nk]||[]).push({id:newId(),name:n,time:pt.time,done,prio});moved=e.date}
-  else{r.name=n;r.time=pt.time;r.prio=prio}}}}
+  else if(n!==r.name||(pt.time||null)!==(r.time||null)||prio!==!!r.prio){/* Routine in der Tagesansicht geändert: gilt nur für diesen Tag, die Routine selbst bleibt */
+   (st.rskip[e.k]=st.rskip[e.k]||[]).push(id);const done=(st.rdone[e.k]||[]).includes(id),nid=newId();(st.days[e.k]=st.days[e.k]||[]).push({id:nid,name:n,time:pt.time,done,prio});
+   if(st.order[e.k])st.order[e.k]=st.order[e.k].map(x=>x==e.key?"h"+nid:x)}}}}
 save();editing=null;anim=false;keepScroll(render);if(moved)toast("verschoben auf "+dLabel(moved))}
 
 /* ---------- Touch: wischen, lange drücken, Tag wechseln ---------- */
