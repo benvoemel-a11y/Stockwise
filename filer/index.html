@@ -102,7 +102,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v33";
+const VERSION="v34";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -129,7 +129,7 @@ let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem(AP
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
-st.updatedAt=Date.now();storeLocal();schedulePush()}
+st.updatedAt=Date.now();storeLocal();schedulePush();notifySoon()}
 function storeLocal(){const json=JSON.stringify(st);try{localStorage.setItem(APP,json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
 
 /* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
@@ -239,7 +239,7 @@ if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
-if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
+if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="toggleOpt('notif')">Mitteilungen<span class="muted" id="ntlbl" style="float:right;font-size:12px">${notifLabel()}</span></div>`+(openOpt=="notif"?notifBox():"")+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
  `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">freie Fläche antippen – neuer Eintrag<br>antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"");
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
@@ -504,7 +504,50 @@ async function pullIfNewer(){if(!gh||pullBusy)return;pullBusy=true;
  try{const d=await ghPull();if(!d){await ghPush();pullBusy=false;return}
   if((d.updatedAt||0)>(st.updatedAt||0)){const apply=()=>{if(adding||editing||drag){setTimeout(apply,1500);return}loadState(d);storeLocal();anim=false;keepScroll(render)};apply();setSync("ok")}
   else if((d.updatedAt||0)<(st.updatedAt||0))await ghPush();else setSync("ok")}catch(_){setSync("err")}pullBusy=false}
-function syncInit(){if(gh)pullIfNewer()}
+function syncInit(){if(gh)pullIfNewer();notifySoon()}
+
+/* ---------- Mitteilungen (Web-Push über Supabase, wie Whoop/Nutrac) ----------
+   Nur Einträge und Routinen mit Uhrzeit, die noch nicht erledigt sind.
+   Die App schickt die anstehenden Zeiten der nächsten 14 Tage an den Server,
+   der um die Uhrzeit eine Mitteilung sendet – auch wenn Filer geschlossen ist. */
+const SB_URL="https://wjbvodjiqjtlezuzgrzn.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqYnZvZGppcWp0bGV6dXpncnpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjk5NDAsImV4cCI6MjEwODcwNTk0MH0.hk7c23aKSk_O8bUMJoL2ActBDHpAdOgxZI9K_0bvEyM";
+let np=(()=>{try{return JSON.parse(localStorage.getItem(APP+".push")||"null")}catch(_){return null}})(),npSynced=null,npErr=false,npT=null;
+const npSave=()=>{try{np?localStorage.setItem(APP+".push",JSON.stringify(np)):localStorage.removeItem(APP+".push")}catch(_){}};
+const pushOk=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
+const b64u=a=>btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const sbPost=(path,body)=>fetch(SB_URL+path,{method:"POST",headers:{"Content-Type":"application/json",apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},body:JSON.stringify(body)});
+function notifyItems(){const out=[];for(let i=0;i<14;i++){const d=new Date(T.getFullYear(),T.getMonth(),T.getDate()+i,12),k=iso(d);
+ items(d).forEach(x=>{if(x.time&&!x.done)out.push({d:k,t:x.time,n:x.name})})}return out}
+function notifyCfg(){return np&&np.on?JSON.stringify({on:true,sub:np.sub,pub:np.pub,priv:np.priv,items:notifyItems()}):""}
+async function notifySync(){const cfg=notifyCfg();if(!cfg||cfg===npSynced){setNl();return}
+ try{let tz="Europe/Berlin";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||tz}catch(_){}
+  const r=await sbPost("/rest/v1/rpc/filer_save",{p_id:np.id,p_token:np.token,p_cfg:JSON.parse(cfg),p_tz:tz});
+  npErr=!(r.ok&&(await r.json())===true);if(!npErr)npSynced=cfg}catch(_){npErr=true}setNl()}
+function notifySoon(){if(!np||!np.on)return;clearTimeout(npT);npT=setTimeout(notifySync,800)}
+function notifLabel(){if(!np||!np.on)return "aus";if(npErr)return "keine verbindung";return "an"}
+function setNl(){const l=document.getElementById("ntlbl");if(l)l.textContent=notifLabel()}
+function notifBox(){
+ if(!pushOk())return `<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.6">Mitteilungen gehen nur, wenn du Filer über das Icon auf dem Home-Bildschirm öffnest (ab iOS 16.4).</div>`;
+ const on=np&&np.on;
+ return `<div class="pop" style="padding:0 10px 12px"><div class="muted" style="font-size:13px;line-height:1.6;margin-bottom:8px">Erinnert dich zur eingestellten Uhrzeit an Einträge und Routinen mit Uhrzeit – auch wenn Filer zu ist.</div>`+
+  `<div class="opts" style="padding:0">${on?`<span class="opt" onclick="notifyTest()">test</span><span class="opt" onclick="notifyOff()">ausschalten</span>`:`<span class="opt on" onclick="notifyOn()">einschalten</span>`}</div></div>`}
+async function notifyOn(){try{
+  const perm=await Notification.requestPermission();if(perm!=="granted"){toast("nicht erlaubt – iPhone-Einstellungen › Mitteilungen");return}
+  const reg=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"});await navigator.serviceWorker.ready;
+  const old=await reg.pushManager.getSubscription();if(old)await old.unsubscribe();
+  const kp=await crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign"]);
+  const jwk=await crypto.subtle.exportKey("jwk",kp.privateKey),raw=await crypto.subtle.exportKey("raw",kp.publicKey);
+  const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:new Uint8Array(raw)});
+  const id=np&&np.id||(crypto.randomUUID?crypto.randomUUID():"10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
+  np={id,token:np&&np.token||b64u(crypto.getRandomValues(new Uint8Array(32))),sub:sub.toJSON(),pub:b64u(raw),priv:jwk.d,on:true};npSave();npSynced=null;
+  haptic();await notifySync();anim=false;render();toast(npErr?"erlaubt, aber keine verbindung":"Mitteilungen an")}
+ catch(e){toast("hat nicht geklappt – Filer übers Icon öffnen")}}
+async function notifyOff(){try{const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();if(sub)await sub.unsubscribe()}catch(_){}
+ if(np)sbPost("/rest/v1/rpc/filer_delete",{p_id:np.id,p_token:np.token}).catch(()=>{});
+ np=null;npSave();npSynced=null;haptic();anim=false;render();toast("Mitteilungen aus")}
+async function notifyTest(){await notifySync();if(npErr){toast("keine verbindung");return}
+ try{const r=await sbPost("/functions/v1/filer-push",{type:"test",id:np.id,token:np.token});const j=await r.json().catch(()=>({}));toast(j.sent?"test gesendet":"test hat nicht geklappt")}catch(_){toast("keine verbindung")}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)notifySoon()});
 setInterval(()=>{if(!document.hidden)pullIfNewer()},60000);
 function syncView(){if(gh)return `<div class="muted" style="padding:0 10px 14px;line-height:1.7">verbunden mit<br><span style="color:var(--ink)">${esc(gh.login)}/${GH_REPO}</span><br>Stand: <span id="synclbl">${syncLabel()}</span></div>`+
  `<div class="mi" onclick="syncNow()">jetzt abgleichen</div><div class="mi" onclick="syncOff()">trennen</div>`;
