@@ -55,6 +55,8 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .plus{position:fixed;right:calc(env(safe-area-inset-right) + 22px);bottom:calc(env(safe-area-inset-bottom) + 30px);width:58px;height:58px;border-radius:50%;background:#2c2c2c;color:#cfcfcf;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:300;line-height:1;padding:0 0 3px;margin:0;box-sizing:border-box;box-shadow:0 6px 18px rgba(0,0,0,.2);z-index:5;transition:transform .2s ease,background .2s}
 .plus:active{transform:scale(.9);background:#1f1f1f}
 .plus{display:none!important}
+.trhd{margin:22px 10px 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#7a2f2a}
+.trow .n{color:#5a5a5a}.trow .nt{text-decoration:line-through;text-decoration-color:#a8392f;text-decoration-thickness:2px;background:none!important}.trow .tt{color:#5a5a5a}.trow .t{color:#8f3a32;font-size:.85em}
 .taphint{padding:9px 10px;color:#4f4f4f;font-size:13px}
 .plus.spin{animation:pspin .25s ease-out forwards;pointer-events:none;z-index:20;right:auto!important;bottom:auto!important}@keyframes pspin{to{transform:rotate(90deg) scale(.85);opacity:0}}
 .addrow{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 10px;margin-top:10px;background:#949494}
@@ -104,7 +106,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v37";
+const VERSION="v38";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -233,7 +235,7 @@ for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];
  c+=`<span class="${cl.join(" ")}" onclick="pick(${y},${m},${i})">${i}</span>`}
 return `<div class="calhd"><span class="ic" onclick="mv(-1)">‹</span><span class="calm">${M[m]} ${y}</span><span class="ic" onclick="mv(1)">›</span></div>`+
  `<div class="calsub"><span>Archiv · erledigte Tage</span></div>`+
- `<div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
+ `<div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))+trashList(iso(sel))}
 function routineList(){sortRoutines();if(!st.routines.length)return '<div class="muted" style="padding:9px 10px">keine routinen</div>';
 const anyP=st.routines.some(x=>x.prio);
 return '<div id="lst" data-rt="1" class="s'+(st.size+1)+'">'+st.routines.map(r=>rowH({cls:r.prio?"prio":"",key:r.id,name:r.name,pm:flag(anyP,r.prio),
@@ -329,7 +331,17 @@ function emptyCheck(){if(!document.querySelector("#lst .row")||($("#carry")&&!do
 function tg(k,key,hide,el){if(el.dataset.busy)return;if(el===openRow){closeSwipe();return}const now=setDone(k,key);haptic(now&&items(D(k)).every(x=>x.done)?2:1);el.classList.toggle("done",now);updStrip(D(k));
 if(view=="cal")setTimeout(()=>{anim=false;keepScroll(render)},400);
 if(hide&&now){el.dataset.busy=1;setTimeout(()=>collapse(el,emptyCheck),550)}}
+/* Gelöschtes im Kalender: pro Tag, zuletzt Gelöschtes zuerst, antippen = wiederherstellen */
+function trashList(k){const l=(st.trash||[]).filter(x=>x.day==k).sort((a,b)=>b.at-a.at);if(!l.length)return "";
+ return `<div class="trhd">Gelöscht</div><div class="s${st.size+1}">`+l.map(x=>{const d=new Date(x.at),when=(iso(d)==iso(new Date())?"":d.getDate()+"."+(d.getMonth()+1)+". ")+pad(d.getHours())+":"+pad(d.getMinutes());
+  return `<div class="row trow" onclick="restoreTrash(${x.at},'${x.key}')"><div class="rin"><span class="n"><span class="nt">${esc(x.name)}</span>${x.time?` <span class="tt">${x.time}</span>`:""}</span><span class="t">gelöscht ${when}</span></div></div>`}).join("")+`</div>`}
+function restoreTrash(at,key){const i=(st.trash||[]).findIndex(x=>x.at===at&&x.key===key);if(i<0)return;const x=st.trash[i];
+ if(!confirm("„"+x.name+"“ wiederherstellen?"))return;st.trash.splice(i,1);const id=key.slice(1);
+ if(key[0]=="h"){(st.days[x.day]=st.days[x.day]||[]).push(x.e||{id,name:x.name,time:x.time,done:x.done,prio:x.prio})}
+ else{st.rskip[x.day]=(st.rskip[x.day]||[]).filter(r=>r!=id)}
+ save();haptic();anim=false;keepScroll(render);toast("wiederhergestellt")}
 function del(k,key,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;haptic();openRow=null;const id=key.slice(1);
+const it=items(D(k)).find(x=>x.key==key);if(it){if(!Array.isArray(st.trash))st.trash=[];st.trash.push({key,day:k,name:it.name,time:it.time||null,done:!!it.done,prio:!!it.prio,at:Date.now(),e:key[0]=="h"?(st.days[k]||[]).find(x=>x.id==id)||null:null});if(st.trash.length>300)st.trash=st.trash.slice(-300)}
 if(key[0]=="h")st.days[k]=(st.days[k]||[]).filter(x=>x.id!=id);else(st.rskip[k]=st.rskip[k]||[]).push(id);
 save();updStrip(D(k));collapse(el,()=>{emptyCheck();if(view=="cal"){anim=false;keepScroll(render)}})}
 function delR(id,el){if(!el||el.dataset.busy)return;el.dataset.busy=1;haptic();openRow=null;st.routines=st.routines.filter(r=>r.id!==id);save();collapse(el,()=>{if(!st.routines.length){anim=false;render()}})}
