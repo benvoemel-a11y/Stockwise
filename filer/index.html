@@ -102,7 +102,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v35";
+const VERSION="v36";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -155,7 +155,10 @@ try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}ca
 
 /* Reihenfolge eines Tages: alles mit Uhrzeit chronologisch, Einträge ohne Uhrzeit behalten ihren Platz */
 function withOrder(k,list){const o=st.order[k]||[],ix=new Map(o.map((x,i)=>[x,i]));
- const base=list.map((x,n)=>({x,n})).sort((a,b)=>(ix.has(a.x.key)?ix.get(a.x.key):1e6+a.n)-(ix.has(b.x.key)?ix.get(b.x.key):1e6+b.n)).map(o=>o.x);
+ const base=list.filter(x=>ix.has(x.key)).sort((a,b)=>ix.get(a.key)-ix.get(b.key));
+ list.filter(x=>!ix.has(x.key)).forEach(x=>{let i=base.length;
+  if(x.time){const j=base.findIndex(y=>y.time&&y.time>x.time);if(j>=0)i=j;else{let l=-1;base.forEach((y,n)=>{if(y.time)l=n});i=l+1}}
+  base.splice(i,0,x)});
  const timed=base.filter(x=>x.time).sort((a,b)=>a.time.localeCompare(b.time));let t=0;
  return base.map(x=>x.time?timed[t++]:x)}
 /* Routinen immer nach Uhrzeit (ohne Uhrzeit ans Ende, sonst Reihenfolge wie bisher) */
