@@ -102,7 +102,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v34";
+const VERSION="v35";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -153,11 +153,18 @@ async function restoreSnap(t){const all=(await idbGet("snaps"))||[],x=all.find(y
  try{loadState(JSON.parse(x.json));save();haptic();view="main";cur=T;render();toast("Stand wiederhergestellt")}catch(_){toast("Stand defekt")}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
 
+/* Reihenfolge eines Tages: alles mit Uhrzeit chronologisch, Einträge ohne Uhrzeit behalten ihren Platz */
+function withOrder(k,list){const o=st.order[k]||[],ix=new Map(o.map((x,i)=>[x,i]));
+ const base=list.map((x,n)=>({x,n})).sort((a,b)=>(ix.has(a.x.key)?ix.get(a.x.key):1e6+a.n)-(ix.has(b.x.key)?ix.get(b.x.key):1e6+b.n)).map(o=>o.x);
+ const timed=base.filter(x=>x.time).sort((a,b)=>a.time.localeCompare(b.time));let t=0;
+ return base.map(x=>x.time?timed[t++]:x)}
+/* Routinen immer nach Uhrzeit (ohne Uhrzeit ans Ende, sonst Reihenfolge wie bisher) */
+function sortRoutines(){st.routines.sort((a,b)=>(a.time==null)-(b.time==null)||(a.time||"").localeCompare(b.time||""))}
 function items(d){const k=iso(d),dn=st.rdone[k]||[],sk=st.rskip[k]||[];
-return [...(st.days[k]||[]).map(h=>({name:h.name,time:h.time,done:h.done,prio:!!h.prio,key:"h"+h.id})),
+return withOrder(k,[...(st.days[k]||[]).map(h=>({name:h.name,time:h.time,done:h.done,prio:!!h.prio,key:"h"+h.id})),
 ...st.routines.filter(r=>r.days.includes(wd(d))&&!sk.includes(r.id)).map(r=>({name:r.name,time:r.time,done:dn.includes(r.id),prio:!!r.prio,key:"r"+r.id}))]
 .sort((a,b)=>(a.time==null)-(b.time==null)||(a.time||"").localeCompare(b.time||""))
-.sort((()=>{const o=st.order[k];if(!o)return()=>0;const ix=new Map(o.map((x,i)=>[x,i]));const p=x=>ix.has(x.key)?ix.get(x.key):1e9;return(a,b)=>p(a)-p(b)})())}
+)}
 function setDone(k,key){const id=key.slice(1);if(key[0]=="h"){const x=(st.days[k]||[]).find(x=>x.id==id);if(!x)return false;x.done=!x.done;save();return x.done}
 const l=st.rdone[k]=st.rdone[k]||[];const i=l.indexOf(id);if(i<0)l.push(id);else l.splice(i,1);save();return i<0}
 
@@ -222,7 +229,7 @@ for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];
 return `<div class="calhd"><span class="ic" onclick="mv(-1)">‹</span><span class="calm">${M[m]} ${y}</span><span class="ic" onclick="mv(1)">›</span></div>`+
  `<div class="calsub"><span>Archiv · erledigte Tage</span></div>`+
  `<div class="cal">${c}</div><div class="muted" style="margin-bottom:10px;padding:0 10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
-function routineList(){if(!st.routines.length)return '<div class="muted" style="padding:9px 10px">keine routinen</div>';
+function routineList(){sortRoutines();if(!st.routines.length)return '<div class="muted" style="padding:9px 10px">keine routinen</div>';
 const anyP=st.routines.some(x=>x.prio);
 return '<div id="lst" data-rt="1" class="s'+(st.size+1)+'">'+st.routines.map(r=>rowH({cls:r.prio?"prio":"",key:r.id,name:r.name,pm:flag(anyP,r.prio),
  inner:nameH(r.name)+`<span class="r">${r.days.length==7?"täglich":r.days.map(i=>WS[i]).join(" ")}</span><span class="t">${r.time||""}</span>`,
@@ -328,7 +335,7 @@ return {ok:true,time:pad(+m[1])+":"+mm}}
 function submit(again){const fn=$(".addwrap .fn"),ft=$(".addwrap .ft");if(!fn)return;let n=fn.value.trim(),prio=!!$(".addwrap .pri.on");if(/^!+\s*/.test(n)){prio=true;n=n.replace(/^!+\s*/,"")}
 if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
-if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
+if(addKey=="rt"){if(!newDays.length){toast("mindestens einen Tag wählen");return}st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});sortRoutines();newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
 save();anim=false;haptic();
  if(again){/* gleiche Zeile leeren und offen lassen */adding=true;keepScroll(()=>render(true));fn.value="";growFn(fn);const pr=$(".addwrap .pri");if(pr)pr.classList.remove("on");
@@ -360,7 +367,7 @@ function saveEdit(){if(!editing)return;const e=editing,box=e.box;let n=box.query
 const pt=parseTime(box.querySelector(".ft"));if(!pt.ok)return;
 if(!n){cancelEdit();return}
 let moved=null;
-if(e.rid){const r=st.routines.find(x=>x.id==e.rid);if(r&&edDays.length){r.name=n;r.time=pt.time;r.days=edDays.slice();r.prio=prio}}
+if(e.rid){const r=st.routines.find(x=>x.id==e.rid);if(r&&edDays.length){r.name=n;r.time=pt.time;r.days=edDays.slice();r.prio=prio;sortRoutines()}}
 else{const nk=iso(e.date),id=e.key.slice(1);
  if(e.key[0]=="h"){const list=st.days[e.k]||[],h=list.find(x=>x.id==id);if(h){h.name=n;h.time=pt.time;h.prio=prio;
   if(nk!==e.k){st.days[e.k]=list.filter(x=>x.id!=id);(st.days[nk]=st.days[nk]||[]).push(h);if(st.order[e.k])st.order[e.k]=st.order[e.k].filter(x=>x!=e.key);moved=e.date}}}

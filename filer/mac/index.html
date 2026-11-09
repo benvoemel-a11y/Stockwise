@@ -88,11 +88,18 @@ const json=JSON.stringify(st,null,2);
 try{window.webkit.messageHandlers.filer.postMessage({type:"save",json})}catch(e){try{localStorage.setItem("filer",json)}catch(_){}}}
 function native(type,value){try{window.webkit.messageHandlers.filer.postMessage({type,value})}catch(e){}}
 
+/* Reihenfolge eines Tages: alles mit Uhrzeit chronologisch, Einträge ohne Uhrzeit behalten ihren Platz */
+function withOrder(k,list){const o=st.order[k]||[],ix=new Map(o.map((x,i)=>[x,i]));
+ const base=list.map((x,n)=>({x,n})).sort((a,b)=>(ix.has(a.x.key)?ix.get(a.x.key):1e6+a.n)-(ix.has(b.x.key)?ix.get(b.x.key):1e6+b.n)).map(o=>o.x);
+ const timed=base.filter(x=>x.time).sort((a,b)=>a.time.localeCompare(b.time));let t=0;
+ return base.map(x=>x.time?timed[t++]:x)}
+/* Routinen immer nach Uhrzeit (ohne Uhrzeit ans Ende, sonst Reihenfolge wie bisher) */
+function sortRoutines(){st.routines.sort((a,b)=>(a.time==null)-(b.time==null)||(a.time||"").localeCompare(b.time||""))}
 function items(d){const k=iso(d),dn=st.rdone[k]||[],sk=st.rskip[k]||[];
-return [...(st.days[k]||[]).map(h=>({name:h.name,time:h.time,done:h.done,prio:!!h.prio,key:"h"+h.id})),
+return withOrder(k,[...(st.days[k]||[]).map(h=>({name:h.name,time:h.time,done:h.done,prio:!!h.prio,key:"h"+h.id})),
 ...st.routines.filter(r=>r.days.includes(wd(d))&&!sk.includes(r.id)).map(r=>({name:r.name,time:r.time,done:dn.includes(r.id),prio:!!r.prio,key:"r"+r.id}))]
 .sort((a,b)=>(a.time==null)-(b.time==null)||(a.time||"").localeCompare(b.time||""))
-.sort((()=>{const o=st.order[k];if(!o)return()=>0;const ix=new Map(o.map((x,i)=>[x,i]));const p=x=>ix.has(x.key)?ix.get(x.key):1e9;return(a,b)=>p(a)-p(b)})())}
+)}
 function setDone(k,key){const id=key.slice(1);if(key[0]=="h"){const x=(st.days[k]||[]).find(x=>x.id==id);x.done=!x.done;save();return x.done}
 const l=st.rdone[k]=st.rdone[k]||[];const i=l.indexOf(id);if(i<0)l.push(id);else l.splice(i,1);save();return i<0}
 
@@ -134,7 +141,7 @@ for(let i=1;i<=n;i++){const d=new Date(y,m,i,12),k=iso(d),cl=["cd"];
  if(st.days[k]&&st.days[k].length)cl.push("has");if(k===tk)cl.push("today");if(k===iso(sel))cl.push("sel");
  c+=`<span class="${cl.join(" ")}" onclick="pick(${y},${m},${i})">${i}</span>`}
 return `<div class="calhd"><span class="ic" onclick="mv(-1)">‹</span><span class="calm">${M[m]} ${y}</span><span class="ic" onclick="mv(1)">›</span></div><div class="calsub">Archiv · erledigte Tage</div><div class="cal">${c}</div><div class="muted" style="margin-bottom:10px">${nice(sel)}${iso(sel)<tk?"  · archiv":""}</div>`+rows(sel,false)+adder(iso(sel))}
-function routineList(){if(!st.routines.length)return '<div class="muted" style="padding:2px 8px">keine routinen</div>';
+function routineList(){sortRoutines();if(!st.routines.length)return '<div class="muted" style="padding:2px 8px">keine routinen</div>';
 return '<div id="lst" data-rt="1">'+st.routines.map(r=>`<div class="row ${r.prio?"prio":""}" data-n="${esc(r.name)}" data-key="${r.id}" style="cursor:default">${st.routines.some(x=>x.prio)?`<span class="pm ${r.prio?"":"sp"}">${FLAG}</span>`:""}<span class="n"><span class="nt">${esc(r.name)}</span></span><span class="r">${r.days.length==7?"täglich":r.days.map(i=>WS[i]).join(" ")}</span><span class="t" style="width:44px">${r.time||""}</span><span class="e" title="Bearbeiten" style="cursor:pointer" onclick="editRoutine('${r.id}',this.parentNode)">${PEN}</span><span class="x" style="cursor:pointer" onclick="delR('${r.id}',this.parentNode)">×</span></div>`).join("")+'</div>'}
 function opts(name,list,cur,fn){return `<div class="opts pop">${list.map(([v,label,style])=>`<span class="opt ${v==cur?"on":""}" style="${style||""}" onclick="${fn}('${v}')">${label}</span>`).join("")}</div>`}
 
@@ -144,7 +151,7 @@ if(view=="main"){const isT=iso(cur)==iso(T);h=`<div class="hd"><span class="dnav
 if(view=="menu")h=`<div class="hd"><span>Menü</span><span class="ic" onclick="go('main')">‹ zurück</span></div>`+
 `<div class="mi" onclick="go('tom')">Morgen</div><div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
 `<div class="mi" onclick="toggleOpt('size')">Schriftgröße</div>`+(openOpt=="size"?opts("size",S.map((s,i)=>[i,s,"font-size:"+[12,14,19][i]+"px"]),st.size,"setSize"):"")+
-`<div class="mi" onclick="toggleOpt('level')">Fenster</div>`+(openOpt=="level"?opts("level",L,st.level,"setLevel"):"")+`<div class="muted" style="padding:24px 8px 0;font-size:11px;opacity:.7">Filer Mac v6</div>`;
+`<div class="mi" onclick="toggleOpt('level')">Fenster</div>`+(openOpt=="level"?opts("level",L,st.level,"setLevel"):"")+`<div class="muted" style="padding:24px 8px 0;font-size:11px;opacity:.7">Filer Mac v7</div>`;
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${nice(TM())}</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+calendar();
 if(view=="rt")h=`<div class="hd"><span>Routinen</span><span class="ic" onclick="go('menu')">‹ zurück</span></div>`+routineList()+adder("rt",true);
@@ -180,7 +187,7 @@ return {ok:true,time:pad(+m[1])+":"+mm}}
 function submit(){const fn=document.querySelector(".fn"),ft=document.querySelector(".ft");let n=fn.value.trim(),prio=!!document.querySelector(".addwrap .pri.on");if(/^!+\s*/.test(n)){prio=true;n=n.replace(/^!+\s*/,"")}
 if(!n){closeAdd();return}
 const pt=parseTime(ft);if(!pt.ok)return;const time=pt.time;
-if(addKey=="rt"){if(!newDays.length)return;st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});newDays=[0,1,2,3,4,5,6]}
+if(addKey=="rt"){if(!newDays.length)return;st.routines.push({id:newId(),name:n,time,days:newDays.slice(),prio});sortRoutines();newDays=[0,1,2,3,4,5,6]}
 else(st.days[addKey]=st.days[addKey]||[]).push({id:newId(),name:n,time,done:false,prio});
 save();adding=false;anim=false;render();const r=[...document.querySelectorAll("#lst .row")].find(r=>r.dataset.n===esc(n));if(r)r.classList.add("pop")}
 /* ---------- Bearbeiten ---------- */
@@ -207,7 +214,7 @@ function saveEdit(){if(!editing)return;const e=editing,box=e.box;let n=box.query
 const pt=parseTime(box.querySelector(".ft"));if(!pt.ok)return;
 if(!n){cancelEdit();return}
 let moved=null;
-if(e.rid){const r=st.routines.find(x=>x.id==e.rid);if(r&&edDays.length){r.name=n;r.time=pt.time;r.days=edDays.slice();r.prio=prio}}
+if(e.rid){const r=st.routines.find(x=>x.id==e.rid);if(r&&edDays.length){r.name=n;r.time=pt.time;r.days=edDays.slice();r.prio=prio;sortRoutines()}}
 else{const nk=iso(e.date),id=e.key.slice(1);
  if(e.key[0]=="h"){const list=st.days[e.k]||[],h=list.find(x=>x.id==id);if(h){h.name=n;h.time=pt.time;h.prio=prio;
   if(nk!==e.k){st.days[e.k]=list.filter(x=>x.id!=id);(st.days[nk]=st.days[nk]||[]).push(h);if(st.order[e.k])st.order[e.k]=st.order[e.k].filter(x=>x!=e.key);moved=e.date}}}
