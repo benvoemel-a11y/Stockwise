@@ -36,7 +36,9 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .acts span{width:58px;display:flex;align-items:center;justify-content:center}.acts svg{width:16px;height:16px}
 .ae{background:#7a7a7a;color:#1f1f1f}.ax{background:#1f1f1f;color:#a0a0a0}
 .row .n{flex:1;min-width:0;color:var(--ink);transition:color .3s ease;word-break:break-word}
-.row .nt{background:linear-gradient(#2f2f2f,#2f2f2f) no-repeat 0 56%/0 2px;transition:background-size .32s cubic-bezier(.4,0,.2,1)}
+/* Abhaken nur durch Tippen auf den Text – etwas größere Trefferfläche ohne die Optik zu ändern */
+.row .nt{padding:7px 4px;margin:-7px -4px;background:linear-gradient(#2f2f2f,#2f2f2f) no-repeat 0 56%/0 2px;background-origin:content-box;background-clip:content-box;transition:background-size .32s cubic-bezier(.4,0,.2,1);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.row:active .rin{background:var(--bg)}.row .nt:active{opacity:.7}
 .row .t{color:var(--mid);text-align:right;transition:color .35s;white-space:nowrap}.row .r{color:#5b5b5b;white-space:nowrap}
 .row.late:not(.done) .n,.row.late:not(.done) .t{color:var(--red)}
 .done .n{color:var(--soft)}.done .nt{background-size:100% 2px}.done .t{color:var(--soft)}
@@ -102,7 +104,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v36";
+const VERSION="v37";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -177,7 +179,7 @@ const TM=()=>new Date(T.getFullYear(),T.getMonth(),T.getDate()+1,12);
 
 /* ---------- Bausteine ---------- */
 function rowH({cls="",key,name,tap="",pm="",inner,edit,remove}){
-return `<div class="row ${cls}" data-key="${key}" data-n="${esc(name)}"${tap?` onclick="${tap}"`:""}><div class="rin">${pm}${inner}</div>`+
+return `<div class="row ${cls}" data-key="${key}" data-n="${esc(name)}"${tap?` onclick="if(!event.target.closest('.nt'))return;${tap}"`:""}><div class="rin">${pm}${inner}</div>`+
 `<div class="acts"><span class="ae" onclick="event.stopPropagation();${edit}">${PEN}</span><span class="ax" onclick="event.stopPropagation();${remove}">${XX}</span></div></div>`}
 const flag=(any,on)=>any?`<span class="pm ${on?"":"sp"}">${FLAG}</span>`:"";
 const nameH=n=>`<span class="n"><span class="nt">${esc(n)}</span></span>`;
