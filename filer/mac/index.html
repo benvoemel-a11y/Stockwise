@@ -361,7 +361,7 @@ document.addEventListener("mousedown",e=>{if(editing&&!(e.target.closest&&e.targ
 setInterval(()=>{const n=noon(new Date());if(iso(n)!==iso(T)){if(iso(cur)==iso(T))cur=n;T=n;if(!adding){anim=false;render()}}},30000);
 document.addEventListener("visibilitychange",()=>{const n=noon(new Date());if(iso(n)!==iso(T)&&!adding){if(iso(cur)==iso(T))cur=n;T=n;anim=false;render()}});
 
-const OWN="mac",OTHER="iphone",MACVER="Filer Mac v40";
+const OWN="mac",OTHER="iphone",MACVER="Filer Mac v41";
 /* Neue Version geladen: neu laden, sobald gerade nichts eingetippt wird */
 window.__updateReady=()=>{const go=()=>{if(adding||editing||drag||dev!=OWN||lpBusy){setTimeout(go,3000);return}native("reload",1)};go()};
 const SB_URL="https://wjbvodjiqjtlezuzgrzn.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqYnZvZGppcWp0bGV6dXpncnpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjk5NDAsImV4cCI6MjEwODcwNTk0MH0.hk7c23aKSk_O8bUMJoL2ActBDHpAdOgxZI9K_0bvEyM";
@@ -416,10 +416,10 @@ function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushOther()}
 async function switchDev(to){if(devBusy)return;
  if(to==OTHER&&!link){toast("erst unter Verknüpfen koppeln");setTimeout(devFail,260);return}
  devWant=to;updDsw();if(to==dev){devWant=null;return}if(adding)closeAdd();if(editing)saveEdit();
- if(to==OWN){toOwn();ownBack();linkPullOwn();setTimeout(()=>{anim=false;keepScroll(render)},300);return}
- devBusy=true;toast(DEVN[OTHER]+" wird geladen …");
+ if(to==OWN){toOwn();ownBack();linkPullOwn();toast("Einträge vom "+DEVN[OWN]);setTimeout(()=>{anim=false;keepScroll(render)},300);return}
+ devBusy=true;
  try{const d=await lget(OTHER);ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;setTimeout(()=>{anim=false;keepScroll(render)},300);
-  toast(d?"Einträge vom "+DEVN[OTHER]:"Vom "+DEVN[OTHER]+" ist noch nichts da – dort einmal Filer öffnen");setLink("ok")}
+  toast("Einträge vom "+DEVN[OTHER]);setLink("ok")}
  catch(_){toast("keine Verbindung");devFail()}
  devBusy=false}
 /* Code: 12 Zeichen, z. B. K7Q2-M9XP-4TRA */

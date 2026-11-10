@@ -114,7 +114,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v43";
+const VERSION="v44";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -587,10 +587,10 @@ function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushOther()}
 async function switchDev(to){if(devBusy)return;
  if(to==OTHER&&!link){toast("erst unter Mehr › Verknüpfen koppeln");setTimeout(devFail,260);return}
  devWant=to;updDsw();if(to==dev){devWant=null;return}if(adding)closeAdd();if(editing)saveEdit();
- if(to==OWN){toOwn();ownBack();linkPullOwn();setTimeout(()=>{anim=false;keepScroll(render)},300);return}
- devBusy=true;toast(DEVN[OTHER]+" wird geladen …");
+ if(to==OWN){toOwn();ownBack();linkPullOwn();toast("Einträge vom "+DEVN[OWN]);setTimeout(()=>{anim=false;keepScroll(render)},300);return}
+ devBusy=true;
  try{const d=await lget(OTHER);ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;setTimeout(()=>{anim=false;keepScroll(render)},300);
-  toast(d?"Einträge vom "+DEVN[OTHER]:"Vom "+DEVN[OTHER]+" ist noch nichts da – dort einmal Filer öffnen");setLink("ok")}
+  toast("Einträge vom "+DEVN[OTHER]);setLink("ok")}
  catch(_){toast("keine Verbindung");devFail()}
  devBusy=false}
 /* Code: 12 Zeichen, z. B. K7Q2-M9XP-4TRA */
