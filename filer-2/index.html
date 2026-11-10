@@ -85,6 +85,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .cd{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#949494;color:#2f2f2f;font-size:14px;transition:background .3s,color .3s,transform .12s,box-shadow .2s}.cd:active{transform:scale(.9)}
 .cd.has{font-weight:700}.cd.full{background:#373737;color:#b0b0b0}.cd.fut{background:#919191;color:#737373}.cd.fut.has{color:#464646}.cd.today{text-decoration:underline;text-underline-offset:3px}.cd.sel{background:#686868;color:#b5b5b5;font-weight:700}
 .muted{color:#595959}
+.devtag{margin-left:auto;margin-right:12px;font-size:12px;font-weight:400;color:#3a3a3a;letter-spacing:.04em;animation:pop .25s ease}
 .dnav{display:flex;align-items:center;gap:4px}.ar{color:var(--mid);font-weight:400;padding:6px 8px;font-size:18px;transition:color .2s,transform .15s}.ar:first-child{margin-left:-8px}.ar:active{color:#000000}
 @keyframes kl{0%,100%{transform:none}40%{transform:translateX(-6px)}}@keyframes kr{0%,100%{transform:none}40%{transform:translateX(6px)}}.kl{animation:kl .42s ease}.kr{animation:kr .42s ease}
 @keyframes flipO{to{opacity:0;transform:translateY(-8px)}}@keyframes flipI{from{opacity:0;transform:translateY(8px)}}.dtx{display:inline-block}
@@ -106,7 +107,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v38";
+const VERSION="v39";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -133,8 +134,8 @@ let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem(AP
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
-st.updatedAt=Date.now();storeLocal();schedulePush();notifySoon()}
-function storeLocal(){const json=JSON.stringify(st);try{localStorage.setItem(APP,json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
+st.updatedAt=Date.now();if(dev!=OWN){saveOther();return}storeLocal();schedulePush();notifySoon()}
+function storeLocal(){const json=JSON.stringify(ownSt());try{localStorage.setItem(APP,json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
 
 /* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
    Jede Änderung wird zusätzlich als Stand im Verlauf abgelegt (die letzten 300). */
@@ -152,7 +153,7 @@ async function loadHist(){const box=$("#hist");if(!box)return;const all=(await i
  if(!all.length){box.innerHTML='<div class="muted" style="padding:9px 10px">noch kein Verlauf</div>';return}
  box.innerHTML=all.map(x=>{const d=new Date(x.t);let n=[0,0];try{n=countOf(JSON.parse(x.json))}catch(_){}
   return `<div class="row" onclick="restoreSnap(${x.t})"><div class="rin"><span class="n">${short(d)}</span><span class="t">${n[0]} · ${n[1]} erledigt · ${pad(d.getHours())}:${pad(d.getMinutes())}</span></div></div>`}).join("")}
-async function restoreSnap(t){const all=(await idbGet("snaps"))||[],x=all.find(y=>y.t===t);if(!x)return;
+async function restoreSnap(t){toOwn();const all=(await idbGet("snaps"))||[],x=all.find(y=>y.t===t);if(!x)return;
  const d=new Date(t);if(!confirm("Auf den Stand von "+short(d)+", "+pad(d.getHours())+":"+pad(d.getMinutes())+" zurücksetzen?"))return;
  try{loadState(JSON.parse(x.json));save();haptic();view="main";cur=T;render();toast("Stand wiederhergestellt")}catch(_){toast("Stand defekt")}}
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(_){}
@@ -246,11 +247,11 @@ const back=to=>`<span class="ic" onclick="go('${to}')">‹ zurück</span>`;
 
 /* ---------- Ansichten ---------- */
 function render(keep){if((st.light||0)!==lightOn)applyLight();closeSwipe(true);const a=$("#app");let h="";
-if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span><span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
+if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span>${dev!=OWN?`<span class="devtag">${DEVN[dev]}</span>`:""}<span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
  `<div id="pane" class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
- stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
+ stepRow("dev","Gerät")+stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
 if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="toggleOpt('notif')">Mitteilungen<span class="muted" id="ntlbl" style="float:right;font-size:12px">${notifLabel()}</span></div>`+(openOpt=="notif"?notifBox():"")+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
@@ -293,6 +294,7 @@ function applyLight(){const el=document.querySelector("style");if(!el)return;if(
 
 /* ---------- Auswahl mit ‹ Wert › (wie am Mac) ---------- */
 const STEP={size:{keys:()=>[0,1,2],get:()=>st.size,label:v=>S[v],set:v=>{st.size=v;save()}},
+ dev:{keys:()=>[OWN,OTHER],get:()=>devWant||dev,label:v=>DEVN[v],set:v=>switchDev(v)},
  light:{keys:()=>[0,1,2,3],get:()=>st.light||0,label:v=>LIGHTN[v],set:v=>{st.light=v;save();applyLight()}}};
 function stepRow(id,title){const c=STEP[id];return `<div class="mi mrow ${openOpt==id?"open":""}" onclick="tgStep('${id}',this,event)"><span class="mt">${title}</span><span class="sp"></span><span class="reveal"><span class="ar hit" id="${id}L" onpointerdown="stepDown(event,'${id}',-1)"><i>‹</i></span><span class="dtx dw" id="${id}W">${c.label(c.get())}</span><span class="ar hit" id="${id}R" onpointerdown="stepDown(event,'${id}',1)"><i>›</i></span></span></div>`}
 function stepDown(e,id,s){e.preventDefault();e.stopPropagation();haptic();stepOpt(id,s)}
@@ -477,7 +479,7 @@ async function exportData(){const json=JSON.stringify(st,null,2),name="filer-"+i
 try{const f=new File([json],name,{type:"application/json"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Filer"});return}}catch(e){if(e&&e.name=="AbortError")return}
 const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([json],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
 function importData(){const f=$("#file");f.value="";f.click()}
-$("#file").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;
+$("#file").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;toOwn();
 try{const d=JSON.parse(await file.text());if(!d||typeof d!="object"||!("days" in d||"routines" in d))throw 0;
  if(!confirm("Aktuelle Einträge durch die Datei ersetzen?"))return;
  loadState(d);
@@ -515,7 +517,7 @@ function setSync(s){syncState=s;if(s=="ok")syncAt=Date.now();const l=document.ge
 function syncLabel(){if(!gh)return "aus";if(syncState=="err")return "fehler";if(syncState=="busy")return "…";if(syncAt){const d=new Date(syncAt);return "✓ "+pad(d.getHours())+":"+pad(d.getMinutes())}return "an"}
 async function ghPull(){const r=await ghApi(ghPath());if(r.status==404){ghSha=null;return null}if(!r.ok)throw new Error(r.status);const j=await r.json();ghSha=j.sha;return JSON.parse(b64d(j.content))}
 async function ghPush(){if(!gh)return;if(pushing){pushAgain=true;return}pushing=true;setSync("busy");
- try{for(let i=0;i<2;i++){const body={message:"Filer "+new Date().toLocaleString("de-DE"),content:b64e(JSON.stringify(st,null,1))};if(ghSha)body.sha=ghSha;
+ try{for(let i=0;i<2;i++){const body={message:"Filer "+new Date().toLocaleString("de-DE"),content:b64e(JSON.stringify(ownSt(),null,1))};if(ghSha)body.sha=ghSha;
    const r=await ghApi(ghPath(),{method:"PUT",body:JSON.stringify(body)});
    if(r.ok){ghSha=(await r.json()).content.sha;setSync("ok");break}
    if(r.status==409||r.status==422){await ghPull();continue}
@@ -526,10 +528,47 @@ function schedulePush(){if(!gh)return;clearTimeout(pushT);pushT=setTimeout(ghPus
 let pullBusy=false;
 async function pullIfNewer(){if(!gh||pullBusy)return;pullBusy=true;
  try{const d=await ghPull();if(!d){await ghPush();pullBusy=false;return}
-  if((d.updatedAt||0)>(st.updatedAt||0)){const apply=()=>{if(adding||editing||drag){setTimeout(apply,1500);return}loadState(d);storeLocal();anim=false;keepScroll(render)};apply();setSync("ok")}
-  else if((d.updatedAt||0)<(st.updatedAt||0))await ghPush();else setSync("ok")}catch(_){setSync("err")}pullBusy=false}
+  const o=ownSt();if((d.updatedAt||0)>(o.updatedAt||0)){const apply=()=>{if(dev==OWN&&(adding||editing||drag)){setTimeout(apply,1500);return}
+   if(dev==OWN){loadState(d);storeLocal();anim=false;keepScroll(render)}else{const n=normalize(d);delete n.level;ownBak=n;storeLocal();UIK.forEach(k=>{st[k]=n[k]})}};apply();setSync("ok")}
+  else if((d.updatedAt||0)<(o.updatedAt||0))await ghPush();else setSync("ok")}catch(_){setSync("err")}pullBusy=false}
 function syncInit(){if(gh)pullIfNewer();notifySoon()}
 
+
+/* ---------- Geräte: iPhone ↔ Mac ----------
+   Jedes Gerät hat seinen eigenen Speicher und eigene Routinen.
+   iPhone → filer.json, Mac → filer-mac.json (im selben Repo filer-data).
+   Über „Gerät“ im Menü siehst und bearbeitest du die Einträge des Mac. */
+const OWN="iphone",OTHER="mac",DEVN={iphone:"iPhone",mac:"Mac"},MAC_FILE=APP=="filer2"?"filer-2-mac.json":"filer-mac.json";
+const UIK=["size","light","seenHint","notify","level","dot"];
+let dev=OWN,ownBak=null,otherUI={},otherSha=null,otherT=null,devBusy=false,devWant=null,opush=false,opAgain=false;
+function ownSt(){return dev==OWN?st:ownBak}
+function normalize(d){const o=Object.assign({},BASE,d||{});for(const k of ["days","rdone","rskip","order"])if(!o[k]||typeof o[k]!="object")o[k]={};if(!Array.isArray(o.routines))o.routines=[];return o}
+const macPath=()=>`/repos/${gh.login}/${GH_REPO}/contents/${MAC_FILE}`;
+async function pullMac(){const r=await ghApi(macPath()+"?t="+Date.now());if(r.status==404){otherSha=null;return null}if(!r.ok)throw new Error(r.status);const j=await r.json();otherSha=j.sha;return JSON.parse(b64d(j.content))}
+function viewOf(d){const v=normalize(d);otherUI={};UIK.forEach(k=>{if(k in v)otherUI[k]=v[k];if(ownBak[k]===undefined)delete v[k];else v[k]=ownBak[k]});return v}
+function saveOther(){UIK.forEach(k=>{ownBak[k]=st[k]});storeLocal();clearTimeout(otherT);otherT=setTimeout(pushMac,900)}
+async function pushMac(){otherT=null;if(dev!=OTHER||!gh)return;if(opush){opAgain=true;return}opush=true;setSync("busy");
+ const out=Object.assign({},st);UIK.forEach(k=>{if(k in otherUI)out[k]=otherUI[k];else delete out[k]});
+ try{for(let i=0;i<3;i++){const body={message:"Filer Mac (vom iPhone) "+new Date().toLocaleString("de-DE"),content:b64e(JSON.stringify(out,null,1))};if(otherSha)body.sha=otherSha;
+   const r=await ghApi(macPath(),{method:"PUT",body:JSON.stringify(body)});
+   if(r.ok){otherSha=(await r.json()).content.sha;setSync("ok");break}
+   if(r.status==409||r.status==422){const q=await ghApi(macPath()+"?t="+Date.now());otherSha=q.ok?(await q.json()).sha:null;continue}
+   throw new Error(r.status)}}catch(_){setSync("err");toast("nicht gespeichert – keine Verbindung")}
+ opush=false;if(opAgain){opAgain=false;pushMac()}}
+async function refreshMac(){if(dev!=OTHER||!gh||opush||otherT||adding||editing||drag)return;
+ try{const d=await pullMac();if(d&&dev==OTHER&&(d.updatedAt||0)>(st.updatedAt||0)&&!adding&&!editing&&!drag){st=viewOf(d);anim=false;keepScroll(render)}}catch(_){}}
+function devFail(){devWant=null;const w=document.getElementById("devW");if(w)roll(w,DEVN[dev],-1)}
+function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushMac()}st=ownBak;ownBak=null;dev=OWN;devWant=null}
+async function switchDev(to){if(devBusy)return;
+ if(to==OTHER&&!gh){toast("erst unter Mehr › Sync verbinden");setTimeout(devFail,260);return}
+ devWant=to;if(to==dev)return;if(adding)closeAdd();if(editing)saveEdit();
+ if(to==OWN){toOwn();notifySoon();pullIfNewer();return}
+ devBusy=true;toast("Mac wird geladen …");
+ try{const d=await pullMac();ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;
+  toast(d?"Einträge vom Mac":"Auf dem Mac ist noch nichts gespeichert")}catch(_){toast("keine Verbindung");devFail()}
+ devBusy=false}
+setInterval(()=>{if(!document.hidden)refreshMac()},45000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshMac()});
 /* ---------- Mitteilungen (Web-Push über Supabase, wie Whoop/Nutrac) ----------
    Nur Einträge und Routinen mit Uhrzeit, die noch nicht erledigt sind.
    Die App schickt die anstehenden Zeiten der nächsten 14 Tage an den Server,
@@ -540,7 +579,8 @@ const npSave=()=>{try{np?localStorage.setItem(APP+".push",JSON.stringify(np)):lo
 const pushOk=()=>"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window;
 const b64u=a=>btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const sbPost=(path,body)=>fetch(SB_URL+path,{method:"POST",headers:{"Content-Type":"application/json",apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},body:JSON.stringify(body)});
-function notifyItems(){const out=[];for(let i=0;i<14;i++){const d=new Date(T.getFullYear(),T.getMonth(),T.getDate()+i,12),k=iso(d);
+function notifyItems(){const keep=st;if(dev!=OWN&&ownBak)st=ownBak;try{return notifyItems2()}finally{st=keep}}
+function notifyItems2(){const out=[];for(let i=0;i<14;i++){const d=new Date(T.getFullYear(),T.getMonth(),T.getDate()+i,12),k=iso(d);
  items(d).forEach(x=>{if(x.time&&!x.done)out.push({d:k,t:x.time,n:x.name})})}return out}
 function notifyCfg(){return np&&np.on?JSON.stringify({on:true,sub:np.sub,pub:np.pub,priv:np.priv,items:notifyItems()}):""}
 async function notifySync(){const cfg=notifyCfg();if(!cfg||cfg===npSynced){setNl();return}
@@ -578,7 +618,7 @@ function syncView(){if(gh)return `<div class="muted" style="padding:0 10px 14px;
  return `<div class="muted" style="padding:0 10px 14px;font-size:13px;line-height:1.7">Speichert jede Änderung in deinem privaten GitHub-Repo <b>${GH_REPO}</b>. So sind deine Einträge überall gleich – über den Link, das Icon oder den Mac.</div>`+
  `<form class="addrow" style="margin:0 0 10px" onsubmit="event.preventDefault();syncOn()" autocomplete="on"><input type="text" name="username" value="filer" autocomplete="username" style="display:none"><input id="ghtok" type="password" name="password" autocomplete="current-password" placeholder="GitHub-Schlüssel einfügen" style="flex:1;min-width:0" enterkeyhint="go"></form>`+
  `<div class="mi" onclick="syncOn()">verbinden</div>`}
-async function syncOn(){const i=$("#ghtok"),tok=i?i.value.trim():"";if(!tok){toast("Schlüssel einfügen");return}
+async function syncOn(){toOwn();const i=$("#ghtok"),tok=i?i.value.trim():"";if(!tok){toast("Schlüssel einfügen");return}
  if(i)i.blur();toast("verbinde …");
  try{const r=await fetch("https://api.github.com/user",{cache:"no-store",headers:{Authorization:"Bearer "+tok,Accept:"application/vnd.github+json"}});
   if(!r.ok){toast("Schlüssel ungültig");return}const login=(await r.json()).login;gh={token:tok,login};
@@ -591,7 +631,7 @@ async function syncOn(){const i=$("#ghtok"),tok=i?i.value.trim():"";if(!tok){toa
   else await ghPush();
   haptic();anim=false;render();toast("Sync an")}catch(_){gh=null;toast("Verbindung fehlgeschlagen")}}
 async function syncNow(){await pullIfNewer();if(syncState!="err")await ghPush();anim=false;render();toast(syncState=="err"?"Sync fehlgeschlagen":"abgeglichen")}
-function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;gh=null;ghSha=null;try{localStorage.removeItem(APP+".gh")}catch(_){}anim=false;render()}
+function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;toOwn();gh=null;ghSha=null;try{localStorage.removeItem(APP+".gh")}catch(_){}anim=false;render()}
 
 /* ---------- Tastatur: Eingabezeile immer sichtbar über der Tastatur ---------- */
 function kbHeight(){const v=window.visualViewport;return v?Math.max(0,window.innerHeight-v.height-v.offsetTop):0}
