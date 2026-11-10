@@ -107,7 +107,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v39";
+const VERSION="v40";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -614,7 +614,7 @@ async function notifyTest(){await notifySync();if(npErr){toast("keine verbindung
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)notifySoon()});
 setInterval(()=>{if(!document.hidden)pullIfNewer()},60000);
 function syncView(){if(gh)return `<div class="muted" style="padding:0 10px 14px;line-height:1.7">verbunden mit<br><span style="color:var(--ink)">${esc(gh.login)}/${GH_REPO}</span><br>Stand: <span id="synclbl">${syncLabel()}</span></div>`+
- `<div class="mi" onclick="syncNow()">jetzt abgleichen</div><div class="mi" onclick="syncOff()">trennen</div>`;
+ `<div class="mi" onclick="syncNow()">jetzt abgleichen</div><div class="mi" onclick="copyKey()">Schlüssel für den Mac kopieren</div><div class="mi" onclick="syncOff()">trennen</div>`;
  return `<div class="muted" style="padding:0 10px 14px;font-size:13px;line-height:1.7">Speichert jede Änderung in deinem privaten GitHub-Repo <b>${GH_REPO}</b>. So sind deine Einträge überall gleich – über den Link, das Icon oder den Mac.</div>`+
  `<form class="addrow" style="margin:0 0 10px" onsubmit="event.preventDefault();syncOn()" autocomplete="on"><input type="text" name="username" value="filer" autocomplete="username" style="display:none"><input id="ghtok" type="password" name="password" autocomplete="current-password" placeholder="GitHub-Schlüssel einfügen" style="flex:1;min-width:0" enterkeyhint="go"></form>`+
  `<div class="mi" onclick="syncOn()">verbinden</div>`}
@@ -630,6 +630,8 @@ async function syncOn(){toOwn();const i=$("#ghtok"),tok=i?i.value.trim():"";if(!
    else await ghPush()}
   else await ghPush();
   haptic();anim=false;render();toast("Sync an")}catch(_){gh=null;toast("Verbindung fehlgeschlagen")}}
+async function copyKey(){if(!gh)return;try{await navigator.clipboard.writeText(gh.token);haptic();toast("kopiert – am Mac mit ⌘V einfügen")}
+ catch(_){const t=document.createElement("textarea");t.value=gh.token;document.body.appendChild(t);t.select();try{document.execCommand("copy");toast("kopiert – am Mac mit ⌘V einfügen")}catch(__){toast("kopieren ging nicht")}t.remove()}}
 async function syncNow(){await pullIfNewer();if(syncState!="err")await ghPush();anim=false;render();toast(syncState=="err"?"Sync fehlgeschlagen":"abgeglichen")}
 function syncOff(){if(!confirm("Sync auf diesem Gerät trennen? Deine Einträge bleiben hier und online erhalten."))return;toOwn();gh=null;ghSha=null;try{localStorage.removeItem(APP+".gh")}catch(_){}anim=false;render()}
 
