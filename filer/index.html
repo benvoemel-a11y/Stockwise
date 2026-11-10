@@ -114,7 +114,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v42";
+const VERSION="v43";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -613,7 +613,7 @@ async function linkJoin(){const i=document.getElementById("lkin"),c=cleanCode(i&
 async function linkNow(){await linkPullOwn();if(linkState!="err")await linkPushOwn();if(dev==OTHER)await refreshOther();anim=false;render();toast(linkState=="err"?"keine Verbindung":"abgeglichen")}
 function linkOff(el){if(!offAsk){offAsk=true;el.textContent=(OWN=="mac"?"nochmal klicken":"nochmal tippen")+" zum Trennen";setTimeout(()=>{offAsk=false;if(el.isConnected)el.textContent="trennen"},3500);return}
  offAsk=false;toOwn();link=null;linkStore(null);anim=false;render();toast("getrennt – Einträge bleiben erhalten")}
-setInterval(()=>{if(document.hidden)return;if(dev==OTHER)refreshOther();else linkPullOwn()},45000);
+setInterval(()=>{if(document.hidden)return;if(dev==OTHER)refreshOther();else linkPullOwn()},15000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(dev==OTHER)refreshOther();else linkPullOwn()}});
 setTimeout(()=>{if(link)linkPullOwn()},1500);
 document.addEventListener("keydown",e=>{if(e.target&&e.target.id=="lkin"&&e.key=="Enter"){e.preventDefault();linkJoin()}});

@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 
 import objc
-from Foundation import NSObject, NSURL, NSMakeRect, NSBundle
+from Foundation import NSObject, NSURL, NSMakeRect, NSBundle, NSNull
 from AppKit import (NSApplication, NSWindow, NSView, NSColor, NSScreen, NSEvent, NSCursor,
                     NSMenu, NSMenuItem, NSImage, NSBezierPath, NSTrackingArea)
 import AppKit
@@ -17,9 +17,29 @@ import Quartz
 from PyObjCTools import AppHelper
 
 DATA = Path.home() / ".filer.json"
+GHFILE = Path.home() / ".filer-gh.json"
+CACHE = Path.home() / ".filer" / "index.html"   # automatisch geladene neue Version
+REMOTE = "https://raw.githubusercontent.com/benvoemel-a11y/Stockwise/main/filer/mac/index.html"
+
+
+def page_version(text):
+    import re
+    m = re.search(r"Filer Mac v(\d+)", text or "")
+    return int(m.group(1)) if m else 0
+
+
+def best_page():
+    """Neueste Oberfläche: mitgeliefert oder automatisch geladen."""
+    own = RES / "index.html"
+    try:
+        if CACHE.exists() and page_version(CACHE.read_text("utf-8")) > page_version(own.read_text("utf-8")):
+            return CACHE
+    except Exception:
+        pass
+    return own   # GitHub-Schlüssel, bleibt nur auf diesem Mac
 RES = Path(__file__).resolve().parent
 TOP, EDGE, CORNER, MAGNET, RADIUS = 20, 5, 14, 18, 0
-GREY = NSColor.colorWithSRGBRed_green_blue_alpha_(0xb9 / 255, 0xb9 / 255, 0xb9 / 255, 1.0)
+GREY = NSColor.colorWithSRGBRed_green_blue_alpha_(0x8a / 255, 0x8a / 255, 0x8a / 255, 1.0)
 DESKTOP_LEVEL = Quartz.CGWindowLevelForKey(Quartz.kCGDesktopIconWindowLevelKey) + 1
 
 BORDERLESS, MINIATURIZABLE, RESIZABLE = 0, 1 << 2, 1 << 3
@@ -49,6 +69,46 @@ def fit(x, y, w, h, vf, m=MAGNET):
     elif vy + vh - (y + h) < m:
         y = vy + vh - h
     return NSMakeRect(x, y, w, h)
+
+
+def http_request(method, url, headers, body):
+    """Holt/schreibt über das Internet (GitHub-Sync). Gibt (status, text) zurück."""
+    import ssl
+    import urllib.request
+    import urllib.error
+    try:
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        ctx = ssl.create_default_context()
+    data = body.encode("utf-8") if body is not None else None
+    req = urllib.request.Request(url, data=data, method=method, headers=dict(headers or {}))
+    req.add_header("User-Agent", "Filer-Mac")
+    try:
+        with urllib.request.urlopen(req, timeout=20, context=ctx) as r:
+            return r.status, r.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:
+        try:
+            txt = e.read().decode("utf-8", "replace")
+        except Exception:
+            txt = ""
+        return e.code, txt
+    except Exception as exc:
+        print("Filer http:", exc)
+        return 0, ""
+
+
+def send_notification(title, text):
+    """macOS-Mitteilung ohne Server: über das eingebaute AppleScript."""
+    import subprocess
+
+    def q(t):
+        return '"' + t.replace("\\", "\\\\").replace('"', '\\"') + '"'
+    script = "display notification %s with title %s" % (q(text), q(title))
+    try:
+        subprocess.Popen(["osascript", "-e", script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as exc:
+        print("Filer notify:", exc)
 
 
 class FilerWindow(NSWindow):
@@ -131,6 +191,18 @@ class ResizeView(NSView):
         self.window().saveFrameUsingName_("FilerWindow")
 
 
+DOT_COLORS = {
+    "rot": "d93f37", "schwarz": "1f1f1f", "weiss": "ffffff", "pink": "ff4f9a",
+    "blau": "2f7cf6", "orange": "f47b2a", "gelb": "ffcc00", "gruen": "34c759",
+}
+DOT = {"name": "rot"}
+
+
+def hex_color(h, f=1.0, a=1.0):
+    r, g, b = (int(h[i:i + 2], 16) / 255 * f for i in (0, 2, 4))
+    return NSColor.colorWithSRGBRed_green_blue_alpha_(r, g, b, a)
+
+
 class CloseButton(NSView):
     """Roter Mac-Knopf oben links: zeigt beim Drüberfahren ein x und beendet Filer."""
 
@@ -170,10 +242,12 @@ class CloseButton(NSView):
         b = self.bounds()
         d = 12.0
         x, y = (b.size.width - d) / 2, (b.size.height - d) / 2
-        NSColor.colorWithSRGBRed_green_blue_alpha_(0xd9 / 255, 0x3f / 255, 0x37 / 255, 1.0).setFill()
+        name = DOT["name"] if DOT["name"] in DOT_COLORS else "rot"
+        hx = DOT_COLORS[name]
+        hex_color(hx).setFill()
         circle = NSBezierPath.bezierPathWithOvalInRect_(NSMakeRect(x, y, d, d))
         circle.fill()
-        NSColor.colorWithSRGBRed_green_blue_alpha_(0xb8 / 255, 0x30 / 255, 0x2a / 255, 1.0).setStroke()
+        (hex_color("9a9a9a") if name == "weiss" else hex_color(hx, 0.82)).setStroke()
         circle.setLineWidth_(0.5)
         circle.stroke()
         if getattr(self, "hover", False):
@@ -185,7 +259,12 @@ class CloseButton(NSView):
             path.lineToPoint_((cx + r, cy + r))
             path.moveToPoint_((cx - r, cy + r))
             path.lineToPoint_((cx + r, cy - r))
-            NSColor.colorWithSRGBRed_green_blue_alpha_(0.35, 0.0, 0.0, 0.8).setStroke()
+            if name in ("weiss", "gelb"):
+                hex_color("3a3a3a", 1.0, 0.75).setStroke()
+            elif name == "schwarz":
+                hex_color("b9b9b9", 1.0, 0.9).setStroke()
+            else:
+                hex_color(hx, 0.35, 0.85).setStroke()
             path.stroke()
 
 
@@ -200,15 +279,22 @@ class AppDelegate(NSObject, protocols=[objc.protocolNamed("WKScriptMessageHandle
         text, level = "null", "normal"
         try:
             text = DATA.read_text("utf-8")
-            level = json.loads(text).get("level", "normal")
+            obj = json.loads(text)
+            level = obj.get("level", "normal")
+            DOT["name"] = obj.get("dot", "rot")
         except Exception:
             text = "null"
 
+        ghtext = "null"
+        try:
+            ghtext = json.dumps(json.loads(GHFILE.read_text("utf-8")))
+        except Exception:
+            ghtext = "null"
+
         content = WebKit.WKUserContentController.alloc().init()
         content.addScriptMessageHandler_name_(self, "filer")
-        script = WebKit.WKUserScript.alloc().initWithSource_injectionTime_forMainFrameOnly_(
-            "window.FILER_DATA = %s;" % text, WebKit.WKUserScriptInjectionTimeAtDocumentStart, True)
-        content.addUserScript_(script)
+        self.content = content
+        self.injectData()
         config = WebKit.WKWebViewConfiguration.alloc().init()
         config.setUserContentController_(content)
 
@@ -245,9 +331,11 @@ class AppDelegate(NSObject, protocols=[objc.protocolNamed("WKScriptMessageHandle
                                   screen.visibleFrame(), 0), False)
         self.applyLevel(level)
 
-        index = RES / "index.html"
+        index = best_page()
+        self.page = index
         web.loadFileURL_allowingReadAccessToURL_(NSURL.fileURLWithPath_(str(index)),
-                                                 NSURL.fileURLWithPath_(str(RES)))
+                                                 NSURL.fileURLWithPath_(str(index.parent)))
+        self.checkUpdate()
         win.makeKeyAndOrderFront_(None)
         win.makeFirstResponder_(web)
         NSApplication.sharedApplication().activateIgnoringOtherApps_(True)
@@ -262,6 +350,7 @@ class AppDelegate(NSObject, protocols=[objc.protocolNamed("WKScriptMessageHandle
         close = CloseButton.alloc().initWithFrame_(NSMakeRect(6, h - 22, 16, 16))
         close.setAutoresizingMask_(AppKit.NSViewMaxXMargin | AppKit.NSViewMinYMargin)
         root.addSubview_(close)
+        self.close = close
         handles = [
             ({"right"}, (w - EDGE, 0, EDGE, h - TOP), AppKit.NSViewMinXMargin | AppKit.NSViewHeightSizable),
             ({"left"}, (0, 0, EDGE, h - TOP), AppKit.NSViewMaxXMargin | AppKit.NSViewHeightSizable),
@@ -299,10 +388,93 @@ class AppDelegate(NSObject, protocols=[objc.protocolNamed("WKScriptMessageHandle
                 tmp = DATA.with_suffix(".tmp")
                 tmp.write_text(str(body["json"]), "utf-8")
                 tmp.replace(DATA)
+            elif kind == "notify":
+                v = body["value"]
+                send_notification(str(v["title"]), str(v["body"]))
+            elif kind == "dot":
+                DOT["name"] = str(body["value"])
+                self.close.setNeedsDisplay_(True)
             elif kind == "level":
                 self.applyLevel(str(body["value"]))
+            elif kind == "reload":
+                self.reloadPage()
+            elif kind == "gh":
+                v = body["value"]
+                if v is None or isinstance(v, NSNull):
+                    GHFILE.unlink(missing_ok=True)
+                else:
+                    GHFILE.write_text(json.dumps({"token": str(v["token"]), "login": str(v["login"])}), "utf-8")
+                    GHFILE.chmod(0o600)
+            elif kind == "http":
+                v = body["value"]
+                self.startHttp(int(v["id"]), str(v["method"]), str(v["url"]),
+                               {str(k): str(x) for k, x in dict(v["headers"] or {}).items()},
+                               str(v["body"]) if isinstance(v["body"], str) else None)
         except Exception as exc:  # nie abstürzen, nur protokollieren
             print("Filer:", exc)
+
+    @objc.python_method
+    def injectData(self):
+        text, ghtext = "null", "null"
+        try:
+            text = json.dumps(json.loads(DATA.read_text("utf-8")))
+        except Exception:
+            text = "null"
+        try:
+            ghtext = json.dumps(json.loads(GHFILE.read_text("utf-8")))
+        except Exception:
+            ghtext = "null"
+        self.content.removeAllUserScripts()
+        script = WebKit.WKUserScript.alloc().initWithSource_injectionTime_forMainFrameOnly_(
+            "window.FILER_DATA = %s; window.FILER_GH = %s;" % (text, ghtext),
+            WebKit.WKUserScriptInjectionTimeAtDocumentStart, True)
+        self.content.addUserScript_(script)
+
+    @objc.python_method
+    def checkUpdate(self):
+        """Holt im Hintergrund die neueste Filer-Oberfläche von GitHub (wie beim iPhone)."""
+        import threading
+        import time
+
+        def work():
+            while True:
+                try:
+                    status, text = http_request("GET", REMOTE + "?t=%d" % int(time.time()), {}, None)
+                    cur = page_version(self.page.read_text("utf-8"))
+                    if status == 200 and "</html>" in text and page_version(text) > cur:
+                        CACHE.parent.mkdir(parents=True, exist_ok=True)
+                        tmp = CACHE.with_suffix(".tmp")
+                        tmp.write_text(text, "utf-8")
+                        tmp.replace(CACHE)
+                        AppHelper.callAfter(self.askReload)
+                except Exception as exc:
+                    print("Filer update:", exc)
+                time.sleep(600)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    @objc.python_method
+    def askReload(self):
+        js = "window.__updateReady && window.__updateReady()"
+        self.web.evaluateJavaScript_completionHandler_(js, None)
+
+    @objc.python_method
+    def reloadPage(self):
+        self.page = best_page()
+        self.injectData()
+        self.web.loadFileURL_allowingReadAccessToURL_(NSURL.fileURLWithPath_(str(self.page)),
+                                                      NSURL.fileURLWithPath_(str(self.page.parent)))
+
+    @objc.python_method
+    def startHttp(self, rid, method, url, headers, body):
+        import threading
+
+        def work():
+            status, text = http_request(method, url, headers, body)
+            js = "window.__http && window.__http(%d, %d, %s)" % (rid, status, json.dumps(text))
+            AppHelper.callAfter(self.web.evaluateJavaScript_completionHandler_, js, None)
+
+        threading.Thread(target=work, daemon=True).start()
 
     def applicationShouldTerminateAfterLastWindowClosed_(self, app):
         return True

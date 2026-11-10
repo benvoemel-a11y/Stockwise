@@ -28,7 +28,7 @@ fi
 # 2) Mac-Bausteine für Fenster und Anzeige (einmalig)
 echo "Lade Bausteine (einmalig, kann 1–2 Minuten dauern) …"
 "$PY" -m pip install -q --upgrade pip >/dev/null 2>&1
-if ! "$PY" -m pip install -q pyobjc-framework-WebKit pyobjc-framework-Quartz; then
+if ! "$PY" -m pip install -q pyobjc-framework-WebKit pyobjc-framework-Quartz certifi; then
   echo; echo "Download fehlgeschlagen. Bitte Internetverbindung prüfen und den Text oben an Claude schicken."
   pause; exit 1
 fi
@@ -38,11 +38,7 @@ if ! "$PY" -c "import AppKit, WebKit, Quartz, PyObjCTools.AppHelper"; then
 fi
 
 # 3) App bauen (ersetzt die alte Version)
-# Laufendes Filer sicher beenden, damit wirklich die neue Version startet
-osascript -e 'tell application "Filer" to quit' >/dev/null 2>&1
-pkill -f "Filer.app/Contents/" >/dev/null 2>&1
-pkill -f "Resources/main.py" >/dev/null 2>&1
-sleep 1
+pkill -f "Filer.app/Contents/Resources/main.py" >/dev/null 2>&1; sleep 0.5
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp main.py index.html icon.png "$APP/Contents/Resources/"
@@ -97,7 +93,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleIconFile</key><string>Filer</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>1.0</string>
-  <key>CFBundleVersion</key><string>5</string>
+  <key>CFBundleVersion</key><string>3</string>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
@@ -112,6 +108,7 @@ done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/Filer.icns"
 touch "$APP"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP" >/dev/null 2>&1
+killall Dock >/dev/null 2>&1
 
 echo
 if [ "$MODE" = "bundle" ]; then
