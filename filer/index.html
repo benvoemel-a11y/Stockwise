@@ -88,6 +88,10 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .lktx{color:#3a3a3a;font-size:13px;line-height:1.7;padding:0 10px 12px}.lktx b{color:#171717;font-weight:600}
 .lkcode{font-size:20px;letter-spacing:.12em;-webkit-user-select:text;user-select:text}
 .lkrow{margin:0 0 10px}.lkrow input{flex:1;min-width:0;letter-spacing:.08em}
+.dsw{position:relative;display:inline-flex;gap:4px;margin-left:auto;margin-right:10px;padding-bottom:5px;flex:none}
+.dsi{width:22px;height:18px;display:flex;justify-content:center;color:#5a5a5a;cursor:pointer;transition:color .28s}.dsi.on{color:#171717}.dsi svg{width:18px;height:18px}
+.dsu{position:absolute;left:0;bottom:0;width:22px;height:2px;background:#171717;transition:transform .32s cubic-bezier(.22,.9,.25,1)}.dsw.at-iphone .dsu{transform:translateX(calc(100% + 4px))}
+.hd .dnav{min-width:0}.hd .dtx{white-space:nowrap}
 .devtag{margin-left:auto;margin-right:12px;font-size:12px;font-weight:400;color:#3a3a3a;letter-spacing:.04em;animation:pop .25s ease}
 .dnav{display:flex;align-items:center;gap:4px}.ar{color:var(--mid);font-weight:400;padding:6px 8px;font-size:18px;transition:color .2s,transform .15s}.ar:first-child{margin-left:-8px}.ar:active{color:#000000}
 @keyframes kl{0%,100%{transform:none}40%{transform:translateX(-6px)}}@keyframes kr{0%,100%{transform:none}40%{transform:translateX(6px)}}.kl{animation:kl .42s ease}.kr{animation:kr .42s ease}
@@ -110,7 +114,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v41";
+const VERSION="v42";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -250,11 +254,11 @@ const back=to=>`<span class="ic" onclick="go('${to}')">‹ zurück</span>`;
 
 /* ---------- Ansichten ---------- */
 function render(keep){if((st.light||0)!==lightOn)applyLight();closeSwipe(true);const a=$("#app");let h="";
-if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span>${dev!=OWN?`<span class="devtag">${DEVN[dev]}</span>`:""}<span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
+if(view=="main"){h=`<div class="hd"><span class="dnav"><span class="ar" id="arL" onclick="day(-1)">‹</span><span class="dtx" id="dtx">${nice(cur)}</span><span class="ar" id="arR" onclick="day(1)">›</span></span>${dswHtml()}<span class="ic gear" onclick="gearTap(this)">${GEAR}</span></div>`+
  `<div id="pane" class="${slide}">`+strip(cur)+(iso(cur)==iso(T)?carryRows():"")+rows(cur,true)+adder(iso(cur))+`</div>`;slide=""}
 if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  `<div class="mi" onclick="go('cal')">Kalender</div><div class="mi" onclick="go('rt')">Routinen</div>`+
- stepRow("dev","Gerät")+stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
+ stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
 if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="toggleOpt('notif')">Mitteilungen<span class="muted" id="ntlbl" style="float:right;font-size:12px">${notifLabel()}</span></div>`+(openOpt=="notif"?notifBox():"")+`<div class="mi" onclick="go('link')">Verknüpfen<span class="muted" id="lnklbl" style="float:right;font-size:12px">${linkLabel()}</span></div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
@@ -575,14 +579,17 @@ async function pushOther(){otherT=null;if(dev!=OTHER||!link)return;if(opBusy){op
  opBusy=false;if(opAgain){opAgain=false;pushOther()}}
 async function refreshOther(){if(dev!=OTHER||!link||opBusy||otherT||lbusy())return;
  try{const d=await lget(OTHER);if(d&&dev==OTHER&&(d.updatedAt||0)>(st.updatedAt||0)&&!lbusy()){st=viewOf(d);anim=false;keepScroll(render)}setLink("ok")}catch(_){}}
-function devFail(){devWant=null;const w=document.getElementById("devW");if(w)roll(w,DEVN[dev],-1)}
+const DEVI={mac:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="4.5" y="5" width="15" height="10.5" rx="1.2"/><path d="M2.5 18h19v.6a1.4 1.4 0 0 1-1.4 1.4H3.9a1.4 1.4 0 0 1-1.4-1.4z"/></svg>',iphone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="7" y="2.5" width="10" height="19" rx="2.6"/><path d="M10.6 5h2.8" stroke-width="1.8"/></svg>'};
+function dswHtml(){const a=devWant||dev;return `<span class="dsw at-${a}">${["mac","iphone"].map(d=>`<span class="dsi ${a==d?"on":""}" data-d="${d}" onclick="event.stopPropagation();switchDev('${d}')">${DEVI[d]}</span>`).join("")}<i class="dsu"></i></span>`}
+function updDsw(){const a=devWant||dev,w=document.querySelector(".dsw");if(!w)return;w.classList.remove("at-mac","at-iphone");w.classList.add("at-"+a);w.querySelectorAll(".dsi").forEach(x=>x.classList.toggle("on",x.dataset.d==a))}
+function devFail(){devWant=null;updDsw()}
 function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushOther()}st=ownBak;ownBak=null;dev=OWN;devWant=null}
 async function switchDev(to){if(devBusy)return;
  if(to==OTHER&&!link){toast("erst unter Mehr › Verknüpfen koppeln");setTimeout(devFail,260);return}
- devWant=to;if(to==dev)return;if(adding)closeAdd();if(editing)saveEdit();
- if(to==OWN){toOwn();ownBack();linkPullOwn();return}
+ devWant=to;updDsw();if(to==dev){devWant=null;return}if(adding)closeAdd();if(editing)saveEdit();
+ if(to==OWN){toOwn();ownBack();linkPullOwn();setTimeout(()=>{anim=false;keepScroll(render)},300);return}
  devBusy=true;toast(DEVN[OTHER]+" wird geladen …");
- try{const d=await lget(OTHER);ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;
+ try{const d=await lget(OTHER);ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;setTimeout(()=>{anim=false;keepScroll(render)},300);
   toast(d?"Einträge vom "+DEVN[OTHER]:"Vom "+DEVN[OTHER]+" ist noch nichts da – dort einmal Filer öffnen");setLink("ok")}
  catch(_){toast("keine Verbindung");devFail()}
  devBusy=false}
