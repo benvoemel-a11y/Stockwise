@@ -85,6 +85,9 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 .cd{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#949494;color:#2f2f2f;font-size:14px;transition:background .3s,color .3s,transform .12s,box-shadow .2s}.cd:active{transform:scale(.9)}
 .cd.has{font-weight:700}.cd.full{background:#373737;color:#b0b0b0}.cd.fut{background:#919191;color:#737373}.cd.fut.has{color:#464646}.cd.today{text-decoration:underline;text-underline-offset:3px}.cd.sel{background:#686868;color:#b5b5b5;font-weight:700}
 .muted{color:#595959}
+.lktx{color:#3a3a3a;font-size:13px;line-height:1.7;padding:0 10px 12px}.lktx b{color:#171717;font-weight:600}
+.lkcode{font-size:20px;letter-spacing:.12em;-webkit-user-select:text;user-select:text}
+.lkrow{margin:0 0 10px}.lkrow input{flex:1;min-width:0;letter-spacing:.08em}
 .devtag{margin-left:auto;margin-right:12px;font-size:12px;font-weight:400;color:#3a3a3a;letter-spacing:.04em;animation:pop .25s ease}
 .dnav{display:flex;align-items:center;gap:4px}.ar{color:var(--mid);font-weight:400;padding:6px 8px;font-size:18px;transition:color .2s,transform .15s}.ar:first-child{margin-left:-8px}.ar:active{color:#000000}
 @keyframes kl{0%,100%{transform:none}40%{transform:translateX(-6px)}}@keyframes kr{0%,100%{transform:none}40%{transform:translateX(6px)}}.kl{animation:kl .42s ease}.kr{animation:kr .42s ease}
@@ -107,7 +110,7 @@ body{color:var(--ink);font-family:ui-monospace,"SF Mono",Menlo,monospace;font-si
 /* Zwei getrennte Filer-Apps aus demselben Code: /filer/ und /filer-2/.
    Jede hat eigenen Speicher, eigenen Verlauf und eine eigene Sync-Datei. */
 const APP=location.pathname.includes("/filer-2/")?"filer2":"filer";
-const VERSION="v40";
+const VERSION="v41";
 const W=["Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],WS=["Mo","Di","Mi","Do","Fr","Sa","So"],
 M=["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],
 S=["klein","normal","groß"];
@@ -134,7 +137,7 @@ let st=Object.assign({},BASE,(()=>{try{return JSON.parse(localStorage.getItem(AP
 for(const k of ["days","rdone","rskip","order"])if(!st[k]||typeof st[k]!="object")st[k]={};
 if(!Array.isArray(st.routines))st.routines=[];
 function save(){for(const k of ["days","rdone","rskip","order"])for(const d in st[k])if(!st[k][d]||!st[k][d].length)delete st[k][d];
-st.updatedAt=Date.now();if(dev!=OWN){saveOther();return}storeLocal();schedulePush();notifySoon()}
+st.updatedAt=Date.now();if(dev!=OWN){saveOther();return}storeLocal();schedulePush();linkPushSoon();notifySoon()}
 function storeLocal(){const json=JSON.stringify(ownSt());try{localStorage.setItem(APP,json)}catch(_){toast("speichern fehlgeschlagen")}idbSave(json)}
 
 /* ---------- Zweite Kopie + Verlauf (IndexedDB) ----------
@@ -254,10 +257,11 @@ if(view=="menu")h=`<div class="hd"><span>Menü</span>${back("main")}</div>`+
  stepRow("dev","Gerät")+stepRow("size","Schriftgröße")+stepRow("light","Helligkeit")+
  `<div class="mi" onclick="go('more')">Mehr</div>`+`<div class="muted" style="padding:28px 10px 0;font-size:11px;opacity:.7">Filer ${VERSION}</div>`;
 /* Mehr: Sync, Daten und Bedienung gesammelt */
-if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="toggleOpt('notif')">Mitteilungen<span class="muted" id="ntlbl" style="float:right;font-size:12px">${notifLabel()}</span></div>`+(openOpt=="notif"?notifBox():"")+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
+if(view=="more")h=`<div class="hd"><span>Mehr</span>${back("menu")}</div>`+`<div class="mi" onclick="toggleOpt('notif')">Mitteilungen<span class="muted" id="ntlbl" style="float:right;font-size:12px">${notifLabel()}</span></div>`+(openOpt=="notif"?notifBox():"")+`<div class="mi" onclick="go('link')">Verknüpfen<span class="muted" id="lnklbl" style="float:right;font-size:12px">${linkLabel()}</span></div>`+`<div class="mi" onclick="go('sync')">Sync<span class="muted" style="float:right;font-size:12px">${syncLabel()}</span></div>`+`<div class="mi" onclick="toggleOpt('data')">Daten</div>`+(openOpt=="data"?`<div class="opts pop"><span class="opt" onclick="go('hist')">verlauf</span><span class="opt" onclick="exportData()">sichern</span><span class="opt" onclick="importData()">laden</span></div>`:"")+
  `<div class="mi" onclick="toggleOpt('help')">Bedienung</div>`+(openOpt=="help"?`<div class="pop muted" style="padding:2px 10px 12px;font-size:13px;line-height:1.7">freie Fläche antippen – neuer Eintrag<br>antippen – erledigt<br>nach links wischen – bearbeiten / löschen<br>lange drücken – verschieben<br>seitlich wischen – anderer Tag<br>„!“ vor dem Namen – markieren<br><span class="opt" style="color:var(--ink);text-decoration:underline" onclick="haptic(2)">haptik testen</span></div>`:"");
 if(view=="tom")h=`<div class="hd"><span>Morgen · ${short(TM())}</span>${back("menu")}</div>`+rows(TM(),true)+adder(iso(TM()));
 if(view=="cal")h=`<div class="hd"><span>Kalender</span>${back("menu")}</div>`+calendar();
+if(view=="link")h=`<div class="hd"><span>Verknüpfen</span>${back("more")}</div>`+linkView();
 if(view=="sync")h=`<div class="hd"><span>Sync</span>${back("more")}</div>`+syncView();
 if(view=="hist")h=`<div class="hd"><span>Verlauf</span>${back("more")}</div><div class="muted" style="padding:0 10px 10px;font-size:13px">jeder Stand nach einer Änderung · antippen zum Zurücksetzen</div><div id="hist" class="s2"></div>`;
 if(view=="rt")h=`<div class="hd"><span>Routinen</span>${back("menu")}</div>`+routineList()+adder("rt",true);
@@ -534,41 +538,79 @@ async function pullIfNewer(){if(!gh||pullBusy)return;pullBusy=true;
 function syncInit(){if(gh)pullIfNewer();notifySoon()}
 
 
-/* ---------- Geräte: iPhone ↔ Mac ----------
+const OWN="iphone",OTHER="mac";
+function sbCall(fn,body){return fetch(SB_URL+"/rest/v1/rpc/"+fn,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json",apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},body:JSON.stringify(body)}).then(async r=>{if(!r.ok)throw new Error(r.status);return r.json()})}
+function linkLoad(){try{return localStorage.getItem(APP+".link")}catch(_){return null}}
+function linkStore(c){try{c?localStorage.setItem(APP+".link",c):localStorage.removeItem(APP+".link")}catch(_){}}
+function ownApply(n){if(dev==OWN){loadState(n);storeLocal();schedulePush();anim=false;keepScroll(render)}else{ownBak=n;storeLocal();schedulePush();UIK.forEach(k=>{if(n[k]===undefined)delete st[k];else st[k]=n[k]})}}
+function ownPersist(){storeLocal()}
+function ownBack(){notifySoon();pullIfNewer()}
+/* ---------- Geräte verknüpfen: Mac ↔ iPhone ----------
    Jedes Gerät hat seinen eigenen Speicher und eigene Routinen.
-   iPhone → filer.json, Mac → filer-mac.json (im selben Repo filer-data).
-   Über „Gerät“ im Menü siehst und bearbeitest du die Einträge des Mac. */
-const OWN="iphone",OTHER="mac",DEVN={iphone:"iPhone",mac:"Mac"},MAC_FILE=APP=="filer2"?"filer-2-mac.json":"filer-mac.json";
-const UIK=["size","light","seenHint","notify","level","dot"];
-let dev=OWN,ownBak=null,otherUI={},otherSha=null,otherT=null,devBusy=false,devWant=null,opush=false,opAgain=false;
+   Mit einem gemeinsamen Code legen beide ihren Stand zusätzlich auf dem Server ab.
+   Über „Gerät“ im Menü siehst und bearbeitest du die Einträge des anderen Geräts. */
+const DEVN={mac:"Mac",iphone:"iPhone"};
+const UIK=["size","light","level","dot","notify","seenHint"];
+let link=linkLoad(),dev=OWN,ownBak=null,otherUI={},devBusy=false,devWant=null,lpT=null,lpBusy=false,lpAgain=false,otherT=null,opBusy=false,opAgain=false,linkState="",linkAt=0;
 function ownSt(){return dev==OWN?st:ownBak}
-function normalize(d){const o=Object.assign({},BASE,d||{});for(const k of ["days","rdone","rskip","order"])if(!o[k]||typeof o[k]!="object")o[k]={};if(!Array.isArray(o.routines))o.routines=[];return o}
-const macPath=()=>`/repos/${gh.login}/${GH_REPO}/contents/${MAC_FILE}`;
-async function pullMac(){const r=await ghApi(macPath()+"?t="+Date.now());if(r.status==404){otherSha=null;return null}if(!r.ok)throw new Error(r.status);const j=await r.json();otherSha=j.sha;return JSON.parse(b64d(j.content))}
+function normalize(d){const o=Object.assign({days:{},routines:[],rdone:{},rskip:{},order:{},size:1},d||{});
+ for(const k of ["days","rdone","rskip","order"])if(!o[k]||typeof o[k]!="object")o[k]={};if(!Array.isArray(o.routines))o.routines=[];return o}
+const lbusy=()=>adding||editing||drag;
+async function lget(w){const j=await sbCall("filer_link_get",{p_code:link,p_dev:w});if(!j||!j.found)return null;return j.data}
+async function lput(w,data){const ok=await sbCall("filer_link_put",{p_code:link,p_dev:w,p_data:data,p_ts:data.updatedAt||0});if(ok!==true)throw new Error("put")}
+function setLink(s){linkState=s;if(s=="ok")linkAt=Date.now();const l=document.getElementById("lnklbl");if(l)l.textContent=linkLabel()}
+function linkLabel(){if(!link)return "aus";if(linkState=="err")return "keine verbindung";if(linkState=="busy")return "…";if(linkAt){const d=new Date(linkAt);return "✓ "+pad(d.getHours())+":"+pad(d.getMinutes())}return "an"}
+function linkPushSoon(){if(!link)return;clearTimeout(lpT);lpT=setTimeout(linkPushOwn,1200)}
+async function linkPushOwn(){if(!link)return;if(lpBusy){lpAgain=true;return}lpBusy=true;setLink("busy");
+ try{await lput(OWN,ownSt());setLink("ok")}catch(_){setLink("err")}lpBusy=false;if(lpAgain){lpAgain=false;linkPushOwn()}}
+async function linkPullOwn(){if(!link||lpBusy||lpT&&0)return;
+ try{const d=await lget(OWN),o=ownSt();if(!d){await linkPushOwn();return}
+  if((d.updatedAt||0)>(o.updatedAt||0)){const go=()=>{if(dev==OWN&&lbusy()){setTimeout(go,1500);return}ownApply(normalize(d))};go();setLink("ok")}
+  else if((d.updatedAt||0)<(o.updatedAt||0))await linkPushOwn();else setLink("ok")}catch(_){setLink("err")}}
 function viewOf(d){const v=normalize(d);otherUI={};UIK.forEach(k=>{if(k in v)otherUI[k]=v[k];if(ownBak[k]===undefined)delete v[k];else v[k]=ownBak[k]});return v}
-function saveOther(){UIK.forEach(k=>{ownBak[k]=st[k]});storeLocal();clearTimeout(otherT);otherT=setTimeout(pushMac,900)}
-async function pushMac(){otherT=null;if(dev!=OTHER||!gh)return;if(opush){opAgain=true;return}opush=true;setSync("busy");
+function saveOther(){UIK.forEach(k=>{if(st[k]===undefined)delete ownBak[k];else ownBak[k]=st[k]});ownPersist();clearTimeout(otherT);otherT=setTimeout(pushOther,900)}
+async function pushOther(){otherT=null;if(dev!=OTHER||!link)return;if(opBusy){opAgain=true;return}opBusy=true;setLink("busy");
  const out=Object.assign({},st);UIK.forEach(k=>{if(k in otherUI)out[k]=otherUI[k];else delete out[k]});
- try{for(let i=0;i<3;i++){const body={message:"Filer Mac (vom iPhone) "+new Date().toLocaleString("de-DE"),content:b64e(JSON.stringify(out,null,1))};if(otherSha)body.sha=otherSha;
-   const r=await ghApi(macPath(),{method:"PUT",body:JSON.stringify(body)});
-   if(r.ok){otherSha=(await r.json()).content.sha;setSync("ok");break}
-   if(r.status==409||r.status==422){const q=await ghApi(macPath()+"?t="+Date.now());otherSha=q.ok?(await q.json()).sha:null;continue}
-   throw new Error(r.status)}}catch(_){setSync("err");toast("nicht gespeichert – keine Verbindung")}
- opush=false;if(opAgain){opAgain=false;pushMac()}}
-async function refreshMac(){if(dev!=OTHER||!gh||opush||otherT||adding||editing||drag)return;
- try{const d=await pullMac();if(d&&dev==OTHER&&(d.updatedAt||0)>(st.updatedAt||0)&&!adding&&!editing&&!drag){st=viewOf(d);anim=false;keepScroll(render)}}catch(_){}}
+ try{await lput(OTHER,out);setLink("ok")}catch(_){setLink("err");toast("nicht gespeichert – keine Verbindung")}
+ opBusy=false;if(opAgain){opAgain=false;pushOther()}}
+async function refreshOther(){if(dev!=OTHER||!link||opBusy||otherT||lbusy())return;
+ try{const d=await lget(OTHER);if(d&&dev==OTHER&&(d.updatedAt||0)>(st.updatedAt||0)&&!lbusy()){st=viewOf(d);anim=false;keepScroll(render)}setLink("ok")}catch(_){}}
 function devFail(){devWant=null;const w=document.getElementById("devW");if(w)roll(w,DEVN[dev],-1)}
-function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushMac()}st=ownBak;ownBak=null;dev=OWN;devWant=null}
+function toOwn(){if(dev==OWN)return;if(otherT){clearTimeout(otherT);pushOther()}st=ownBak;ownBak=null;dev=OWN;devWant=null}
 async function switchDev(to){if(devBusy)return;
- if(to==OTHER&&!gh){toast("erst unter Mehr › Sync verbinden");setTimeout(devFail,260);return}
+ if(to==OTHER&&!link){toast("erst unter Mehr › Verknüpfen koppeln");setTimeout(devFail,260);return}
  devWant=to;if(to==dev)return;if(adding)closeAdd();if(editing)saveEdit();
- if(to==OWN){toOwn();notifySoon();pullIfNewer();return}
- devBusy=true;toast("Mac wird geladen …");
- try{const d=await pullMac();ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;
-  toast(d?"Einträge vom Mac":"Auf dem Mac ist noch nichts gespeichert")}catch(_){toast("keine Verbindung");devFail()}
+ if(to==OWN){toOwn();ownBack();linkPullOwn();return}
+ devBusy=true;toast(DEVN[OTHER]+" wird geladen …");
+ try{const d=await lget(OTHER);ownBak=st;dev=OTHER;st=viewOf(d||{});if(!d)otherUI={size:1};devWant=null;
+  toast(d?"Einträge vom "+DEVN[OTHER]:"Vom "+DEVN[OTHER]+" ist noch nichts da – dort einmal Filer öffnen");setLink("ok")}
+ catch(_){toast("keine Verbindung");devFail()}
  devBusy=false}
-setInterval(()=>{if(!document.hidden)refreshMac()},45000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshMac()});
+/* Code: 12 Zeichen, z. B. K7Q2-M9XP-4TRA */
+const CA="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const fmtCode=c=>c.replace(/(.{4})(?=.)/g,"$1-");
+const cleanCode=t=>String(t||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/O/g,"0").replace(/I/g,"1");
+function newCode(){const a=crypto.getRandomValues(new Uint8Array(12));return [...a].map(x=>CA[x%32]).join("")}
+let offAsk=false;
+function linkView(){if(link)return `<div class="lktx">verknüpft mit dem Code<br><b class="lkcode">${fmtCode(link)}</b><br>Stand: <span id="lnklbl">${linkLabel()}</span><br><br>Auf dem ${DEVN[OTHER]}: Menü › ${OTHER=="iphone"?"Mehr › ":""}Verknüpfen › diesen Code eingeben.</div>`+
+ `<div class="mi" onclick="linkNow()">jetzt abgleichen</div><div class="mi" onclick="linkOff(this)">trennen</div>`;
+ return `<div class="lktx">Verknüpft Mac und iPhone. Jedes behält seine eigenen Einträge und Routinen – unter <b>Menü › Gerät</b> wechselst du hin und her.</div>`+
+ `<div class="mi" onclick="linkNew()">Code erstellen</div>`+
+ `<div class="lktx" style="padding-top:14px">oder Code vom ${DEVN[OTHER]} eingeben:</div>`+
+ `<div class="addrow lkrow"><input id="lkin" type="text" spellcheck="false" autocapitalize="characters" autocomplete="off" placeholder="XXXX-XXXX-XXXX" enterkeyhint="go"></div><div class="mi" onclick="linkJoin()">verknüpfen</div>`}
+async function linkStart(code){link=code;linkStore(code);setLink("busy");await linkPullOwn();anim=false;render()}
+async function linkNew(){await linkStart(newCode());toast("Code erstellt")}
+async function linkJoin(){const i=document.getElementById("lkin"),c=cleanCode(i&&i.value);if(c.length!=12){toast("Code hat 12 Zeichen");return}if(i)i.blur();
+ toast("verknüpfe …");try{const d=await sbCall("filer_link_get",{p_code:c,p_dev:OTHER});if(!d||!d.found){toast("Code unbekannt – Filer auf dem "+DEVN[OTHER]+" öffnen");return}}catch(_){toast("keine Verbindung");return}
+ await linkStart(c);toast("verknüpft")}
+async function linkNow(){await linkPullOwn();if(linkState!="err")await linkPushOwn();if(dev==OTHER)await refreshOther();anim=false;render();toast(linkState=="err"?"keine Verbindung":"abgeglichen")}
+function linkOff(el){if(!offAsk){offAsk=true;el.textContent=(OWN=="mac"?"nochmal klicken":"nochmal tippen")+" zum Trennen";setTimeout(()=>{offAsk=false;if(el.isConnected)el.textContent="trennen"},3500);return}
+ offAsk=false;toOwn();link=null;linkStore(null);anim=false;render();toast("getrennt – Einträge bleiben erhalten")}
+setInterval(()=>{if(document.hidden)return;if(dev==OTHER)refreshOther();else linkPullOwn()},45000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(dev==OTHER)refreshOther();else linkPullOwn()}});
+setTimeout(()=>{if(link)linkPullOwn()},1500);
+document.addEventListener("keydown",e=>{if(e.target&&e.target.id=="lkin"&&e.key=="Enter"){e.preventDefault();linkJoin()}});
+
 /* ---------- Mitteilungen (Web-Push über Supabase, wie Whoop/Nutrac) ----------
    Nur Einträge und Routinen mit Uhrzeit, die noch nicht erledigt sind.
    Die App schickt die anstehenden Zeiten der nächsten 14 Tage an den Server,
